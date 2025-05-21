@@ -1,103 +1,126 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageSquare, FileText, Send, Trash2 } from "lucide-react";
+import ChatMessage from "@/components/custom/chat-message";
+import PdfViewer from "@/components/custom/pdf-viewer";
+import PdfUpload from "@/components/custom/pdf-upload";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="flex flex-col h-screen w-screen bg-black text-white">
+      <header className="border-b border-zinc-800 p-4">
+        <div className="container flex items-center justify-between">
+          <div
+            className="flex gap-2x`"
           >
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src={"/Leafra.png"}
+              alt="logo"
+              className=""
+              width={50}
+              height={50}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <h1 className="text-xl font-semibold tracking-wide">Leafra.ai</h1>
+          </div>
+          <Button
+            variant="outline"
+            className="rounded-none border-zinc-800 text-zinc-400 bg-black hover:text-white hover:bg-zinc-900"
           >
-            Read our docs
-          </a>
+            <MessageSquare className="h-4 w-4" />
+            New Chat
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </header>
+
+      <div className="flex-1 flex gap-4 p-4 overflow-hidden">
+        <div className="w-full lg:w-1/2 flex flex-col h-full">
+          <Tabs defaultValue="chat" className="flex flex-col h-full">
+            <TabsList className="grid w-full grid-cols-2 rounded-none bg-zinc-900 mb-4">
+              <TabsTrigger
+                value="chat"
+                className="rounded-none data-[state=active]:bg-zinc-800 text-white"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger
+                value="files"
+                className="rounded-none data-[state=active]:bg-zinc-800 text-white"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Files
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent
+              value="chat"
+              className="flex-1 flex flex-col space-y-4 overflow-hidden"
+            >
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                <ChatMessage
+                  role="assistant"
+                  content="Hello! I'm your PDF assistant. Upload a PDF and I'll help you analyze and answer questions about it."
+                />
+                <ChatMessage
+                  role="user"
+                  content="Can you summarize the main points of this research paper?"
+                />
+                <ChatMessage
+                  role="assistant"
+                  content="Based on the uploaded research paper, the main points are:
+
+1. The study examines the impact of artificial intelligence on knowledge work.
+2. Results indicate a 40% increase in productivity when AI tools are properly integrated.
+3. Challenges include training requirements and potential bias in AI-generated content.
+4. The authors recommend a hybrid approach that combines human expertise with AI capabilities."
+                />
+              </div>
+
+              <div className="border-t border-zinc-800 pt-4">
+                <form className="flex items-center gap-2">
+                  <Input
+                    placeholder="Ask a question about your PDF..."
+                    className="rounded-none bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-700"
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    className="rounded-none bg-zinc-800 hover:bg-zinc-700"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="files" className="flex-1 overflow-hidden">
+              <PdfUpload />
+
+              <div className="mt-4 border border-zinc-800 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2 text-zinc-400" />
+                    <span className="text-sm">research-paper.pdf</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-none h-8 w-8 text-zinc-400 hover:text-white"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div className="hidden lg:block w-1/2 border border-zinc-800 bg-zinc-900">
+          <PdfViewer />
+        </div>
+      </div>
+    </main>
   );
 }
