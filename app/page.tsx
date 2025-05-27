@@ -14,9 +14,9 @@ export default function Home() {
   const router = useRouter();
   return (
     <main className="flex flex-col h-screen w-screen bg-black text-white">
-      <header className="border-b border-zinc-800 p-4">
-        <div className="container flex items-center justify-between">
-          <div className="flex gap-4">
+      <header className="border-b border-zinc-800 p-4 ">
+        <div className=" flex items-center justify-between">
+          <div className="flex gap-4 ">
             <Image
               src={"/mainlogo.png"}
               alt="logo"
