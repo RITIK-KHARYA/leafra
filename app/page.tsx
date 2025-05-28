@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, FileText, Send, Trash2 } from "lucide-react";
-import ChatMessage from "@/components/custom/chat-message";
 import PdfViewer from "@/components/custom/pdf-viewer";
 import PdfUpload from "@/components/custom/pdf-upload";
 import Image from "next/image";
