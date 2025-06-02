@@ -7,10 +7,12 @@ export const auth = betterAuth({
     provider: "pg", // or "mysql", "sqlite"
   }),
   baseURL: "http://localhost:3000",
-  // emailAndPassword: {
-  //   enabled: true,
-  //   minPasswordLength: 8,
-  // },
+
+  emailAndPassword: {
+    enabled: true,
+    minPasswordLength: 8,
+  },
+
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -20,9 +22,9 @@ export const auth = betterAuth({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     },
-    discord:{
+    discord: {
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-    }
+    },
   },
 });
