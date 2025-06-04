@@ -6,7 +6,7 @@ export const { signIn, signUp, useSession, getSession, signOut, $Infer } =
   });
 
 export const signInWithGithub = async () => {
-  await signIn.social ({
+  await signIn.social({
     provider: "github",
     callbackURL: "http://localhost:3000/dashboard",
   });
