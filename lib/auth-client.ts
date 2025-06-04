@@ -1,13 +1,12 @@
 import { createAuthClient } from "better-auth/react";
 
-export const { signIn, signUp, useSession, signOut, $Infer } = createAuthClient(
-  {
+export const { signIn, signUp, useSession, getSession, signOut, $Infer } =
+  createAuthClient({
     baseURL: "http://localhost:3000",
-  }
-);
+  });
 
 export const signInWithGithub = async () => {
-  await signIn.social({
+  await signIn.social ({
     provider: "github",
     callbackURL: "http://localhost:3000/dashboard",
   });
