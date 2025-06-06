@@ -20,7 +20,6 @@ export default function PdfUpload() {
       onDrop={(e) => {
         e.preventDefault();
         setIsDragging(false);
-        // Handle file drop logic here
       }}
     >
       <div className="flex flex-col items-center justify-center space-y-4">
