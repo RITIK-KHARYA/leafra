@@ -3,7 +3,7 @@ export default function Home() {
   return (
     <main>
       <div className="text-white">
-        Home
+        landing page
       </div>
     </main>
   )

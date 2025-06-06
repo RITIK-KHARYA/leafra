@@ -102,63 +102,7 @@ const stats = [
   },
 ];
 
-// function AppSidebar() {
-//   return (
-//     <Sidebar className="border-r-0 bg-neutral-700 text-white">
-//       <SidebarHeader className="border-b bg-neutral-900 text-white border-neutral-700">
-//         <SidebarMenu>
-//           <SidebarMenuItem>
-//             <SidebarMenuButton size="lg" asChild>
-//               <a href="/dashboard" className="flex items-center gap-2">
-//                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-//                   <Home className="size-4" />
-//                 </div>
-//                 <div className="flex flex-col gap-0.5 leading-none">
-//                   <span className="font-semibold">Acme Inc</span>
-//                   <span className="text-xs">Dashboard</span>
-//                 </div>
-//               </a>
-//             </SidebarMenuButton>
-//           </SidebarMenuItem>
-//         </SidebarMenu>
-//       </SidebarHeader>
-//       <SidebarContent className="bg-neutral-900 text-white">
-//         {data.navMain.map((section) => (
-//           <SidebarGroup key={section.title}>
-//             <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
-//             <SidebarGroupContent>
-//               <SidebarMenu>
-//                 {section.items.map((item) => (
-//                   <SidebarMenuItem key={item.title}>
-//                     <SidebarMenuButton asChild isActive={item.isActive}>
-//                       <a href={item.url} className="flex items-center gap-2">
-//                         <item.icon className="size-4" />
-//                         <span>{item.title}</span>
-//                       </a>
-//                     </SidebarMenuButton>
-//                   </SidebarMenuItem>
-//                 ))}
-//               </SidebarMenu>
-//             </SidebarGroupContent>
-//           </SidebarGroup>
-//         ))}
-//       </SidebarContent>
-//       <SidebarFooter className="border-t bg-neutral-900 text-white border-neutral-700">
-//         <SidebarMenu>
-//           <SidebarMenuItem>
-//             <SidebarMenuButton asChild>
-//               <a href="/settings" className="flex items-center gap-2">
-//                 <Settings className="size-4" />
-//                 <span>Settings</span>
-//               </a>
-//             </SidebarMenuButton>
-//           </SidebarMenuItem>
-//         </SidebarMenu>
-//       </SidebarFooter>
-//       <SidebarRail />
-//     </Sidebar>
-//   );
-// }
+
 
 export default function DashboardPage() {
   return (
@@ -169,7 +113,6 @@ export default function DashboardPage() {
           <button className="bg-neutral-800 rounded-md p-1">
             <SidebarTrigger aria-label="sidebartrigger"/>
           </button>
-          {/* <Separator orientation="vertical" className="mr-2 h-4" /> */}
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block text-white">
