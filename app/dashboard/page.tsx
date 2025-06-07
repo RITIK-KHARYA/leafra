@@ -51,7 +51,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
-
+import PdfUpload from "@/components/custom/pdf-upload";
 // Navigation data
 const data = {
   navMain: [
@@ -74,7 +74,6 @@ const data = {
   ],
 };
 
-// Dashboard stats data
 const stats = [
   {
     title: "Total Revenue",
@@ -102,17 +101,15 @@ const stats = [
   },
 ];
 
-
-
 export default function DashboardPage() {
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="">
         <header className="flex h-14 shrink-0 items-center gap-2 text-white bg-neutral-900">
-          <button className="bg-neutral-800 rounded-md p-1">
-            <SidebarTrigger aria-label="sidebartrigger"/>
-          </button>
+          <Button className="bg-neutral-800 rounded-md p-1 text-white">
+            <SidebarTrigger aria-label="sidebartrigger" />
+          </Button>
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block text-white">
@@ -211,6 +208,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+          <PdfUpload />
         </div>
       </SidebarInset>
     </SidebarProvider>
