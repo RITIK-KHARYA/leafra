@@ -22,6 +22,22 @@ export const user = pgTable("user", {
     .notNull(),
 });
 
+export const chat = pgTable("chat", {
+  id: text("id").primaryKey(),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  pdfUrl: text("pdf_url").notNull(),
+  pdfName: text("pdf_name").notNull(),
+  pdfSize: integer("pdf_size").notNull(),
+});
+
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
