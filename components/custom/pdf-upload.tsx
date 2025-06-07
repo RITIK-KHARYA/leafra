@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import ExampleUpload from "../example-upload";
 
 export default function PdfUpload() {
   const [isDragging, setIsDragging] = useState(false);
@@ -32,9 +33,7 @@ export default function PdfUpload() {
             Drag and drop or click to browse
           </p>
         </div>
-        <Button className="rounded-none bg-zinc-800 hover:bg-zinc-700">
-          Select PDF
-        </Button>
+        <ExampleUpload />
       </div>
     </div>
   );
