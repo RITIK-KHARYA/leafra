@@ -8,6 +8,13 @@
       "when": 1748445761654,
       "tag": "20250528152241_handy_the_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1749310246763,
+      "tag": "0001_motionless_raider",
+      "breakpoints": true
     }
   ]
 }

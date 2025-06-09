@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, FileText, Send, Trash2 } from "lucide-react";
-import ChatMessage from "@/components/custom/chat-message";
+import ChatMessage from "@/components/event/chat-message";
 import PdfViewer from "@/components/custom/pdf-viewer";
 import PdfUpload from "@/components/custom/pdf-upload";
 import Image from "next/image";
+import { newChat } from "@/app/actions/newchat";
 export default function ChatPage() {
   return (
     <main className="flex flex-col h-screen bg-black text-white">
@@ -22,6 +23,7 @@ export default function ChatPage() {
             <h1 className="text-xl font-normal tracking-wider">Leafra</h1>
           </div>
           <Button
+            onClick={() => newChat}
             variant="outline"
             className="rounded-none border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900"
           >
