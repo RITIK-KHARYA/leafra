@@ -18,8 +18,9 @@ export async function newChat() {
     });
 
     return {
-      data: newChat,
+      data: newChat[0],
       success: "New chat created",
+      status: 200,
     };
   } catch (error) {
     console.log(error);

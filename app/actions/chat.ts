@@ -15,18 +15,26 @@ export async function getChats(userId: string) {
   const findchat = await db.query.chat.findFirst({
     where: eq(chat.userId, userId),
   });
-
-  if (!findchat) {
-    console.log("No chats found");
+  try {
+    if (!findchat || findchat === null || findchat === undefined) {
+      console.log("No chats found");
+      return {
+        data: null,
+        error: "No chats found",
+        status: 404,
+      };
+    }
+    return {
+      data: findchat[0],
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    console.log(error);
     return {
       data: null,
-      error: "No chats found",
-      status: 404,
+      error: "Failed to get chats",
+      status: 500,
     };
   }
-  return {
-    data: findchat,
-    error: null,
-    status: 200,
-  };
 }

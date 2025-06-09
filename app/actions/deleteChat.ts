@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 export async function deleteChat(chatId: string) {
   const existingChat = await db.delete(chat).where(eq(chat.id, chatId));
-  if (!existingChat) {
+  if (!existingChat || existingChat.length === 0 || chatId === "") {
     return {
       data: null,
       error: "Chat not found",
@@ -18,5 +18,4 @@ export async function deleteChat(chatId: string) {
     error: null,
     status: 200,
   };
-  //probably here we should we only return the status not the data
 }

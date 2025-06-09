@@ -33,9 +33,9 @@ export const chat = pgTable("chat", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  pdfUrl: text("pdf_url").notNull(),
-  pdfName: text("pdf_name").notNull(),
-  pdfSize: integer("pdf_size").notNull(),
+  pdfUrl: text("pdf_url"),
+  pdfName: text("pdf_name"),
+  pdfSize: integer("pdf_size"),
 });
 
 export const session = pgTable("session", {
