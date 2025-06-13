@@ -30,7 +30,7 @@ export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
 
   return (
-    <Card className="max-w-lg rounded-md rounded-t-none bg-neutral-300">
+    <Card className="max-w-lg rounded-md rounded-t-none bg-neutral-900">
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
         <CardDescription className="text-xs md:text-sm">
@@ -111,7 +111,7 @@ export default function SignIn() {
 
           <div
             className={cn(
-              "w-full gap-2 flex items-center",
+              "w-full gap-2 mt-3 flex items-center",
               "justify-between grid grid-cols-3"
             )}
           >
@@ -144,7 +144,7 @@ export default function SignIn() {
                   d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                 ></path>
               </svg>
-               Google
+              Google
             </Button>
             <Button
               variant="outline"

@@ -54,10 +54,7 @@ export default function Hero() {
           <Thumbnail />
         </div>
       </div>
-      <footer className="relative bg-gradient-to-r from-[#385D69] via-[#244F5B] to-black w-full flex justify-center items-center">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-        <Footer />
-      </footer>
+   
     </div>
   );
 }
