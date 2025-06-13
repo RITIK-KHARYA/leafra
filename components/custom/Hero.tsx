@@ -3,13 +3,14 @@ import { TextGenerateEffect } from "../ui/text-generate-effect";
 import { AnimatedGradientText } from "../magicui/animated-gradient-text";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import Thumbnail from "./thumbail";
+import Footer from "./footer";
 export default function Hero() {
   const animmateword = "Leafra";
   const text = "Welcome to ";
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      <div className="w-full h-[75%]">
+      <div className="w-full h-[75%] flex flex-col ">
         <Image
           src={"/heromain.png"}
           alt="hero"
@@ -49,7 +50,14 @@ export default function Hero() {
         <h3 className="text-neutral-300 text-xl z-10 absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex font-extralight">
           RAG system for the pdf reading
         </h3>
+        <div className="absolute top-[50%] right-0 left-1/2 -translate-x-1/2  z-10 flex items-center justify-center">
+          <Thumbnail />
+        </div>
       </div>
+      <footer className="relative bg-gradient-to-r from-[#385D69] via-[#244F5B] to-black w-full flex justify-center items-center">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <Footer />
+      </footer>
     </div>
   );
 }
