@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import PdfUpload from "@/components/custom/pdf-upload";
+import NewchatBtn from "@/components/custom/newChatbtn";
 // Navigation data
 const data = {
   navMain: [
@@ -106,28 +107,25 @@ export default function DashboardPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="">
-        <header className="flex h-14 shrink-0 items-center gap-2 text-white bg-neutral-900">
-          <Button className="bg-neutral-800 rounded-md p-1 text-white">
-            <SidebarTrigger aria-label="sidebartrigger" />
-          </Button>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block text-white">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Overview</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="size-4" />
+        <header className="flex h-14 shrink-0 items-center justify-between gap-2 text-white bg-neutral-900">
+          <div className="inline-flex items-center gap-2">
+            <Button className="bg-neutral-800 rounded-md p-1 text-white hover:bg-neutral-800">
+              <SidebarTrigger aria-label="sidebartrigger" />
             </Button>
-            <Button variant="ghost" size="icon">
-              <Calendar className="size-4" />
-            </Button>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block text-white">
+                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Overview</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          <div className="flex items-center gap-2 mr-4 ">
+            <NewchatBtn />
           </div>
         </header>
         <div className="flex flex-col gap-4 p-4 bg-neutral-950 rounded-xl">
