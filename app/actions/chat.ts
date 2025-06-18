@@ -1,3 +1,5 @@
+"use server";
+
 import { chat } from "../db/schema";
 import * as schema from "../db/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -25,7 +27,7 @@ export async function getChats(userId: string) {
       };
     }
     return {
-      data: findchat[0],
+      data: findchat,
       error: null,
       status: 200,
     };

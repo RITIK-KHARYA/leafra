@@ -4,6 +4,8 @@ import { db } from "@/lib";
 import { getSession } from "@/lib/auth-client";
 import { chat } from "../db/schema";
 
+// adding form data here
+
 export async function newChat() {
   const user = await getSession();
   if (!user) throw new Error("Unauthorized");
@@ -11,6 +13,7 @@ export async function newChat() {
   try {
     const newChat = await db.insert(chat).values({
       id: crypto.randomUUID(),
+      title: "New Chat",
       userId: user.data.user.id,
       pdfUrl: "",
       pdfName: "",

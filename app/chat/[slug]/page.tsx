@@ -23,7 +23,7 @@ export default function ChatPage() {
             <h1 className="text-xl font-normal tracking-wider">Leafra</h1>
           </div>
           <Button
-            onClick={() => newChat}
+            // onClick={() => }
             variant="outline"
             className="rounded-none border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900"
           >

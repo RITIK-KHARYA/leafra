@@ -1,18 +1,5 @@
 "use client";
-import {
-  BarChart3,
-  Bell,
-  Calendar,
-  CreditCard,
-  FileText,
-  Home,
-  LayoutDashboard,
-  Search,
-  Settings,
-  ShoppingCart,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { BarChart3, FileText, LayoutDashboard } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -34,14 +21,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInput,
   SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
@@ -53,65 +32,46 @@ import {
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import PdfUpload from "@/components/custom/pdf-upload";
 import NewchatBtn from "@/components/custom/newChatbtn";
-// Navigation data
-const data = {
-  navMain: [
-    {
-      title: "Overview",
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-          icon: LayoutDashboard,
-          isActive: true,
-        },
-        {
-          title: "Analytics",
-          url: "/analytics",
-          icon: BarChart3,
-        },
-      ],
-    },
-  ],
-};
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { getChats } from "../actions/chat";
+import { getSession, useSession } from "@/lib/auth-client";
+import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "$45,231.89",
-    change: "+20.1% from last month",
-    icon: CreditCard,
-  },
-  {
-    title: "Active Users",
-    value: "2,350",
-    change: "+180.1% from last month",
-    icon: Users,
-  },
-  {
-    title: "Sales",
-    value: "12,234",
-    change: "+19% from last month",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Orders",
-    value: "573",
-    change: "+201 since last hour",
-    icon: FileText,
-  },
-];
+interface ChatProps {
+  id: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  pdfUrl: string;
+  pdfName: string;
+  pdfSize: number;
+}
 
 export default function DashboardPage() {
+  const user = useSession();
+  const { data, isLoading, error, isError } = useQuery({
+    queryKey: ["chats"],
+    queryFn: async () => {
+      const res = await getChats(user.data.user.id);
+      console.log(res, "nigga");
+      setChats(res.data);
+      return res;
+    },
+  });
+
+  const [chat, setChats] = useState([]);
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="">
         <header className="flex h-14 shrink-0 items-center justify-between gap-2 text-white bg-neutral-900">
           <div className="inline-flex items-center gap-2">
-            <Button className="bg-neutral-800 rounded-md p-1 text-white hover:bg-neutral-800">
+            <div className="bg-neutral-800 rounded-md p-1 text-white hover:bg-neutral-800">
               <SidebarTrigger aria-label="sidebartrigger" />
-            </Button>
+            </div>
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block text-white">
@@ -130,20 +90,33 @@ export default function DashboardPage() {
         </header>
         <div className="flex flex-col gap-4 p-4 bg-neutral-950 rounded-xl">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.change}</p>
-                </CardContent>
-              </Card>
-            ))}
+            {data ? (
+              data.data?.map((stat) => (
+                <Link href={`/dashboard/chat/${stat.id}`}>
+                  <Card key={stat.title}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        {stat.title}
+                      </CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{stat.title}</div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
+            ) : (
+              <div className="flex flex-row items-center justify-around gap-x-2">
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+              </div>
+            )}{" "}
+            {isLoading && <div>Loading...</div>}
+            {error && <div>no chats found</div>}
+            {!data && !isLoading && !error && <div>no chats found</div>}
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
