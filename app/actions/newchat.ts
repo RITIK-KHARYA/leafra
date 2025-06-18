@@ -3,10 +3,10 @@
 import { db } from "@/lib";
 import { getSession } from "@/lib/auth-client";
 import { chat } from "../db/schema";
+import { z } from "zod";
+import { newchatschema } from "../types/newchatschema";
 
-// adding form data here
-
-export async function newChat() {
+export async function newChat(formschema: z.infer<typeof newchatschema>) {
   const user = await getSession();
   if (!user) throw new Error("Unauthorized");
 

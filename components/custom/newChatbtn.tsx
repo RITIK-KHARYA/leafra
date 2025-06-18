@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Form,
+} from "@/components/ui/form";
 import { MessageCircle, Plus, Settings } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { newchatschema } from "@/app/types/newchatschema";
+import { newChat } from "@/app/actions/newchat";
 
 const priorityEmojis = [
   { emoji: "🔥", label: "High Priority", value: "high" },
@@ -40,242 +54,150 @@ const workSections = [
 ];
 
 export function Newchatform() {
-  const [formData, setFormData] = useState({
-    chatName: "",
-    description: "",
-    priority: "",
-    workSection: "",
+  const form = useForm<z.infer<typeof newchatschema>>({
+    resolver: zodResolver(newchatschema),
+    defaultValues: {
+      chatName: "",
+      description: "",
+      priority: "",
+      workSection: "",
+    },
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        chatName: "",
-        description: "",
-        priority: "",
-        workSection: "",
-      });
-    }, 3000);
-  };
-
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-2">
-        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
-          <CardContent className="pt-4 pb-4">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto">
-                <MessageCircle className="w-8 h-8 text-emerald-400" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-white">
-                  Chat Created Successfully!
-                </h3>
-                <p className="text-zinc-400 text-sm">
-                  Your new chat workspace is ready to use
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  function onSubmit(data: z.infer<typeof newchatschema>) {
+    try {
+      console.log(data);
+    } catch (error) {}
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="bg-black flex items-center justify-center p-2">
       <Card className="w-full max-w-lg bg-zinc-900 border-zinc-800 shadow-2xl">
-        <CardHeader className="pb-6"></CardHeader>
-        <CardContent className="space-y-8">
-          {/* Image Area */}
-          <div className="flex justify-center">
-            <div className="relative group">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-zinc-700 overflow-hidden shadow-lg hover:shadow-purple-500/10 transition-all duration-300 hover:scale-105">
-                <Image
-                  src={"/placeholder.svg?height=96&width=96"}
-                  width={96}
-                  height={96}
-                  alt="Chat avatar"
-                />
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full border-2 border-zinc-900 flex items-center justify-center">
-                <MessageCircle className="w-4 h-4 text-white" />
-              </div>
-              {/* Fancy glow effect */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            </div>
-          </div>
+        <CardHeader className=""></CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="chatName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chat Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter chat name..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <Label
-                  htmlFor="chatName"
-                  className="text-zinc-300 text-sm font-medium"
-                >
-                  Chat Name
-                </Label>
-                <Input
-                  id="chatName"
-                  name="chatName"
-                  type="text"
-                  placeholder="Enter chat name..."
-                  value={formData.chatName}
-                  onChange={handleChange}
-                  required
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600 h-11"
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chat Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={3}
+                        placeholder="Describe the purpose of this chat..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="space-y-3">
-                <Label
-                  htmlFor="description"
-                  className="text-zinc-300 text-sm font-medium"
-                >
-                  Chat Description
-                </Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="Describe the purpose of this chat..."
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={3}
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-zinc-600 resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Details Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-zinc-300">
-                <Settings className="w-4 h-4" />
-                <h3 className="text-sm font-medium">Details</h3>
-              </div>
-
-              <div className="space-y-4 pl-6 border-l border-zinc-800">
-                {/* Priority Selection */}
-                <div className="space-y-3">
-                  <Label className="text-zinc-300 text-sm font-medium">
-                    Priority Level
-                  </Label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {priorityEmojis.map((item) => (
-                      <button
-                        key={item.value}
-                        type="button"
-                        onClick={() =>
-                          handleSelectChange("priority", item.value)
-                        }
-                        className={`
-                          relative p-3 rounded-lg border transition-all duration-200 hover:scale-105
-                          ${
-                            formData.priority === item.value
-                              ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20"
-                              : "border-zinc-700 bg-zinc-800 hover:border-zinc-600"
-                          }
-                        `}
-                        title={item.label}
-                      >
-                        <span className="text-xl">{item.emoji}</span>
-                        {formData.priority === item.value && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  {formData.priority && (
-                    <p className="text-xs text-zinc-400 mt-1">
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority Level</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-5 gap-2">
+                        {priorityEmojis.map((item) => (
+                          <button
+                            key={item.value}
+                            type="button"
+                            onClick={() => field.onChange(item.value)}
+                            className={`relative p-3 rounded-lg border transition-all duration-200 hover:scale-105 ${
+                              field.value === item.value
+                                ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20"
+                                : "border-zinc-700 bg-zinc-800 hover:border-zinc-600"
+                            }`}
+                          >
+                            <span className="text-xl">{item.emoji}</span>
+                            {field.value === item.value && (
+                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
                       Selected:{" "}
-                      {
-                        priorityEmojis.find(
-                          (p) => p.value === formData.priority
-                        )?.label
-                      }
-                    </p>
-                  )}
-                </div>
+                      {priorityEmojis.find((p) => p.value === field.value)
+                        ?.label || "None"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                {/* Work Section */}
-                <div className="space-y-3">
-                  <Label className="text-zinc-300 text-sm font-medium">
-                    Work Section
-                  </Label>
-                  <Select
-                    onValueChange={(value) =>
-                      handleSelectChange("workSection", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600 focus:ring-zinc-600 h-11">
-                      <SelectValue placeholder="Select your work section..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-800 border-zinc-700">
-                      {workSections.map((section) => (
-                        <SelectItem
-                          key={section}
-                          value={section.toLowerCase()}
-                          className="text-white hover:bg-zinc-700 focus:bg-zinc-700"
-                        >
-                          {section}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
+              <FormField
+                control={form.control}
+                name="workSection"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Work Section</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your work section..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {workSections.map((section) => (
+                            <SelectItem
+                              key={section}
+                              value={section.toLowerCase()}
+                            >
+                              {section}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button
-              type="submit"
-              className="w-full h-12 bg-white text-black hover:bg-zinc-200 font-medium transition-colors text-sm"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                  Creating Chat...
-                </div>
-              ) : (
-                "Create Chat Workspace"
-              )}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                className="w-full h-12 bg-white text-black hover:bg-zinc-200 font-medium transition-colors text-sm"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    Creating Chat...
+                  </div>
+                ) : (
+                  "Create Chat Workspace"
+                )}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
   );
 }
+
 import {
   Sheet,
   SheetContent,
@@ -284,7 +206,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-export default function NewchatBtn() {
+export default function NewChatBtn() {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -299,7 +221,7 @@ export default function NewchatBtn() {
         <SheetHeader>
           <SheetTitle>Create New Chat</SheetTitle>
         </SheetHeader>
-        <SheetDescription className="overflow-y-auto">
+        <SheetDescription className="overflow-y-auto p-2">
           <Newchatform />
         </SheetDescription>
       </SheetContent>
