@@ -6,7 +6,6 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 
-
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -26,12 +25,14 @@ export const user = pgTable("user", {
 export const chat = pgTable("chat", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
+  description: text("description"),
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
+  priority: text("priority").notNull(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),

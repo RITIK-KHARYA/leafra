@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -27,8 +34,10 @@ import {
 import { MessageCircle, Plus, Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { newchatschema } from "@/app/types/newchatschema";
 import { newChat } from "@/app/actions/newchat";
+import { getSession, useSession } from "@/lib/auth-client";
 
 const priorityEmojis = [
   { emoji: "🔥", label: "High Priority", value: "high" },
@@ -54,6 +63,7 @@ const workSections = [
 ];
 
 export function Newchatform() {
+  const user = useSession();
   const form = useForm<z.infer<typeof newchatschema>>({
     resolver: zodResolver(newchatschema),
     defaultValues: {
@@ -61,12 +71,23 @@ export function Newchatform() {
       description: "",
       priority: "",
       workSection: "",
+      userid: user?.data?.user,
     },
   });
-  function onSubmit(data: z.infer<typeof newchatschema>) {
+
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  async function onSubmit(data: z.infer<typeof newchatschema>) {
     try {
+      setLoading(true);
+      await newChat(data);
       console.log(data);
-    } catch (error) {}
+      setLoading(false);
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -198,14 +219,6 @@ export function Newchatform() {
   );
 }
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 export default function NewChatBtn() {
   return (
     <Sheet>
@@ -221,7 +234,7 @@ export default function NewChatBtn() {
         <SheetHeader>
           <SheetTitle>Create New Chat</SheetTitle>
         </SheetHeader>
-        <SheetDescription className="overflow-y-auto p-2">
+        <SheetDescription className="overflow-y-auto p-2" asChild>
           <Newchatform />
         </SheetDescription>
       </SheetContent>

@@ -7,14 +7,16 @@ import { z } from "zod";
 import { newchatschema } from "../types/newchatschema";
 
 export async function newChat(formschema: z.infer<typeof newchatschema>) {
-  const user = await getSession();
-  if (!user) throw new Error("Unauthorized");
+  // const user = await getSession();
+  // if (!user) return { error: "Not logged in", status: 401 };
 
   try {
     const newChat = await db.insert(chat).values({
       id: crypto.randomUUID(),
-      title: "New Chat",
-      userId: user.data.user.id,
+      title: formschema.chatName,
+      description: formschema.description,
+      priority: formschema.priority,
+      userId: formschema.userid?.id,
       pdfUrl: "",
       pdfName: "",
       pdfSize: 0,
