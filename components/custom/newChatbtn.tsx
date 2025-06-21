@@ -85,7 +85,6 @@ export function Newchatform() {
       await queryClient.invalidateQueries({
         queryKey: ["chats"],
       });
-      console.log(data);
       setLoading(false);
     } catch (error) {
       console.log(error);

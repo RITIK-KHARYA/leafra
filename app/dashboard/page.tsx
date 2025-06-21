@@ -48,7 +48,6 @@ export default function DashboardPage() {
     queryKey: ["chats"],
     queryFn: async () => {
       const res = await getChats();
-      console.log(res, "nigga");
       return res.data;
     },
   });
@@ -87,6 +86,10 @@ export default function DashboardPage() {
                 <Skeleton className="w-full h-full" />
                 <Skeleton className="w-full h-full" />
               </div>
+            ) : error ? (
+              <div className="text-red-500">
+                Error loading chats: {error.message}
+              </div>
             ) : (
               data?.map((stat, index) => (
                 <Chatcard
@@ -101,8 +104,6 @@ export default function DashboardPage() {
                 />
               ))
             )}
-            {isLoading && <div>Loading...</div>}
-            {error && <div>error</div>}
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
@@ -153,7 +154,7 @@ export default function DashboardPage() {
                       <div className="ml-4 space-y-1">
                         <p className="text-sm font-medium leading-none">
                           {sale.name}
-                          </p>
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           {sale.email}
                         </p>
