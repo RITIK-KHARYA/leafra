@@ -24,12 +24,16 @@ export const user = pgTable("user", {
 
 export const chat = pgTable("chat", {
   id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   updatedAt: timestamp("updated_at")
+  
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
+  value: text("value").notNull(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),

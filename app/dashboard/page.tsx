@@ -1,20 +1,5 @@
 "use client";
-import {
-  BarChart3,
-  Bell,
-  Calendar,
-  CreditCard,
-  FileText,
-  Home,
-  LayoutDashboard,
-  Search,
-  Settings,
-  ShoppingCart,
-  Users,
-  Wallet,
-} from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
+import { BarChart3, FileText, LayoutDashboard } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -31,121 +15,95 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInput,
   SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
-  SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import PdfUpload from "@/components/custom/pdf-upload";
-// Navigation data
-const data = {
-  navMain: [
-    {
-      title: "Overview",
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-          icon: LayoutDashboard,
-          isActive: true,
-        },
-        {
-          title: "Analytics",
-          url: "/analytics",
-          icon: BarChart3,
-        },
-      ],
-    },
-  ],
-};
+import NewchatBtn from "@/components/custom/newChatbtn";
+import { useQuery } from "@tanstack/react-query";
+import { getChats } from "../actions/chat";
+import { useSession } from "@/lib/auth-client";
+import { Skeleton } from "@/components/ui/skeleton";
+import Chatcard from "@/components/chats";
 
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "$45,231.89",
-    change: "+20.1% from last month",
-    icon: CreditCard,
-  },
-  {
-    title: "Active Users",
-    value: "2,350",
-    change: "+180.1% from last month",
-    icon: Users,
-  },
-  {
-    title: "Sales",
-    value: "12,234",
-    change: "+19% from last month",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Orders",
-    value: "573",
-    change: "+201 since last hour",
-    icon: FileText,
-  },
-];
+interface ChatProps {
+  id: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  value: string;
+  pdfUrl: string;
+  description: string;
+  pdfName: string;
+  pdfSize: number;
+}
 
 export default function DashboardPage() {
+  const user = useSession();
+  const { data, isLoading, error } = useQuery<ChatProps[]>({
+    queryKey: ["chats"],
+    queryFn: async () => {
+      const res = await getChats();
+      return res.data;
+    },
+  });
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="">
-        <header className="flex h-14 shrink-0 items-center gap-2 text-white bg-neutral-900">
-          <Button className="bg-neutral-800 rounded-md p-1 text-white">
-            <SidebarTrigger aria-label="sidebartrigger" />
-          </Button>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block text-white">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Overview</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="size-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Calendar className="size-4" />
-            </Button>
+        <header className="flex h-14 shrink-0 items-center justify-between gap-2 text-white bg-neutral-900">
+          <div className="inline-flex items-center gap-2">
+            <div className="bg-neutral-800 rounded-md p-1 text-white hover:bg-neutral-800">
+              <SidebarTrigger aria-label="sidebartrigger" />
+            </div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block text-white">
+                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Overview</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          <div className="flex items-center gap-2 mr-4 ">
+            <NewchatBtn />
           </div>
         </header>
         <div className="flex flex-col gap-4 p-4 bg-neutral-950 rounded-xl">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.change}</p>
-                </CardContent>
-              </Card>
-            ))}
+            {isLoading ? (
+              <div className="flex flex-row items-center justify-around gap-x-2">
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+              </div>
+            ) : error ? (
+              <div className="text-red-500">
+                Error loading chats: {error.message}
+              </div>
+            ) : (
+              data?.map((stat, index) => (
+                <Chatcard
+                  key={stat.id}
+                  value={stat.value}
+                  href={stat.id}
+                  title={stat.title}
+                  description={stat.description}
+                  imageSrc={stat.pdfUrl}
+                  imageAlt={stat.pdfName}
+                  onClick={() => console.log("clicked")}
+                />
+              ))
+            )}
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
