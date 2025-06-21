@@ -1,7 +1,5 @@
 "use client";
 import { BarChart3, FileText, LayoutDashboard } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,25 +15,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
-  SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import PdfUpload from "@/components/custom/pdf-upload";
 import NewchatBtn from "@/components/custom/newChatbtn";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getChats } from "../actions/chat";
-import {  useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { Skeleton } from "@/components/ui/skeleton";
+import Chatcard from "@/components/chats";
 
 interface ChatProps {
   id: string;
@@ -44,7 +35,9 @@ interface ChatProps {
   createdAt: Date;
   updatedAt: Date;
   userId: string;
+  value: string;
   pdfUrl: string;
+  description: string;
   pdfName: string;
   pdfSize: number;
 }
@@ -59,7 +52,6 @@ export default function DashboardPage() {
       return res.data;
     },
   });
-
 
   return (
     <SidebarProvider>
@@ -87,7 +79,6 @@ export default function DashboardPage() {
           </div>
         </header>
         <div className="flex flex-col gap-4 p-4 bg-neutral-950 rounded-xl">
-  
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {isLoading ? (
               <div className="flex flex-row items-center justify-around gap-x-2">
@@ -98,19 +89,16 @@ export default function DashboardPage() {
               </div>
             ) : (
               data?.map((stat, index) => (
-                <Link href={`/dashboard/chat/${stat.id}`} key={stat.id}>
-                  <Card key={stat.title}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        {stat.title}
-                      </CardTitle>
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{stat.title}</div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <Chatcard
+                  key={stat.id}
+                  value={stat.value}
+                  href={stat.id}
+                  title={stat.title}
+                  description={stat.description}
+                  imageSrc={stat.pdfUrl}
+                  imageAlt={stat.pdfName}
+                  onClick={() => console.log("clicked")}
+                />
               ))
             )}
             {isLoading && <div>Loading...</div>}
@@ -165,7 +153,7 @@ export default function DashboardPage() {
                       <div className="ml-4 space-y-1">
                         <p className="text-sm font-medium leading-none">
                           {sale.name}
-                        </p>
+                          </p>
                         <p className="text-sm text-muted-foreground">
                           {sale.email}
                         </p>

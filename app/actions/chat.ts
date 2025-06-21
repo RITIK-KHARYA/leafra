@@ -4,17 +4,13 @@ import { chat } from "../db/schema";
 import * as schema from "../db/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-
 import { eq } from "drizzle-orm";
-
 import { cookies, headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { cache } from "react";
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
-
 const db = drizzle(pool, { schema });
 
 export const getSession = cache(async () => {
@@ -41,7 +37,9 @@ export async function getChats() {
       orderBy: chat.createdAt,
       columns: {
         id: true,
+        description: true,
         title: true,
+        value: true,
         createdAt: true,
         updatedAt: true,
         userId: true,

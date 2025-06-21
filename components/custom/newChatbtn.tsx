@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
@@ -38,8 +37,9 @@ import { useRouter } from "next/navigation";
 import { newchatschema } from "@/app/types/newchatschema";
 import { newChat } from "@/app/actions/newchat";
 import { getSession, useSession } from "@/lib/auth-client";
+import { useQueryClient } from "@tanstack/react-query";
 
-const priorityEmojis = [
+export const priorityEmojis = [
   { emoji: "🔥", label: "High Priority", value: "high" },
   { emoji: "⚡", label: "Medium Priority", value: "medium" },
   { emoji: "🌱", label: "Low Priority", value: "low" },
@@ -77,14 +77,16 @@ export function Newchatform() {
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  const queryClient = useQueryClient();
   async function onSubmit(data: z.infer<typeof newchatschema>) {
     try {
       setLoading(true);
       await newChat(data);
+      await queryClient.invalidateQueries({
+        queryKey: ["chats"],
+      });
       console.log(data);
       setLoading(false);
-      router.refresh();
     } catch (error) {
       console.log(error);
     }

@@ -30,9 +30,10 @@ export const chat = pgTable("chat", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   updatedAt: timestamp("updated_at")
+  
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
-  priority: text("priority").notNull(),
+  value: text("value").notNull(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
