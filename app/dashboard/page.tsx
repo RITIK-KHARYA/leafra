@@ -35,8 +35,7 @@ import NewchatBtn from "@/components/custom/newChatbtn";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getChats } from "../actions/chat";
-import { getSession, useSession } from "@/lib/auth-client";
-import { useState } from "react";
+import {  useSession } from "@/lib/auth-client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ChatProps {
@@ -52,17 +51,16 @@ interface ChatProps {
 
 export default function DashboardPage() {
   const user = useSession();
-  const { data, isLoading, error, isError } = useQuery({
+  const { data, isLoading, error } = useQuery<ChatProps[]>({
     queryKey: ["chats"],
     queryFn: async () => {
-      const res = await getChats(user.data.user.id);
+      const res = await getChats();
       console.log(res, "nigga");
-      setChats(res.data);
-      return res;
+      return res.data;
     },
   });
 
-  const [chat, setChats] = useState([]);
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -89,10 +87,18 @@ export default function DashboardPage() {
           </div>
         </header>
         <div className="flex flex-col gap-4 p-4 bg-neutral-950 rounded-xl">
+  
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {data ? (
-              data.data?.map((stat) => (
-                <Link href={`/dashboard/chat/${stat.id}`}>
+            {isLoading ? (
+              <div className="flex flex-row items-center justify-around gap-x-2">
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+                <Skeleton className="w-full h-full" />
+              </div>
+            ) : (
+              data?.map((stat, index) => (
+                <Link href={`/dashboard/chat/${stat.id}`} key={stat.id}>
                   <Card key={stat.title}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">
@@ -106,17 +112,9 @@ export default function DashboardPage() {
                   </Card>
                 </Link>
               ))
-            ) : (
-              <div className="flex flex-row items-center justify-around gap-x-2">
-                <Skeleton className="w-full h-full" />
-                <Skeleton className="w-full h-full" />
-                <Skeleton className="w-full h-full" />
-                <Skeleton className="w-full h-full" />
-              </div>
-            )}{" "}
+            )}
             {isLoading && <div>Loading...</div>}
-            {error && <div>no chats found</div>}
-            {!data && !isLoading && !error && <div>no chats found</div>}
+            {error && <div>error</div>}
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">

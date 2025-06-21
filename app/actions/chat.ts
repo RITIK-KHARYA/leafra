@@ -7,21 +7,53 @@ import { Pool } from "pg";
 
 import { eq } from "drizzle-orm";
 
+import { cookies, headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { cache } from "react";
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
 const db = drizzle(pool, { schema });
 
-export async function getChats(userId: string) {
-  const findchat = await db.query.chat.findFirst({
-    where: eq(chat.userId, userId),
+export const getSession = cache(async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
+
+  return session;
+});
+
+export async function getChats() {
+  const user = await getSession();
+  if (!user) {
+    return {
+      data: [],
+      error: "No user found",
+      status: 404,
+    };
+  }
+  console.log(user);
   try {
+    const findchat = await db.query.chat.findMany({
+      where: eq(chat.userId, user.user?.id),
+      orderBy: chat.createdAt,
+      columns: {
+        id: true,
+        title: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        pdfUrl: true,
+        pdfName: true,
+        pdfSize: true,
+      },
+    });
     if (!findchat || findchat === null || findchat === undefined) {
       console.log("No chats found");
       return {
-        data: null,
+        data: [],
         error: "No chats found",
         status: 404,
       };
@@ -34,7 +66,7 @@ export async function getChats(userId: string) {
   } catch (error) {
     console.log(error);
     return {
-      data: null,
+      data: [],
       error: "Failed to get chats",
       status: 500,
     };
