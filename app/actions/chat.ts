@@ -30,7 +30,7 @@ export async function getChats() {
       status: 404,
     };
   }
-  console.log(user);
+  console.log("i am him",user);
   try {
     const findchat = await db.query.chat.findMany({
       where: eq(chat.userId, user.user?.id),

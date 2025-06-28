@@ -12,10 +12,9 @@ export const auth = betterAuth({
     schema: {
       user: user,
       session: session,
-      verification: verification, 
+      verification: verification,
       account: account,
     },
-
   }),
   baseURL: "http://localhost:3000",
 
@@ -36,6 +35,12 @@ export const auth = betterAuth({
     discord: {
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+    },
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, 
     },
   },
 });

@@ -1,5 +1,4 @@
 "use client";
-import { BarChart3, FileText, LayoutDashboard } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -93,7 +92,7 @@ export default function DashboardPage() {
             ) : (
               data?.map((stat, index) => (
                 <Chatcard
-                  key={stat.id}
+                  key={index}
                   value={stat.value}
                   href={stat.id}
                   title={stat.title}
@@ -105,68 +104,6 @@ export default function DashboardPage() {
               ))
             )}
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <div className="h-[200px] flex items-center justify-center bg-muted/50 rounded-lg">
-                  <BarChart3 className="h-8 w-8 text-muted-foreground" />
-                  <span className="ml-2 text-muted-foreground">
-                    Chart placeholder
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Recent Sales</CardTitle>
-                <CardDescription>
-                  You made 265 sales this month.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-8">
-                  {[
-                    {
-                      name: "Olivia Martin",
-                      email: "olivia.martin@email.com",
-                      amount: "+$1,999.00",
-                    },
-                    {
-                      name: "Jackson Lee",
-                      email: "jackson.lee@email.com",
-                      amount: "+$39.00",
-                    },
-                    {
-                      name: "Isabella Nguyen",
-                      email: "isabella.nguyen@email.com",
-                      amount: "+$299.00",
-                    },
-                    {
-                      name: "William Kim",
-                      email: "will@email.com",
-                      amount: "+$99.00",
-                    },
-                  ].map((sale, index) => (
-                    <div key={index} className="flex items-center">
-                      <div className="ml-4 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {sale.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {sale.email}
-                        </p>
-                      </div>
-                      <div className="ml-auto font-medium">{sale.amount}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <PdfUpload />
         </div>
       </SidebarInset>
     </SidebarProvider>

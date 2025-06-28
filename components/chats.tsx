@@ -33,7 +33,7 @@ export default function Chatcard({
         className="bg-neutral-900 border-neutral-600 max-w-sm w-full cursor-pointer transition-all duration-300 ease-in-out flex flex-col h-52 group hover:bg-neutral-750 hover:border-neutral-500 hover:shadow-xl hover:shadow-neutral-900/30 hover:-translate-y-1"
         onClick={onClick}
       >
-        <Link href={`/dashboard/chat/${href}`}>
+        <Link href={`/chat/${href}`}>
           <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="flex-1 pr-4">
               <h2 className="text-neutral-200 text-base font-semibold group-hover:text-white transition-colors duration-300">

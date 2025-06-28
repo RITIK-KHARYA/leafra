@@ -1,57 +1,43 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
+import { Queue } from "bullmq";
 
 const f = createUploadthing();
 
-const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
+const auth = (req: Request) => ({ id: "fakeId" });
+const queue = new Queue("upload-pdf", {
+  connection: {
+    url: "rediss://default:AdFBAAIjcDEwMmJjZmU3NDliNGE0Yjk1ODRlMDNhN2I4YTA4MzBkY3AxMA@enough-crayfish-53569.upstash.io:6379",
+  },
+});
 
-// FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique routeSlug
   pdfUploader: f({
     pdf: {
       maxFileSize: "8MB",
       maxFileCount: 1,
     },
   })
-    //   imageUploader: f({
-    //     image: {
-    //       /**
-    //        * For full list of options and defaults, see the File Route API reference
-    //        * @see https://docs.uploadthing.com/file-routes#route-config
-    //        */
-    //       maxFileSize: "8MB",
-    //       maxFileCount: 1,
-    //     },
-    //   })
-
-    // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {
-      // This code runs on your server before upload
       const user = await auth(req);
-
-      // If you throw, the user will not be able to upload
       if (!user) throw new UploadThingError("Unauthorized");
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: user.id };
     })
     .onUploadError(async ({ error, fileKey }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      console.log("file", fileKey);    
+      console.log("file", fileKey);
       console.log("Upload error for userId:", error);
-
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
       console.log("Upload complete for userId:", metadata.userId);
-      
       console.log("file url", file.ufsUrl);
+      console.log("pusing into queue");
+      await queue.add("upload-pdf", {
+        fileUrl: file.ufsUrl,
+        userId: metadata.userId,
+      });
 
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
-    
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

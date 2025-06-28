@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +8,13 @@ import PdfViewer from "@/components/custom/pdf-viewer";
 import PdfUpload from "@/components/custom/pdf-upload";
 import Image from "next/image";
 import { newChat } from "@/app/actions/newchat";
+
+
 export default function ChatPage() {
+
+
+
+
   return (
     <main className="flex flex-col h-screen bg-black text-white">
       <header className="border-b border-zinc-800 p-4">

@@ -14,6 +14,8 @@ export function cn(...inputs: ClassValue[]) {
 // });
 
 
-// const result = await embeddings.embedQuery("Hello, world!");
 
-// console.log(result.slice(0, 100));
+
+
+// const result = await embeddings.embedQuery("What is the capital of France?");
+
