@@ -76,7 +76,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
     "tailwindcss": "^4",
-    "tsx": "^4.19.4",
+    "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5"
   }
