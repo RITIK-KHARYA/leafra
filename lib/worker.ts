@@ -4,38 +4,35 @@ import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
-import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { getPineconeClient } from "./pinecone";
 
 dotenv.config({
   path: ".env",
 });
+
 interface Vector {
   id: string;
   values: number[];
   metadata: {
     pageNumber: number;
+    content:string
   };
 }
 console.log("heehe");
 console.log("server started hogaya diddy");
 
-// console.log("🌲 PINECONE_API_KEY =", process.env.PINECONE_API_KEY);
-// console.log("📦 PINECONE_INDEX =", process.env.PINECONE_INDEX);
-
 // 🌲 Pinecone setup
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY!,
-});
+const pinecone = getPineconeClient()
 const pineconeIndex = pinecone.index("leafravectordb");
 
 // 🧠 Embeddings setup
-const embeddings = new TogetherAIEmbeddings({
+const embeddingAI = new TogetherAIEmbeddings({
   model: process.env.TOGETHER_AI_MODEL!,
   apiKey: process.env.TOGETHER_AI_API_KEY!,
 });
 
-console.log("embeddings", embeddings);
+console.log("embeddings", embeddingAI);
 console.log(process.env.TOGETHER_AI_API_KEY);
 
 // 🧾 PDF Upload Worker
@@ -70,9 +67,10 @@ const worker = new Worker(
 
       const docsPromise = docs.map(async (doc, idx) => ({
         id: `${fileUrl}-${doc.metadata.loc.pageNumber}-${idx}`,
-        values: await embeddings.embedQuery(doc.pageContent.replace(/\n/g, "")),
+        values: await embeddingAI.embedQuery(doc.pageContent.replace(/\n/g, "")),
         metadata: {
           pageNumber: doc.metadata.loc.pageNumber.toString(),
+          content: doc.pageContent.replace(/\n/g, ""),
         },
       }));
 
@@ -80,10 +78,9 @@ const worker = new Worker(
 
       console.log(docsWithVectors);
       console.log("inserting in database");
-
       await pineconeIndex.upsert(docsWithVectors);
-
       console.log("✅ PDF embedded and stored in Pinecone.");
+
     } catch (err) {
       console.error("❌ Error processing job:", err);
     }

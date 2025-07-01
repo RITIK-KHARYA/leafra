@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/togetherai": "^0.2.14",
     "@electric-sql/pglite": "^0.3.2",
     "@hookform/resolvers": "^5.1.1",
     "@langchain/community": "^0.3.47",
