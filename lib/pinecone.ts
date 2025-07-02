@@ -28,8 +28,34 @@ export async function getResultFromQuery(query: string) {
     includeMetadata: true,
     includeValues: true,
   });
+  const data = results.matches.map(match => match.metadata.content).join("\n\n");
   console.log(results);
-  return results;
+  console.log("data",data)
+  return data
 }
+
+
+async function getAnswers(query : string){ 
+  const results = await fetch("http://localhost:3000/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messages: [
+        {
+          content: query,
+          role: "user",
+        },
+      ],
+    }),
+  });
+  const data = await results.json();
+  console.log(data);;
+}
+
+ getAnswers("has he done anything impactfull in his projects or work in the past?")
+  
+ 
 
 

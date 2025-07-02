@@ -19,6 +19,8 @@ interface Vector {
     content:string
   };
 }
+
+
 console.log("heehe");
 console.log("server started hogaya diddy");
 
@@ -80,7 +82,6 @@ const worker = new Worker(
       console.log("inserting in database");
       await pineconeIndex.upsert(docsWithVectors);
       console.log("✅ PDF embedded and stored in Pinecone.");
-
     } catch (err) {
       console.error("❌ Error processing job:", err);
     }
