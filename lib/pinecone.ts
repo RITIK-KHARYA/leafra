@@ -28,12 +28,19 @@ export async function getResultFromQuery(query: string) {
     includeMetadata: true,
     includeValues: true,
   });
+  const thresholdvalue = 0.5;
   const data = results.matches
+    .filter((match) => match.score > thresholdvalue)
     .map((match) => match.metadata.content)
     .join("\n\n");
-  console.log(results);
-  console.log("data", data);
-  return data;
+
+  if (!data) {
+    return "No results found";
+  } else {
+    console.log(results);
+    console.log("data", data);
+    return data;
+  }
 }
 
 async function getAnswers(query: string) {
@@ -55,6 +62,4 @@ async function getAnswers(query: string) {
   console.log(data);
 }
 
-getAnswers(
-  "who is ritik and what is his hobby? and rate his resume based on his projects"
-);
+getAnswers("what is future ritik holds");
