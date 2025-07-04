@@ -28,14 +28,15 @@ export async function getResultFromQuery(query: string) {
     includeMetadata: true,
     includeValues: true,
   });
-  const data = results.matches.map(match => match.metadata.content).join("\n\n");
+  const data = results.matches
+    .map((match) => match.metadata.content)
+    .join("\n\n");
   console.log(results);
-  console.log("data",data)
-  return data
+  console.log("data", data);
+  return data;
 }
 
-
-async function getAnswers(query : string){ 
+async function getAnswers(query: string) {
   const results = await fetch("http://localhost:3000/api/chat", {
     method: "POST",
     headers: {
@@ -51,11 +52,9 @@ async function getAnswers(query : string){
     }),
   });
   const data = await results.json();
-  console.log(data);;
+  console.log(data);
 }
 
- getAnswers("has he done anything impactfull in his projects or work in the past?")
-  
- 
-
-
+getAnswers(
+  "who is ritik and what is his hobby? and rate his resume based on his projects"
+);
