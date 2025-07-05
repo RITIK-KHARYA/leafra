@@ -4,30 +4,38 @@ import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
-import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { getPineconeClient } from "./pinecone";
 
 dotenv.config({
   path: ".env",
 });
 
+interface Vector {
+  id: string;
+  values: number[];
+  metadata: {
+    pageNumber: number;
+    content:string
+  };
+}
+
+
 console.log("heehe");
 console.log("server started hogaya diddy");
 
-// console.log("🌲 PINECONE_API_KEY =", process.env.PINECONE_API_KEY);
-// console.log("📦 PINECONE_INDEX =", process.env.PINECONE_INDEX);
-
 // 🌲 Pinecone setup
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY!,
-});
-const pineconeIndex = pinecone.index(process.env.PINECONE_INDEX!);
+const pinecone = getPineconeClient()
+const pineconeIndex = pinecone.index("leafravectordb");
 
 // 🧠 Embeddings setup
-const embeddings = new TogetherAIEmbeddings({
-  model: "togethercomputer/m2-bert-80M-8k-retrieval",
+const embeddingAI = new TogetherAIEmbeddings({
+  model: process.env.TOGETHER_AI_MODEL!,
   apiKey: process.env.TOGETHER_AI_API_KEY!,
 });
+
+console.log("embeddings", embeddingAI);
+console.log(process.env.TOGETHER_AI_API_KEY);
 
 // 🧾 PDF Upload Worker
 const worker = new Worker(
@@ -35,6 +43,7 @@ const worker = new Worker(
   async (job) => {
     try {
       if (job.name !== "upload-pdf") return;
+      console.log("started");
 
       const fileUrl = job.data.fileUrl;
       const response = await fetch(fileUrl);
@@ -48,13 +57,30 @@ const worker = new Worker(
         chunkSize: 1000,
         chunkOverlap: 200,
       });
+
       const docs = await splitter.splitDocuments(rawDocs);
 
-      const vectors = await PineconeStore.fromDocuments(docs, embeddings, {
-        pineconeIndex,
-      });
+      console.log(
+        docs.map((page) => ({
+          pageContent: page.pageContent.replace(/\n/g, ""),
+          page: page.metadata.loc.pageNumber,
+        }))
+      );
 
-      console.log(vectors);
+      const docsPromise = docs.map(async (doc, idx) => ({
+        id: `${fileUrl}-${doc.metadata.loc.pageNumber}-${idx}`,
+        values: await embeddingAI.embedQuery(doc.pageContent.replace(/\n/g, "")),
+        metadata: {
+          pageNumber: doc.metadata.loc.pageNumber.toString(),
+          content: doc.pageContent.replace(/\n/g, ""),
+        },
+      }));
+
+      const docsWithVectors = (await Promise.all(docsPromise)) as Vector[];
+
+      console.log(docsWithVectors);
+      console.log("inserting in database");
+      await pineconeIndex.upsert(docsWithVectors);
       console.log("✅ PDF embedded and stored in Pinecone.");
     } catch (err) {
       console.error("❌ Error processing job:", err);

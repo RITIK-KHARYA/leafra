@@ -4,6 +4,8 @@ import {
   timestamp,
   boolean,
   integer,
+  serial,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -40,6 +42,18 @@ export const chat = pgTable("chat", {
   pdfUrl: text("pdf_url"),
   pdfName: text("pdf_name"),
   pdfSize: integer("pdf_size"),
+});
+
+export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
+
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  chatId: text("chat_id")
+    .notNull()
+    .references(() => chat.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  role: userSystemEnum("role").notNull(),
 });
 
 export const session = pgTable("session", {
