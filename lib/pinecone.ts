@@ -43,23 +43,23 @@ export async function getResultFromQuery(query: string) {
   }
 }
 
-async function getAnswers(query: string) {
-  const results = await fetch("http://localhost:3000/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messages: [
-        {
-          content: query,
-          role: "user",
-        },
-      ],
-    }),
-  });
-  const data = await results.json();
-  console.log(data);
-}
+// async function getAnswers(query: string) {
+//   const results = await fetch("http://localhost:3000/api/chat", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       messages: [
+//         {
+//           content: query,
+//           role: "user",
+//         },
+//       ],
+//     }),
+//   });
+//   const data = await results.json();
+//   console.log(data);
+// }
 
-getAnswers("what is future ritik holds");
+// getAnswers("what is future ritik holds");

@@ -2,16 +2,25 @@
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, FileText } from "lucide-react";
+import { MessageSquare, FileText, Send } from "lucide-react";
 import PdfViewer from "@/components/custom/pdf-viewer";
 import PdfUpload from "@/components/custom/pdf-upload";
 import Header from "@/components/custom/Header";
 import { useChat } from "@ai-sdk/react";
+import { Input } from "@/components/ui/input";
+import MessageList from "@/components/event/MessageList";
+import { useParams } from "next/navigation";
+
+type Props = { chatId: number };
 
 export default function ChatPage() {
+  const chatId = useParams().id;
   const { handleInputChange, handleSubmit, messages, input } = useChat({
-    api: "api/chat",
+    body: {
+      chatId: chatId,
+    },
   });
+  console.log(messages);
 
   return (
     <main className="flex flex-col h-screen bg-black text-white">
@@ -50,19 +59,28 @@ export default function ChatPage() {
 
             <TabsContent
               value="chat"
-              className="flex-1 flex flex-col space-y-4 overflow-hidden"
+              className="w-full flex flex-col flex-1 overflow-hidden"
             >
               {/* Render chat messages here */}
-              {/* <MessageComponent /> */}
+              <div className="flex-1 overflow-auto">
+                <MessageList messages={messages} isLoading={false} />
+              </div>
 
               {/* Render chat input here */}
-              {/* <ChatInput /> */}
-
               <form
                 onSubmit={handleSubmit}
-                onChange={() => handleInputChange}
-                className="flex flex-col space-y-4 bottom-0"
-              ></form>
+                className="flex w-full flex-row items-center"
+              >
+                <Input
+                  value={input}
+                  className="flex-1 w-full text-neutral-300 text-sm font-normal whitespace-pre-line rounded-md flex items-center"
+                  onChange={handleInputChange}
+                  placeholder="ask me something ..."
+                />
+                <Button className="rounded-sm  border-zinc-800 bg-neutral-900  text-zinc-400 hover:text-white hover:bg-neutral-900">
+                  <Send />
+                </Button>
+              </form>
             </TabsContent>
 
             <TabsContent value="files" className="flex-1 overflow-hidden">
