@@ -21,6 +21,9 @@ export function getSystemPrompt(context: string, question: string) {
 - If the message appears nonsensical, prioritize clarity. Do not generate misleading or fabricated answers. Redirect the conversation to something helpful or ask guiding questions.
 
 
+##CORE PRINICIPLES##
+- use short and concise sentences
+- use a conversational tone
 
 
 ##EXAMPLE##
