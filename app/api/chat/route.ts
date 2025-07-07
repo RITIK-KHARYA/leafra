@@ -12,7 +12,7 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   try {
     const { messages, chatId } = await req.json();
-    if (chatId === undefined || null || chatId === "") {
+    if (!chatId) {
       return NextResponse.json({ error: "No chatId provided" });
     }
     const lastMessage = messages[messages.length - 1];
@@ -21,8 +21,9 @@ export async function POST(req: Request) {
     await newmessage(chatId, lastMessage.content, "user");
     console.log("last messsage was added to db");
 
-    console.log(lastMessage);
+    console.log(lastMessage, "lastmessage");
     const context = await getResultFromQuery(lastMessage.content);
+    const partTypes = lastMessage.parts.map((part) => part.type);
     const result = await streamText({
       model: togetherai("deepseek-ai/DeepSeek-V3"),
       system: getSystemPrompt(context, lastMessage.content),
@@ -31,11 +32,12 @@ export async function POST(req: Request) {
         delayInMs: 20, // optional: defaults to 10ms
         chunking: "word", // optional: defaults to 'word'
       }),
-      onFinish: async (text) => {
-        if (typeof text === "string") {
-          console.log("text", text);
-          await newmessage(chatId, text, "system");
-        }
+
+      onFinish: async (responseText) => {
+        // console.log("text", responseText); for real you don't want to console log this
+        console.log("working condition");
+        await newmessage(chatId, lastMessage.content, "system");
+        console.log("new message added to db");
       },
     });
     return result.toDataStreamResponse();

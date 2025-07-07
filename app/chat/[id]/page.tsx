@@ -10,15 +10,27 @@ import { useChat } from "@ai-sdk/react";
 import { Input } from "@/components/ui/input";
 import MessageList from "@/components/event/MessageList";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Props = { chatId: number };
 
 export default function ChatPage() {
   const chatId = useParams().id;
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const getdata = async () => {
+      const res = await fetch(`/api/messages?chatId=${chatId}`);
+      const data = await res.json();
+      setData(data);
+    };
+    getdata();
+  }, [chatId]);
   const { handleInputChange, handleSubmit, messages, input } = useChat({
     body: {
       chatId: chatId,
     },
+    initialMessages: data || [],
   });
   console.log(messages);
 
