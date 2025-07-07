@@ -2,20 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, FileText, Send } from "lucide-react";
+import { MessageSquare, FileText, Send, Home } from "lucide-react";
 import PdfViewer from "@/components/custom/pdf-viewer";
 import PdfUpload from "@/components/custom/pdf-upload";
 import Header from "@/components/custom/Header";
 import { useChat } from "@ai-sdk/react";
 import { Input } from "@/components/ui/input";
 import MessageList from "@/components/event/MessageList";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Props = { chatId: number };
 
 export default function ChatPage() {
   const chatId = useParams().id;
+  const router = useRouter();
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -36,15 +37,17 @@ export default function ChatPage() {
 
   return (
     <main className="flex flex-col h-screen bg-black text-white">
-      <header className="border-b border-zinc-800 p-4 inline-flex items-center justify-between">
+      <header className="border-b border-zinc-800  inline-flex items-center justify-between">
         <Header />
         <Button
-          // onClick={() => {}}
+          onClick={() => {
+            router.push("/dashboard");
+          }}
           variant="outline"
           className="rounded-none border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900"
         >
-          <MessageSquare className="h-4 w-4 mr-2" />
-          New Chat
+          <Home className="h-4 w-4 mr-2 text-zinc-400" />
+          Dashboard
         </Button>
       </header>
 
@@ -89,7 +92,7 @@ export default function ChatPage() {
                   onChange={handleInputChange}
                   placeholder="ask me something ..."
                 />
-                <Button className="rounded-sm  border-zinc-800 bg-neutral-900  text-zinc-400 hover:text-white hover:bg-neutral-900">
+                <Button className="rounded-sm ml-2  border-zinc-800 bg-neutral-900  text-zinc-400 hover:text-white hover:bg-neutral-900">
                   <Send />
                 </Button>
               </form>
