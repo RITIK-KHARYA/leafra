@@ -1,39 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import ExampleUpload from "../example-upload";
+import { ParamValue } from "next/dist/server/request/params";
 
-export default function PdfUpload() {
+export default function PdfUpload({ chatId }: { chatId: string }) {
   const [isDragging, setIsDragging] = useState(false);
 
   return (
-    <div
-      className={`border-2 border-dashed ${
-        isDragging ? "border-zinc-600 bg-zinc-900/50" : "border-zinc-800"
-      } p-8 text-center`}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setIsDragging(false);
-      }}
-    >
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <div className="p-4 bg-zinc-800">
-          <Upload className="h-8 w-8 text-zinc-400" />
+    <div className="flex min-h-full min-w-full flex-col bg-neutral-950 items-center justify-center">
+      <div
+        className={`text-center cursor-pointer w-full`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+        }}
+      >
+        <div className="flex flex-col items-center space-y-6">
+          {/* Upload Icon */}
+
+          <div className="w-full h-full">
+            <ExampleUpload chatId={chatId} />
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-medium">Upload your PDF</h3>
-          <p className="text-sm text-zinc-400 mt-1">
-            Drag and drop or click to browse
-          </p>
-        </div>
-        <ExampleUpload />
       </div>
     </div>
   );

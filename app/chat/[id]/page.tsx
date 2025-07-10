@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 type Props = { chatId: number };
 
 export default function ChatPage() {
-  const chatId = useParams().id;
+  const chatId = useParams().id as string;
   const router = useRouter();
   const [data, setData] = useState([]);
 
@@ -51,7 +51,7 @@ export default function ChatPage() {
         </Button>
       </header>
 
-      <div className="flex gap-4 p-4 overflow-hidden h-full">
+      <div className="flex gap-4 p-3 overflow-hidden h-full">
         {/* Left: Chat and Files Tabs */}
         <div className="w-full lg:w-1/2 flex flex-col h-full">
           <Tabs defaultValue="chat" className="flex flex-col h-full">
@@ -60,15 +60,15 @@ export default function ChatPage() {
                 value="chat"
                 className="rounded-none data-[state=active]:bg-zinc-800"
               >
-                <MessageSquare className="h-4 w-4 mr-2" />
+                <MessageSquare className="h-4 w-4" />
                 Chat
               </TabsTrigger>
               <TabsTrigger
                 value="files"
                 className="rounded-none data-[state=active]:bg-zinc-800"
               >
-                <FileText className="h-4 w-4 mr-2" />
-                Files
+                <FileText className="h-4 w-4 " />
+                Quiz
               </TabsTrigger>
             </TabsList>
 
@@ -99,15 +99,15 @@ export default function ChatPage() {
             </TabsContent>
 
             <TabsContent value="files" className="flex-1 overflow-hidden">
-              <PdfUpload />
-              {/* Render uploaded file list here if needed */}
+              {/* 
+              here we will have another chat section for the quiz */}
             </TabsContent>
           </Tabs>
         </div>
 
         {/* Right: PDF Viewer */}
         <div className="hidden lg:block w-1/2 border border-zinc-800 bg-zinc-900">
-          <PdfViewer />
+          <PdfUpload chatId={chatId} />
         </div>
       </div>
     </main>

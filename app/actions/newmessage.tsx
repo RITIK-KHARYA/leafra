@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db } from "@/lib/db";
 import { messages } from "../db/schema";
 
 export default async function newmessage(

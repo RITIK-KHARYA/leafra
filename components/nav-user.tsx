@@ -117,7 +117,7 @@ export function NavUser() {
                 onClick={() => signOut}
               >
                 <LogOut className="mr-2 gap-2" />
-                sign out
+                Sign Out
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

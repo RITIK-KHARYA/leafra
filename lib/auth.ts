@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./../db"; // your drizzle instance
+import { db } from "./db"; // your drizzle instance
 import { user } from "@/app/db/schema";
 import { session } from "@/app/db/schema";
 import { account } from "@/app/db/schema";
@@ -40,7 +40,7 @@ export const auth = betterAuth({
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: 5 * 60, 
+      maxAge: 5 * 60,
     },
   },
 });

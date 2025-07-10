@@ -8,10 +8,7 @@ import { eq } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { cache } from "react";
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-const db = drizzle(pool, { schema });
+import { db } from "@/lib/db";
 
 export const getSession = cache(async () => {
   const session = await auth.api.getSession({
@@ -30,24 +27,25 @@ export async function getChats() {
       status: 404,
     };
   }
-  console.log("i am him",user);
+  console.log("i am him", user);
   try {
-    const findchat = await db.query.chat.findMany({
-      where: eq(chat.userId, user.user?.id),
-      orderBy: chat.createdAt,
-      columns: {
-        id: true,
-        description: true,
-        title: true,
-        value: true,
-        createdAt: true,
-        updatedAt: true,
-        userId: true,
-        pdfUrl: true,
-        pdfName: true,
-        pdfSize: true,
-      },
-    });
+    const findchat = await db
+      .select({
+        id: chat.id,
+        description: chat.description,
+        title: chat.title,
+        value: chat.value,
+        createdAt: chat.createdAt,
+        updatedAt: chat.updatedAt,
+        userId: chat.userId,
+        pdfUrl: chat.pdfUrl,
+        pdfName: chat.pdfName,
+        pdfSize: chat.pdfSize,
+      })
+      .from(chat)
+      .where(eq(chat.userId, user.user?.id))
+      .orderBy(chat.createdAt)
+      
     if (!findchat || findchat === null || findchat === undefined) {
       console.log("No chats found");
       return {

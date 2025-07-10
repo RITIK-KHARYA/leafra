@@ -1,11 +1,9 @@
-
-import { db } from "@/db";
+import { db } from "@/lib/db";
 import { messages } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 
 export const runtime = "nodejs";
-
 
 export default async function getmessages(chatId: ParamValue) {
   try {

@@ -1,11 +1,9 @@
-"use server";
-
+"use server"; 
 import { db } from "@/lib";
 import { getSession } from "./chat";
 import { chat } from "../db/schema";
 import { z } from "zod";
 import { newchatschema } from "../types/newchatschema";
-import { revalidatePath } from "next/cache";
 
 export async function newChat(formschema: z.infer<typeof newchatschema>) {
   const user = await getSession();
@@ -18,13 +16,7 @@ export async function newChat(formschema: z.infer<typeof newchatschema>) {
       description: formschema.description || "",
       value: formschema.priority,
       userId: formschema.userid?.id,
-      pdfUrl: "",
-      pdfName: "",
-      pdfSize: 0,
     });
-
-    // revalidatePath("/dashboard");
-
     return {
       data: newChat[0],
       success: "New chat created",

@@ -220,7 +220,7 @@ export function Newchatform() {
                               <span className="text-2xl block mb-1">
                                 {item.emoji}
                               </span>
-                              <span className="text-xs font-medium text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <span className="text-xs font-medium text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex  items-center justify-center">
                                 {item.label.split(" ")[0]}
                               </span>
                               {field.value === item.value && (
@@ -279,7 +279,7 @@ export function Newchatform() {
                           <SelectContent className="bg-zinc-900 border-zinc-700 shadow-2xl">
                             {workSections.map((section) => (
                               <SelectItem
-                                key={section}
+                                key={section.value}
                                 value={section.value.toLowerCase()}
                                 className="text-white hover:bg-zinc-800 focus:bg-zinc-800 cursor-pointer transition-colors duration-150"
                               >
@@ -333,9 +333,9 @@ export default function NewChatBtn() {
       <SheetTrigger asChild>
         <Button
           variant="outline"
-          className="rounded-lg bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-zinc-200 font-medium h-11 px-6 transition-all duration-200 hover:shadow-lg hover:border-zinc-600"
+          className="rounded-sm bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-zinc-200 font-medium h-8 transition-all duration-200 hover:shadow-lg hover:border-zinc-600"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 " />
           New Chat
         </Button>
       </SheetTrigger>
