@@ -47,7 +47,7 @@
     "bullmq": "^5.56.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dotenv": "^17.0.1",
+    "dotenv": "^17.2.0",
     "drizzle": "^1.4.0",
     "drizzle-orm": "^0.44.2",
     "fetch-blob": "^4.0.0",
