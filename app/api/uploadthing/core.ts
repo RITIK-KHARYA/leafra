@@ -43,6 +43,7 @@ export const ourFileRouter = {
       await queue.add("upload-pdf", {
         fileUrl: file.ufsUrl,
         userId: metadata.userId,
+        chatId: metadata.chatId
       });
 
       await newfile(metadata.chatId, file.ufsUrl, file.name);

@@ -114,7 +114,7 @@ export function NavUser() {
             <DropdownMenuItem>
               <button
                 className="inline-flex items-center container"
-                onClick={() => signOut}
+                onClick={() => signOut()}
               >
                 <LogOut className="mr-2 gap-2" />
                 Sign Out

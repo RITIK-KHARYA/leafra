@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     console.log("last messsage was added to db");
 
     console.log(lastMessage, "lastmessage");
-    const context = await getResultFromQuery(lastMessage.content);
+    const context = await getResultFromQuery(lastMessage.content,chatId);
     const partTypes = lastMessage.parts.map((part) => part.type);
     const result = await streamText({
       model: togetherai("deepseek-ai/DeepSeek-V3"),

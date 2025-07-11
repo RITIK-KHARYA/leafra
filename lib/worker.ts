@@ -16,16 +16,15 @@ interface Vector {
   values: number[];
   metadata: {
     pageNumber: number;
-    content:string
+    content: string;
   };
 }
-
 
 console.log("heehe");
 console.log("server started hogaya diddy");
 
 // 🌲 Pinecone setup
-const pinecone = getPineconeClient()
+const pinecone = getPineconeClient();
 const pineconeIndex = pinecone.index("leafravectordb");
 
 // 🧠 Embeddings setup
@@ -69,7 +68,9 @@ const worker = new Worker(
 
       const docsPromise = docs.map(async (doc, idx) => ({
         id: `${fileUrl}-${doc.metadata.loc.pageNumber}-${idx}`,
-        values: await embeddingAI.embedQuery(doc.pageContent.replace(/\n/g, "")),
+        values: await embeddingAI.embedQuery(
+          doc.pageContent.replace(/\n/g, "")
+        ),
         metadata: {
           pageNumber: doc.metadata.loc.pageNumber.toString(),
           content: doc.pageContent.replace(/\n/g, ""),
@@ -78,9 +79,11 @@ const worker = new Worker(
 
       const docsWithVectors = (await Promise.all(docsPromise)) as Vector[];
 
+      const namespace = pineconeIndex.namespace(job.data.chatId);
+
       console.log(docsWithVectors);
       console.log("inserting in database");
-      await pineconeIndex.upsert(docsWithVectors);
+      await namespace.upsert(docsWithVectors);
       console.log("✅ PDF embedded and stored in Pinecone.");
     } catch (err) {
       console.error("❌ Error processing job:", err);

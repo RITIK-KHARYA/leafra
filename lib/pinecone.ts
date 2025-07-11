@@ -18,11 +18,12 @@ function createEmbedding(text: string) {
   return embeddingAI.embedQuery(text);
 }
 
-export async function getResultFromQuery(query: string) {
+export async function getResultFromQuery(query: string, chatId: string) {
   const pinecone = getPineconeClient();
   const index = pinecone.index("leafravectordb");
+  const namespace = index.namespace(chatId);
   const embeddedQuery = await createEmbedding(query);
-  const results = await index.query({
+  const results = await namespace.query({
     vector: embeddedQuery,
     topK: 3,
     includeMetadata: true,
