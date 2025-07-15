@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="relative w-[80%] rounded-t-3xl bg-black text-gray-300 py-6 overflow-hidden">
       {/* Blue gradient in top right corner */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl bg-graident from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
 
       <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
       <div className="max-w-6xl mx-auto px-4">

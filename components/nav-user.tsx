@@ -29,7 +29,10 @@ import { signOut, useSession } from "@/lib/auth-client";
 export function NavUser() {
   const user = useSession();
   const { isMobile } = useSidebar();
-
+  const handlesignout = async () => {
+    await signOut();
+    window.location.reload();
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -114,7 +117,7 @@ export function NavUser() {
             <DropdownMenuItem>
               <button
                 className="inline-flex items-center container"
-                onClick={() => signOut()}
+                onClick={() => handlesignout()}
               >
                 <LogOut className="mr-2 gap-2" />
                 Sign Out

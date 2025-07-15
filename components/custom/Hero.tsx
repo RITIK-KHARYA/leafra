@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { TextGenerateEffect } from "../ui/text-generate-effect";
 import { AnimatedGradientText } from "../magicui/animated-gradient-text";
@@ -5,19 +7,34 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Thumbnail from "./thumbail";
 import Footer from "./footer";
+import { motion } from "framer-motion";
+import Header from "./landingheader";
+
 export default function Hero() {
   const animmateword = "Leafra";
   const text = "Welcome to ";
   return (
     <div className="flex flex-col items-center justify-center h-full">
+      <Header />
       <div className="w-full h-[75%] flex flex-col ">
-        <Image
-          src={"/heromain.png"}
-          alt="hero"
-          width={1000}
-          height={1000}
-          className=" object-fill h-full w-full"
-        />
+        <motion.div
+          initial={{ clipPath: "circle(0% at 50% 50%)" }}
+          animate={{ clipPath: "circle(150% at 50% 50%)" }}
+          transition={{ duration: 1.0, ease: "easeInOut" }}
+          className="relative w-full h-screen overflow-hidden"
+        >
+          <Image
+            src={"/heromain.png"}
+            alt="hero"
+            width={1000}
+            height={1000}
+            className=" object-fill h-full w-full"
+            // placeholder="blur"
+            // blurDataURL=""
+            // load the blurly image as the high quality image still loading
+          />
+        </motion.div>
+
         <div className="absolute top-[15%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex font-extralight">
           <span
             className={cn(
@@ -35,7 +52,7 @@ export default function Hero() {
           <div className="flex items-center pt-1 px-2">
             🎉 <hr className="mx-2 h-5 w-px  shrink-0 bg-neutral-500" />
             <AnimatedGradientText className="text-sm font-medium">
-              Introducing Magic UI
+              Introducing Leafra
             </AnimatedGradientText>
             <ChevronRight
               className="ml-1 size-4 stroke-neutral-500 transition-transform
@@ -54,7 +71,6 @@ export default function Hero() {
           <Thumbnail />
         </div>
       </div>
-   
     </div>
   );
 }
