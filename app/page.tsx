@@ -2,7 +2,7 @@ import Footer from "@/components/custom/footer";
 import Hero from "@/components/custom/Hero";
 import LandingGrid from "@/components/custom/landinggrid";
 import Spiral3DComponent from "@/components/custom/spiral";
-import SpiralComponent from "@/components/custom/spiral"; 
+import SpiralComponent from "@/components/custom/spiral";
 
 export default function Home() {
   return (
