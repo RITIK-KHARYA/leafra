@@ -23,7 +23,7 @@ import { AppSidebar } from "@/components/ui/app-sidebar";
 import PdfUpload from "@/components/custom/pdf-upload";
 import NewchatBtn from "@/components/custom/newChatbtn";
 import { useQuery } from "@tanstack/react-query";
-import { getChats } from "../actions/chat";
+import { getChats } from "../actions/chat/get";
 import { useSession } from "@/lib/auth-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import Chatcard from "@/components/chats";

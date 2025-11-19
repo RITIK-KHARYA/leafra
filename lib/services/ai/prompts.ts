@@ -46,3 +46,4 @@ You can answer questions about the pdf context, and you can also summarize the p
 with the help off the context given above and the question asked, answer the question in a short and simple way.
 `;
 }
+

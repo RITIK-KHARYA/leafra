@@ -1,10 +1,10 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { chat } from "../db/schema";
+import { chat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function getfile(chatId: string) {
+export async function getFile(chatId: string) {
   if (!chatId) return { error: "ChatId is required" };
 
   try {
@@ -40,3 +40,4 @@ export async function getfile(chatId: string) {
     return { error: "Failed to fetch chat data" };
   }
 }
+

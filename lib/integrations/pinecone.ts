@@ -1,11 +1,14 @@
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 import { Pinecone } from "@pinecone-database/pinecone";
 
-let pinecone;
+let pinecone: Pinecone | null = null;
+
 export function getPineconeClient() {
-  pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY!,
-  });
+  if (!pinecone) {
+    pinecone = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
+  }
   return pinecone;
 }
 
@@ -44,23 +47,3 @@ export async function getResultFromQuery(query: string, chatId: string) {
   }
 }
 
-// async function getAnswers(query: string) {
-//   const results = await fetch("http://localhost:3000/api/chat", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       messages: [
-//         {
-//           content: query,
-//           role: "user",
-//         },
-//       ],
-//     }),
-//   });
-//   const data = await results.json();
-//   console.log(data);
-// }
-
-// getAnswers("what is future ritik holds");

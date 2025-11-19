@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UploadButton } from "../utils/uploadthing";
-import { getfile } from "@/app/actions/getfile";
+import { getFile } from "@/app/actions/file/get";
 import { Upload } from "lucide-react";
 
 export default function ExampleUpload({ chatId }: { chatId: string }) {
@@ -11,7 +11,7 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
   useEffect(() => {
     const getdata = async () => {
       console.log("useEffect running, chatId:", chatId);
-      const res = await getfile(chatId.toString());
+      const res = await getFile(chatId.toString());
       console.log("working", res);
       setpdfurl(res.data.pdfUrl);
     };

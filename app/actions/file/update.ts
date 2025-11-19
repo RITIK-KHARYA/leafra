@@ -1,12 +1,10 @@
 "use server";
 
-// export const runtime = "nodejs";
-
 import { db } from "@/lib/db";
-import { chat } from "../db/schema";
+import { chat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-export default async function newfile(
+export async function updateFile(
   chatId: string,
   pdfUrl: string,
   pdfName: string
@@ -20,6 +18,7 @@ export default async function newfile(
       })
       .where(eq(chat.id, chatId));
   } catch (error) {
-    console.log("new file error",error);
+    console.log("new file error", error);
   }
 }
+

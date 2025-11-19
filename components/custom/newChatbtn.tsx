@@ -35,8 +35,8 @@ import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
-import { newchatschema } from "@/app/types/newchatschema";
-import { newChat } from "@/app/actions/newchat";
+import { newChatSchema } from "@/types/chat";
+import { createChat } from "@/app/actions/chat/create";
 import { useSession } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -73,8 +73,8 @@ const workSections = [
 
 export function Newchatform() {
   const user = useSession();
-  const form = useForm<z.infer<typeof newchatschema>>({
-    resolver: zodResolver(newchatschema),
+  const form = useForm<z.infer<typeof newChatSchema>>({
+    resolver: zodResolver(newChatSchema),
     defaultValues: {
       chatName: "",
       description: "",
@@ -88,10 +88,10 @@ export function Newchatform() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  async function onSubmit(data: z.infer<typeof newchatschema>) {
+  async function onSubmit(data: z.infer<typeof newChatSchema>) {
     try {
       setLoading(true);
-      await newChat(data);
+      await createChat(data);
       await queryClient.invalidateQueries({
         queryKey: ["chats"],
       });

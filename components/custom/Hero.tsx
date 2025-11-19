@@ -24,7 +24,7 @@ export default function Hero() {
           className="relative w-full h-screen overflow-hidden"
         >
           <Image
-            src={"/heromain.png"}
+            src={"/heromain.webp"}
             alt="hero"
             width={1000}
             height={1000}

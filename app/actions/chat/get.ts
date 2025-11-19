@@ -1,14 +1,11 @@
 "use server";
 
-import { chat } from "../db/schema";
-import * as schema from "../db/schema";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { chat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies, headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { cache } from "react";
 import { db } from "@/lib/db";
+import { headers } from "next/headers";
 
 export const getSession = cache(async () => {
   const session = await auth.api.getSession({
@@ -44,8 +41,8 @@ export async function getChats() {
       })
       .from(chat)
       .where(eq(chat.userId, user.user?.id))
-      .orderBy(chat.createdAt)
-      
+      .orderBy(chat.createdAt);
+
     if (!findchat || findchat === null || findchat === undefined) {
       console.log("No chats found");
       return {
@@ -68,3 +65,4 @@ export async function getChats() {
     };
   }
 }
+

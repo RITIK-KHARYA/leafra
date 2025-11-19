@@ -32,7 +32,6 @@ export const chat = pgTable("chat", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   updatedAt: timestamp("updated_at")
-  
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   value: text("value").notNull(),
@@ -99,3 +98,4 @@ export const verification = pgTable("verification", {
     () => /* @__PURE__ */ new Date()
   ),
 });
+

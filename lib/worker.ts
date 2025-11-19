@@ -5,7 +5,8 @@ import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { getPineconeClient } from "./pinecone";
+import { getPineconeClient } from "./integrations/pinecone";
+import { getRedisClient } from "./integrations/redis";
 
 dotenv.config({
   path: ".env",
@@ -47,7 +48,9 @@ const worker = new Worker(
       const fileUrl = job.data.fileUrl;
       const response = await fetch(fileUrl);
       const buffer = await response.buffer();
-      const blob = new Blob([buffer], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(buffer)], {
+        type: "application/pdf",
+      });
 
       const loader = new WebPDFLoader(blob, { splitPages: true });
       const rawDocs = await loader.load();
@@ -91,7 +94,11 @@ const worker = new Worker(
   },
   {
     connection: {
-      url: process.env.REDIS_URL!,
+      host: process.env.UPSTASH_REDIS_REST_URL
+        ? new URL(process.env.UPSTASH_REDIS_REST_URL).hostname
+        : "localhost",
+      port: 6379,
+      password: process.env.UPSTASH_REDIS_REST_TOKEN,
     },
   }
 );

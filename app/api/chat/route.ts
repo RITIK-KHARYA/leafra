@@ -1,10 +1,10 @@
-import { getResultFromQuery } from "@/lib/pinecone";
+import { getResultFromQuery } from "@/lib/integrations/pinecone";
 import { togetherai } from "@ai-sdk/togetherai";
 import { generateText, smoothStream, streamText } from "ai";
 import { NextResponse } from "next/server";
-import { getSystemPrompt } from "../services/system-prompt";
-import { getChats } from "@/app/actions/chat";
-import newmessage from "@/app/actions/newmessage";
+import { getSystemPrompt } from "@/lib/services/ai/prompts";
+import { getChats } from "@/app/actions/chat/get";
+import { createMessage } from "@/app/actions/message/create";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -18,11 +18,11 @@ export async function POST(req: Request) {
     const lastMessage = messages[messages.length - 1];
 
     console.log("sending the message to the db");
-    await newmessage(chatId, lastMessage.content, "user");
+    await createMessage(chatId, lastMessage.content, "user");
     console.log("last messsage was added to db");
 
     console.log(lastMessage, "lastmessage");
-    const context = await getResultFromQuery(lastMessage.content,chatId);
+    const context = await getResultFromQuery(lastMessage.content, chatId);
     const partTypes = lastMessage.parts.map((part) => part.type);
     const result = await streamText({
       model: togetherai("deepseek-ai/DeepSeek-V3"),
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       onFinish: async (responseText) => {
         // console.log("text", responseText); for real you don't want to console log this
         console.log("working condition");
-        await newmessage(chatId, lastMessage.content, "system");
+        await createMessage(chatId, responseText.text, "system");
         console.log("new message added to db");
       },
     });

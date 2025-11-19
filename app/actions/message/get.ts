@@ -1,11 +1,13 @@
+"use server";
+
 import { db } from "@/lib/db";
-import { messages } from "@/app/db/schema";
+import { messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 
 export const runtime = "nodejs";
 
-export default async function getmessages(chatId: ParamValue) {
+export async function getMessages(chatId: ParamValue) {
   try {
     if (!chatId) return;
     const messagesList = await db
@@ -18,3 +20,4 @@ export default async function getmessages(chatId: ParamValue) {
     console.log(error, "internal error");
   }
 }
+

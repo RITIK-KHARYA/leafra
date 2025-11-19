@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Message } from "ai/react";
+import { Message } from "@ai-sdk/react";
 import { Loader2 } from "lucide-react";
 import React from "react";
 

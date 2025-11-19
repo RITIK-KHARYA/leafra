@@ -1,7 +1,9 @@
-import { db } from "@/lib/db";
-import { messages } from "../db/schema";
+"use server";
 
-export default async function newmessage(
+import { db } from "@/lib/db";
+import { messages } from "@/lib/db/schema";
+
+export async function createMessage(
   chatId: string,
   message: string,
   role: "user" | "system"
@@ -16,3 +18,4 @@ export default async function newmessage(
     console.log(error, "error bro");
   }
 }
+
