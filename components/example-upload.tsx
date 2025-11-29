@@ -13,7 +13,9 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
       console.log("useEffect running, chatId:", chatId);
       const res = await getFile(chatId.toString());
       console.log("working", res);
-      setpdfurl(res.data.pdfUrl);
+      if (res.data?.pdfUrl) {
+        setpdfurl(res.data.pdfUrl);
+      }
     };
     getdata();
   }, [chatId]);
@@ -38,8 +40,7 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
               allowedContent: "hidden",
               button: "data-[state=ready]:bg-neutral-700/60 p-2 text-white",
             }}
-            // @ts-expect-error
-            input={{ chatId }}
+            input={{ chatId } as { chatId: string }}
             endpoint="pdfUploader"
             onClientUploadComplete={(res) => {
               // Do something with the response

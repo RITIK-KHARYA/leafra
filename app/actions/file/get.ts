@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { chat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { logger } from "@/lib/logger";
 
 export async function getFile(chatId: string) {
   if (!chatId) return { error: "ChatId is required" };
@@ -36,7 +37,7 @@ export async function getFile(chatId: string) {
       },
     };
   } catch (err) {
-    console.error("Database error:", err);
+    logger.error("Database error getting file", err, { chatId });
     return { error: "Failed to fetch chat data" };
   }
 }

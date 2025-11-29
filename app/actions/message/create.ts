@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { messages } from "@/lib/db/schema";
+import { logger } from "@/lib/logger";
 
 export async function createMessage(
   chatId: string,
@@ -15,7 +16,7 @@ export async function createMessage(
       content: message,
     });
   } catch (error) {
-    console.log(error, "error bro");
+    logger.error("Error creating message", error, { chatId, role });
+    throw new Error("Failed to create message");
   }
 }
-

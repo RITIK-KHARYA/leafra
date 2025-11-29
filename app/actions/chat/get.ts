@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { cache } from "react";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
+import { logger } from "@/lib/logger";
 
 export const getSession = cache(async () => {
   const session = await auth.api.getSession({
@@ -24,7 +25,6 @@ export async function getChats() {
       status: 404,
     };
   }
-  console.log("i am him", user);
   try {
     const findchat = await db
       .select({
@@ -43,8 +43,8 @@ export async function getChats() {
       .where(eq(chat.userId, user.user?.id))
       .orderBy(chat.createdAt);
 
-    if (!findchat || findchat === null || findchat === undefined) {
-      console.log("No chats found");
+    if (!findchat || findchat.length === 0) {
+      logger.debug("No chats found for user", { userId: user.user?.id });
       return {
         data: [],
         error: "No chats found",
@@ -57,7 +57,7 @@ export async function getChats() {
       status: 200,
     };
   } catch (error) {
-    console.log(error);
+    logger.error("Error getting chats", error, { userId: user.user?.id });
     return {
       data: [],
       error: "Failed to get chats",

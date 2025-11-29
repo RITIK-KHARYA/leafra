@@ -5,6 +5,30 @@ import { user } from "@/lib/db/schema";
 import { session } from "@/lib/db/schema";
 import { account } from "@/lib/db/schema";
 import { verification } from "@/lib/db/schema";
+import { env } from "./env";
+
+const socialProviders: Record<string, { clientId: string; clientSecret: string }> = {};
+
+if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
+  socialProviders.google = {
+    clientId: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+  };
+}
+
+if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
+  socialProviders.github = {
+    clientId: env.GITHUB_CLIENT_ID,
+    clientSecret: env.GITHUB_CLIENT_SECRET,
+  };
+}
+
+if (env.DISCORD_CLIENT_ID && env.DISCORD_CLIENT_SECRET) {
+  socialProviders.discord = {
+    clientId: env.DISCORD_CLIENT_ID,
+    clientSecret: env.DISCORD_CLIENT_SECRET,
+  };
+}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -16,27 +40,14 @@ export const auth = betterAuth({
       account: account,
     },
   }),
-  baseURL: "http://localhost:3000",
+  baseURL: env.NEXT_PUBLIC_BASE_URL,
 
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
   },
 
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-    },
-    discord: {
-      clientId: process.env.DISCORD_CLIENT_ID as string,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-    },
-  },
+  socialProviders: Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
   session: {
     cookieCache: {
       enabled: true,

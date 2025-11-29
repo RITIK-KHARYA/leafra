@@ -1,18 +1,16 @@
 import { Redis } from "@upstash/redis";
+import { env } from "@/lib/env";
 
 // Check if environment variables are set
-if (
-  !process.env.UPSTASH_REDIS_REST_URL ||
-  !process.env.UPSTASH_REDIS_REST_TOKEN
-) {
+if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
   console.warn(
     "Redis environment variables are not set. Redis functionality will be limited."
   );
 }
 
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || "",
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
+  url: env.UPSTASH_REDIS_REST_URL || "",
+  token: env.UPSTASH_REDIS_REST_TOKEN || "",
 });
 
 // Function to test Redis connection
@@ -30,10 +28,7 @@ export async function testRedisConnection() {
 
 // Function to get Redis client with connection check
 export async function getRedisClient() {
-  if (
-    !process.env.UPSTASH_REDIS_REST_URL ||
-    !process.env.UPSTASH_REDIS_REST_TOKEN
-  ) {
+  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     throw new Error("Redis environment variables are not configured");
   }
   return redis;

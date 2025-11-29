@@ -4,30 +4,39 @@ import { Queue } from "bullmq";
 import { UTApi } from "uploadthing/server";
 import { useSonner } from "sonner";
 import { updateFile } from "@/app/actions/file/update";
+import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import z from "zod";
 
 const f = createUploadthing();
 
-const auth = (req: Request) => ({ id: "fakeId" });
+import { env } from "@/lib/env";
 
 // Get Redis connection details from environment variables
+// Returns null if Redis is not configured (consistent with rest of codebase)
 const getRedisConnection = () => {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  if (!url) {
-    throw new Error("UPSTASH_REDIS_REST_URL environment variable is not set");
+  const url = env.UPSTASH_REDIS_REST_URL;
+  if (!url || !env.UPSTASH_REDIS_REST_TOKEN) {
+    // Return null to indicate Redis is not configured (consistent with rate-limit.ts)
+    return null;
   }
 
   const urlObj = new URL(url);
   return {
     host: urlObj.hostname,
     port: 6379,
-    password: process.env.UPSTASH_REDIS_REST_TOKEN,
+    password: env.UPSTASH_REDIS_REST_TOKEN,
   };
 };
 
-const queue = new Queue("upload-pdf", {
-  connection: getRedisConnection(),
-});
+// Only create queue if Redis is configured
+// If Redis is not available, queue operations will need to be handled differently
+const redisConnection = getRedisConnection();
+const queue = redisConnection
+  ? new Queue("upload-pdf", {
+      connection: redisConnection,
+    })
+  : null;
 
 export const ourFileRouter = {
   pdfUploader: f({
@@ -38,30 +47,43 @@ export const ourFileRouter = {
   })
     .input(
       z.object({
-        chatId: z.string().optional(),
+        chatId: z.string().uuid("chatId must be a valid UUID"),
       })
     )
     .middleware(async ({ req, input }) => {
-      console.log("input", input);
-      const user = await auth(req);
-      if (!user || !input.chatId)
-        throw new UploadThingError("chat-id is required");
-      if (!user) throw new UploadThingError("Unauthorized");
-      return { userId: user.id, chatId: input.chatId };
+      // Validate session using better-auth
+      const session = await auth.api.getSession({
+        headers: req.headers,
+      });
+
+      if (!session?.user) {
+        throw new UploadThingError("Unauthorized");
+      }
+
+      return { userId: session.user.id, chatId: input.chatId };
     })
     .onUploadError(async ({ error, fileKey }) => {
-      console.log("file", fileKey);
-      console.log("Upload error for userId:", error);
+      logger.error("Upload error", error, { fileKey });
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
-      console.log("file url", file.ufsUrl);
-      console.log("pusing into queue");
-      await queue.add("upload-pdf", {
-        fileUrl: file.ufsUrl,
+      logger.info("Upload complete", {
         userId: metadata.userId,
-        chatId: metadata.chatId,
+        fileUrl: file.ufsUrl,
       });
+
+      // Add to queue if Redis is configured, otherwise log a warning
+      if (queue) {
+        await queue.add("upload-pdf", {
+          fileUrl: file.ufsUrl,
+          userId: metadata.userId,
+          chatId: metadata.chatId,
+        });
+      } else {
+        logger.warn(
+          "Redis not configured - PDF processing queue unavailable. File uploaded but not queued for processing.",
+          { userId: metadata.userId, fileUrl: file.ufsUrl }
+        );
+      }
 
       await updateFile(metadata.chatId, file.ufsUrl, file.name);
 

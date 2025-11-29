@@ -1,23 +1,21 @@
-"use server";
-
 import { db } from "@/lib/db";
 import { messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
-
-export const runtime = "nodejs";
+import { logger } from "@/lib/logger";
 
 export async function getMessages(chatId: ParamValue) {
   try {
-    if (!chatId) return;
+    if (!chatId) return [];
     const messagesList = await db
       .select()
       .from(messages)
       .where(eq(messages.chatId, chatId.toString()));
-    console.log(messagesList);
     return messagesList;
   } catch (error) {
-    console.log(error, "internal error");
+    logger.error("Error getting messages", error, {
+      chatId: chatId?.toString(),
+    });
+    return [];
   }
 }
-

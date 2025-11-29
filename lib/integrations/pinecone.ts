@@ -1,20 +1,22 @@
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 let pinecone: Pinecone | null = null;
 
 export function getPineconeClient() {
   if (!pinecone) {
     pinecone = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY!,
+      apiKey: env.PINECONE_API_KEY,
     });
   }
   return pinecone;
 }
 
 const embeddingAI = new TogetherAIEmbeddings({
-  model: process.env.TOGETHER_AI_MODEL!,
-  apiKey: process.env.TOGETHER_AI_API_KEY!,
+  model: env.TOGETHER_AI_MODEL,
+  apiKey: env.TOGETHER_AI_API_KEY,
 });
 
 function createEmbedding(text: string) {
@@ -34,16 +36,20 @@ export async function getResultFromQuery(query: string, chatId: string) {
   });
   const thresholdvalue = 0.5;
   const data = results.matches
-    .filter((match) => match.score > thresholdvalue)
-    .map((match) => match.metadata.content)
+    .filter(
+      (match) => match.score !== undefined && match.score > thresholdvalue
+    )
+    .map((match) => {
+      const content = match.metadata?.content;
+      return typeof content === "string" ? content : "";
+    })
+    .filter((content) => content.length > 0)
     .join("\n\n");
 
   if (!data) {
     return "No results found";
   } else {
-    console.log(results);
-    console.log("data", data);
+    logger.debug("Pinecone query results", { results, data });
     return data;
   }
 }
-

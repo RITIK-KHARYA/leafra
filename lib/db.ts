@@ -1,16 +1,10 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { sql } from "drizzle-orm";
-
-// Validate database URL
-if (!process.env.DATABASE_URL) {
-  console.error("❌ DATABASE_URL environment variable is not set!");
-  console.log("Please add DATABASE_URL to your .env.local file");
-  console.log("Format: postgresql://username:password@host:port/database");
-}
+import { env } from "./env";
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: env.DATABASE_URL,
   // Add connection timeout and retry settings
   connectionTimeoutMillis: 10000, // 10 seconds
   idleTimeoutMillis: 30000, // 30 seconds

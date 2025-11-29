@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { chat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { logger } from "@/lib/logger";
 
 export async function updateFile(
   chatId: string,
@@ -18,7 +19,7 @@ export async function updateFile(
       })
       .where(eq(chat.id, chatId));
   } catch (error) {
-    console.log("new file error", error);
+    logger.error("Error updating file", error, { chatId, pdfUrl, pdfName });
+    throw new Error("Failed to update file");
   }
 }
-

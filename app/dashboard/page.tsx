@@ -35,10 +35,10 @@ interface ChatProps {
   updatedAt: Date;
   userId: string;
   value: string;
-  pdfUrl: string;
-  description: string;
-  pdfName: string;
-  pdfSize: number;
+  pdfUrl: string | null;
+  description: string | null;
+  pdfName: string | null;
+  pdfSize: number | null;
 }
 
 export default function DashboardPage() {
@@ -47,7 +47,7 @@ export default function DashboardPage() {
     queryKey: ["chats"],
     queryFn: async () => {
       const res = await getChats();
-      return res.data;
+      return res.data || [];
     },
   });
 
@@ -90,15 +90,15 @@ export default function DashboardPage() {
                 Error loading chats: {error.message}
               </div>
             ) : (
-              data?.map((stat, index) => (
+              data?.map((stat, index: number) => (
                 <Chatcard
                   key={index}
                   value={stat.value}
                   href={stat.id}
                   title={stat.title}
-                  description={stat.description}
-                  imageSrc={stat.pdfUrl}
-                  imageAlt={stat.pdfName}
+                  description={stat.description || ""}
+                  imageSrc={stat.pdfUrl || ""}
+                  imageAlt={stat.pdfName || ""}
                   onClick={() => console.log("clicked")}
                 />
               ))
