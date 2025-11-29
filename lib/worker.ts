@@ -21,7 +21,7 @@ interface Vector {
   };
 }
 
-console.log("heehe");
+console.log("hehe");
 console.log("server started hogaya diddy");
 
 // 🌲 Pinecone setup

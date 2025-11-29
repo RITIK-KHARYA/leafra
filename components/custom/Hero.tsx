@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import Header from "./landingheader";
 
 export default function Hero() {
-  const animmateword = "Leafra";
+  // const animmateword = "Leafra";
   const text = "Welcome to ";
   return (
     <div className="flex flex-col items-center justify-center h-full">
@@ -62,7 +62,8 @@ export default function Hero() {
         </div>
         <h1 className="text-white text-5xl z-10 absolute top-[25%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex font-extralight">
           {text}
-          <TextGenerateEffect words={animmateword} />
+          {/* <TextGenerateEffect words={animmateword} /> */}
+          Leafra
         </h1>
         <h3 className="text-neutral-300 text-xl z-10 absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex font-extralight">
           RAG system for the pdf reading
