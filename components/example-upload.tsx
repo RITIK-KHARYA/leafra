@@ -14,7 +14,7 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
       const res = await getFile(chatId.toString());
       console.log("working", res);
       if (res.data?.pdfUrl) {
-        setpdfurl(res.data.pdfUrl);
+      setpdfurl(res.data.pdfUrl);
       }
     };
     getdata();

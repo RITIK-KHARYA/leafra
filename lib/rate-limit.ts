@@ -16,20 +16,28 @@ class RateLimiter {
     this.config = config;
   }
 
-  async check(identifier: string): Promise<{ success: boolean; remaining: number; reset: number }> {
+  async check(
+    identifier: string
+  ): Promise<{ success: boolean; remaining: number; reset: number }> {
     if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
       // If Redis is not configured, allow all requests
-      return { success: true, remaining: this.config.maxRequests, reset: Date.now() + this.config.windowSeconds * 1000 };
+      return {
+        success: true,
+        remaining: this.config.maxRequests,
+        reset: Date.now() + this.config.windowSeconds * 1000,
+      };
     }
 
     try {
       const redis = await getRedisClient();
       const key = `${this.prefix}:${identifier}`;
-      const windowStart = Math.floor(Date.now() / (this.config.windowSeconds * 1000));
+      const windowStart = Math.floor(
+        Date.now() / (this.config.windowSeconds * 1000)
+      );
       const windowKey = `${key}:${windowStart}`;
 
       // Get current count
-      const count = await redis.get<number>(windowKey) || 0;
+      const count = (await redis.get<number>(windowKey)) || 0;
 
       if (count >= this.config.maxRequests) {
         const reset = (windowStart + 1) * this.config.windowSeconds * 1000;
@@ -47,8 +55,15 @@ class RateLimiter {
       };
     } catch (error) {
       // On error, allow the request but log the error
-      logger.error("Rate limit check failed", error, { prefix: this.prefix, identifier });
-      return { success: true, remaining: this.config.maxRequests, reset: Date.now() + this.config.windowSeconds * 1000 };
+      logger.error("Rate limit check failed", error, {
+        prefix: this.prefix,
+        identifier,
+      });
+      return {
+        success: true,
+        remaining: this.config.maxRequests,
+        reset: Date.now() + this.config.windowSeconds * 1000,
+      };
     }
   }
 }
@@ -70,4 +85,3 @@ export const apiRateLimiter = new RateLimiter("ratelimit:api", {
   maxRequests: 20,
   windowSeconds: 60,
 });
-

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { unstable_noStore } from "next/cache";
 import "./globals.css";
 import {
   ThemeProvider as NextThemesProvider,
   ThemeProvider,
 } from "next-themes";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "./api/uploadthing/core";
+import UploadThingProvider from "./components/uploadthing-provider";
 import ReactQueryProvider from "./providers/queryprovider";
 import { Toaster } from "sonner";
 
@@ -31,6 +30,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Opt out of static optimization to allow performance.now() usage
+  unstable_noStore();
+
   return (
     <ReactQueryProvider>
       <html lang="en" suppressHydrationWarning>
@@ -43,9 +45,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+            <UploadThingProvider />
             {children}
-            <Toaster/>
+            <Toaster />
           </NextThemesProvider>
         </body>
       </html>

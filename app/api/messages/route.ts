@@ -5,8 +5,6 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { ApiResponse } from "@/lib/api-response";
 
-export const runtime = "nodejs";
-
 const chatIdSchema = z.string().uuid("chatId must be a valid UUID");
 
 export async function GET(req: NextRequest) {

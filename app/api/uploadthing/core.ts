@@ -73,11 +73,11 @@ export const ourFileRouter = {
 
       // Add to queue if Redis is configured, otherwise log a warning
       if (queue) {
-        await queue.add("upload-pdf", {
-          fileUrl: file.ufsUrl,
-          userId: metadata.userId,
-          chatId: metadata.chatId,
-        });
+      await queue.add("upload-pdf", {
+        fileUrl: file.ufsUrl,
+        userId: metadata.userId,
+        chatId: metadata.chatId,
+      });
       } else {
         logger.warn(
           "Redis not configured - PDF processing queue unavailable. File uploaded but not queued for processing.",
