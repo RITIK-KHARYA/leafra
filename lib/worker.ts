@@ -26,7 +26,7 @@ interface Vector {
 // Get Redis connection details from environment variables
 // Returns null if Redis is not configured (consistent with rest of codebase)
 const getRedisConnection = () => {
-  const url = env.UPSTASH_REDIS_REST_URL;
+  const url = env.UPSTASH_REDIS_REST_URL.trim();
   if (!url || !env.UPSTASH_REDIS_REST_TOKEN) {
     // Return null to indicate Redis is not configured
     return null;

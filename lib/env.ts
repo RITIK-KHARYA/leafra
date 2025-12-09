@@ -2,7 +2,9 @@ import { z } from "zod";
 
 const envSchema = z.object({
   // Database
-  DATABASE_URL: z.string().url("DATABASE_URL must be a valid PostgreSQL connection string"),
+  DATABASE_URL: z
+    .string()
+    .url("DATABASE_URL must be a valid PostgreSQL connection string"),
 
   // Pinecone
   PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
@@ -24,10 +26,17 @@ const envSchema = z.object({
   DISCORD_CLIENT_SECRET: z.string().optional(),
 
   // Next.js Public Variables
-  NEXT_PUBLIC_BASE_URL: z.string().url().optional().default("http://localhost:3000"),
+  NEXT_PUBLIC_BASE_URL: z
+    .string()
+    .url()
+    .optional()
+    .default("http://localhost:3000"),
 
   // Node Environment
-  NODE_ENV: z.enum(["development", "production", "test"]).optional().default("development"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .optional()
+    .default("development"),
 });
 
 function getEnv() {
@@ -35,9 +44,13 @@ function getEnv() {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const missingVars = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`);
+      const missingVars = error.errors.map(
+        (err) => `${err.path.join(".")}: ${err.message}`
+      );
       throw new Error(
-        `❌ Invalid environment variables:\n${missingVars.join("\n")}\n\nPlease check your .env.local file.`
+        `❌ Invalid environment variables:\n${missingVars.join(
+          "\n"
+        )}\n\nPlease check your .env.local file.`
       );
     }
     throw error;
@@ -45,4 +58,3 @@ function getEnv() {
 }
 
 export const env = getEnv();
-
