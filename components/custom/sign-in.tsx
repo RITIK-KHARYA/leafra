@@ -140,11 +140,13 @@ export default function SignIn() {
               disabled={!email.trim() || loadingEmail}
               onClick={handleEmailSignIn}
             >
+
               {loadingEmail ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
                 "Continue"
               )}
+
             </Button>
           </div>
         </div>
