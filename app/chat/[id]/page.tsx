@@ -11,7 +11,7 @@ import { DefaultChatTransport } from "ai";
 import { Input } from "@/components/ui/input";
 import MessageList from "@/components/event/MessageList";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 
 // Database message type
 type DbMessage = {
@@ -29,7 +29,7 @@ type ApiResponse<T> = {
   statusCode: number;
 };
 
-export default function ChatPage() {
+function ChatPageContent() {
   const chatId = useParams().id as string;
   const router = useRouter();
   const [dbMessages, setDbMessages] = useState<DbMessage[]>([]);
@@ -178,5 +178,19 @@ export default function ChatPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          Loading...
+        </div>
+      }
+    >
+      <ChatPageContent />
+    </Suspense>
   );
 }

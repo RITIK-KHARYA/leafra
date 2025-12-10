@@ -14,7 +14,7 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
       const res = await getFile(chatId.toString());
       console.log("working", res);
       if (res.data?.pdfUrl) {
-      setpdfurl(res.data.pdfUrl);
+        setpdfurl(res.data.pdfUrl);
       }
     };
     getdata();
@@ -40,7 +40,8 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
               allowedContent: "hidden",
               button: "data-[state=ready]:bg-neutral-700/60 p-2 text-white",
             }}
-            input={{ chatId } as { chatId: string }}
+            // @ts-expect-error - input prop exists at runtime but not in generated types
+            input={{ chatId }}
             endpoint="pdfUploader"
             onClientUploadComplete={(res) => {
               // Do something with the response

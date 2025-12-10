@@ -1,14 +1,23 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Twitter } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function Footer() {
+  const [year, setYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+
   return (
     <footer className="relative w-[80%] rounded-t-3xl bg-black text-gray-300 py-6 overflow-hidden">
       {/* Blue gradient in top right corner */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl bg-graident from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
+      <div className="absolute top-0 right-0 w-40 h-40 bg-linear-to-bl bg-graident from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
 
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
+      <div className="absolute top-0 right-0 w-40 h-40 bg-linear-to-bl from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           {/* Company Logo and Name */}
@@ -76,7 +85,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="mt-4 text-center sm:text-right text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Leafra. All rights reserved.</p>
+          <p>&copy; {year ?? "2024"} Leafra. All rights reserved.</p>
         </div>
       </div>
     </footer>
