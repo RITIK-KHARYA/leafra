@@ -1,11 +1,19 @@
 import { cn } from "@/lib/utils";
-import { Message } from "@ai-sdk/react";
+import { UIMessage } from "@ai-sdk/react";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
 type Props = {
   isLoading: boolean;
-  messages: Message[];
+  messages: UIMessage[];
+};
+
+// Helper function to extract text content from UIMessage parts
+const getMessageContent = (message: UIMessage): string => {
+  return message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => (part as { type: "text"; text: string }).text)
+    .join("");
 };
 
 const MessageList = ({ messages, isLoading }: Props) => {
@@ -20,12 +28,13 @@ const MessageList = ({ messages, isLoading }: Props) => {
   return (
     <div className="flex flex-col gap-2 px-4">
       {messages.map((message) => {
+        const content = getMessageContent(message);
         return (
           <div
             key={message.id}
             className={cn("flex", {
               "justify-end pl-10": message.role === "user",
-              "justify-start pr-10": message.role === "system",
+              "justify-start pr-10": message.role === "assistant" || message.role === "system",
             })}
           >
             <div
@@ -36,7 +45,7 @@ const MessageList = ({ messages, isLoading }: Props) => {
                 }
               )}
             >
-              <p>{message.content}</p>
+              <p>{content}</p>
             </div>
           </div>
         );

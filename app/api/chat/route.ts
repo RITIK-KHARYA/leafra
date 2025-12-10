@@ -133,8 +133,8 @@ export async function POST(req: Request) {
       );
     }
 
-    await createMessage(chatId, messageContent, "user");
     const context = await getResultFromQuery(messageContent, chatId);
+    await createMessage(chatId, messageContent, "user");
 
     // Transform messages to AI SDK format (extract content from parts if needed)
     // Filter out messages with empty content to prevent sending invalid messages to AI
@@ -184,9 +184,13 @@ export async function POST(req: Request) {
         await createMessage(chatId, responseText.text, "system");
       },
     });
-    return result.toDataStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     logger.error("Error processing chat request", error);
-    return ApiResponse.internalError();
+    return ApiResponse.error("Error processing chat request", 500, {
+      error: error instanceof Error ? error.message : "Unknown error",
+      details: error instanceof Error ? error.stack : undefined,
+      statusCode: 500,
+    });
   }
 }

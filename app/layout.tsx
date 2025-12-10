@@ -28,7 +28,36 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Leafra",
-  description: "AI Chatbot",
+  description: "AI Powered PDF RAG System",
+  openGraph: {
+    title: "Leafra",
+    siteName: "Leafra",
+    url: "https://leafraa.ai",
+    type: "website",
+    description: "AI Powered PDF RAG System",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
+  manifest: "/manifest.json",
+  alternates: {
+    canonical: "https://leafraa.ai",
+  },
+  creator: "Leafra",
+  publisher: "Leafra",
+  category: "technology",
+  keywords: ["AI", "PDF", "RAG", "System"],
 };
 
 export default function RootLayout({
