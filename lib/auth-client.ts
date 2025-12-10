@@ -24,6 +24,27 @@ export const signInWithGoogle = async () => {
   });
 };
 
+export const signUpWithGithub = async () => {
+  await signUp.social({
+    provider: "github",
+    callbackURL: "http://localhost:3000/dashboard",
+  });
+};
+
+export const signUpWithDiscord = async () => {
+  await signUp.social({
+    provider: "discord",
+    callbackURL: "http://localhost:3000/dashboard",
+  });
+};
+
+export const signUpWithGoogle = async () => {
+  await signUp.social({
+    provider: "google",
+    callbackURL: "http://localhost:3000/dashboard",
+  });
+};
+
 export const signout = async () => {
   await signOut();
 };

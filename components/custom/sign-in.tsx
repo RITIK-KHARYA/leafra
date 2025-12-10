@@ -56,10 +56,10 @@ export default function SignIn() {
         />
         <div className="text-center space-y-1">
           <h1 className="text-5xl font-medium font-instrument-serif">
-            Welcome to Leafra
+            Welcome Back !
           </h1>
-          <p className="text-sm text-zinc-400">
-            Sign in to access your brand space
+          <p className="text-4xl text-neutral-200 font-medium font-instrument-serif">
+            Login to your account
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export default function SignIn() {
             {loadingGoogle ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              <img src="/google.svg" className="h-4 w-4" />
+              <img src="/google.svg" className="h-4 w-4 m-1" />
             )}
             <p>Sign in with Google</p>
           </Button>
@@ -100,7 +100,7 @@ export default function SignIn() {
             {loadingDiscord ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              <img src="discordd.png" className="h-7 w-7" />
+              <img src="/discord.svg" className="h-5 w-5 invert m-1" />
             )}
             <p>Sign in with Discord</p>
           </Button>
@@ -120,7 +120,7 @@ export default function SignIn() {
             {loadingGithub ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              <img src="/github.png" className="h-6 w-6" />
+              <img src="/githubblack.png" className="h-6 w-6" />
             )}
             <p>Sign in with Github</p>
           </Button>
