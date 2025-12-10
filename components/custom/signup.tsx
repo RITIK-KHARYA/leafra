@@ -33,11 +33,11 @@ export default function AuthComponent() {
       </div>
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
+      <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-black to-gray-900" />
 
       {/* Decorative blur blob */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-96 opacity-20 z-0">
-        <div className="w-full h-full bg-gradient-to-br from-purple-900 via-blue-900 to-black rounded-full blur-3xl" />
+        <div className="w-full h-full bg-linear-to-br from-purple-900 via-blue-900 to-black rounded-full blur-3xl" />
       </div>
 
       {/* Geometric decorations */}
