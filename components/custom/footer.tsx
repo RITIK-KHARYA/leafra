@@ -13,21 +13,19 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="relative w-[80%] rounded-t-3xl bg-black text-gray-300 py-6 overflow-hidden">
+    <footer className="relative w-full text-gray-300 py-6 overflow-hidden">
       {/* Blue gradient in top right corner */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-linear-to-bl bg-graident from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
-
-      <div className="absolute top-0 right-0 w-40 h-40 bg-linear-to-bl from-blue-800/20 to-transparent via-neutral-950/20 -z-0 rounded-bl-full"></div>
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+     
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2z">
           {/* Company Logo and Name */}
           <div className="flex items-center gap-2">
             <Image
-              src="/mainlogo.png"
+              src="/logo2.png"
               alt="Leafra Logo"
-              width={24}
-              height={24}
-              className="object-contain"
+              width={52}
+              height={52}
+              className="object-center"
             />
             <span className="text-white font-medium">Leafra</span>
           </div>

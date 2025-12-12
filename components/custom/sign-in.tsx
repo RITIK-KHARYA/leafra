@@ -50,7 +50,7 @@ export default function SignIn() {
     >
       <div className="w-full max-w-md flex flex-col items-center gap-6">
         <img
-          src={"/logo.png"}
+          src={"/logo2.png"}
           alt="logo"
           className="h-20 w-20 rounded-full object-cover flex items-center justify-center"
         />
@@ -140,13 +140,11 @@ export default function SignIn() {
               disabled={!email.trim() || loadingEmail}
               onClick={handleEmailSignIn}
             >
-
               {loadingEmail ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
                 "Continue"
               )}
-
             </Button>
           </div>
         </div>
