@@ -4,7 +4,6 @@ import { Queue } from "bullmq";
 import { UTApi } from "uploadthing/server";
 import { useSonner } from "sonner";
 import { updateFile } from "@/app/actions/file/update";
-import { auth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import z from "zod";
 
@@ -52,6 +51,7 @@ export const ourFileRouter = {
     )
     .middleware(async ({ req, input }) => {
       // Validate session using better-auth
+      const { auth } = await import("@/lib/auth");
       const session = await auth.api.getSession({
         headers: req.headers,
       });
@@ -73,11 +73,11 @@ export const ourFileRouter = {
 
       // Add to queue if Redis is configured, otherwise log a warning
       if (queue) {
-      await queue.add("upload-pdf", {
-        fileUrl: file.ufsUrl,
-        userId: metadata.userId,
-        chatId: metadata.chatId,
-      });
+        await queue.add("upload-pdf", {
+          fileUrl: file.ufsUrl,
+          userId: metadata.userId,
+          chatId: metadata.chatId,
+        });
       } else {
         logger.warn(
           "Redis not configured - PDF processing queue unavailable. File uploaded but not queued for processing.",

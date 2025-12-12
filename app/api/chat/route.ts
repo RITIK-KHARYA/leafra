@@ -4,7 +4,6 @@ import { generateText, smoothStream, streamText } from "ai";
 import { getSystemPrompt } from "@/lib/services/ai/prompts";
 import { getChats } from "@/app/actions/chat/get";
 import { createMessage } from "@/app/actions/message/create";
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { ApiResponse } from "@/lib/api-response";
@@ -75,6 +74,7 @@ const chatRequestSchema = z.object({
 export async function POST(req: Request) {
   try {
     // Authenticate user
+    const { auth } = await import("@/lib/auth");
     const session = await auth.api.getSession({
       headers: await headers(),
     });

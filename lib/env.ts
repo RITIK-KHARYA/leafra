@@ -40,21 +40,36 @@ const envSchema = z.object({
 });
 
 function getEnv() {
-  try {
-    return envSchema.parse(process.env);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const missingVars = error.errors.map(
-        (err) => `${err.path.join(".")}: ${err.message}`
-      );
-      throw new Error(
-        `❌ Invalid environment variables:\n${missingVars.join(
-          "\n"
-        )}\n\nPlease check your .env.local file.`
-      );
+  // Lazy validation - only validate when accessed, not on import
+  let validatedEnv: any = null;
+
+  const validateEnv = () => {
+    if (validatedEnv) return validatedEnv;
+
+    try {
+      validatedEnv = envSchema.parse(process.env);
+      return validatedEnv;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const missingVars = error.errors.map(
+          (err) => `${err.path.join(".")}: ${err.message}`
+        );
+        throw new Error(
+          `❌ Invalid environment variables:\n${missingVars.join(
+            "\n"
+          )}\n\nPlease check your .env.local file.`
+        );
+      }
+      throw error;
     }
-    throw error;
-  }
+  };
+
+  // Return a proxy that validates on first access
+  return new Proxy({} as any, {
+    get(target, prop) {
+      return validateEnv()[prop];
+    },
+  });
 }
 
 export const env = getEnv();
