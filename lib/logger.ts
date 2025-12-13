@@ -7,7 +7,7 @@ interface LogContext {
 }
 
 class Logger {
-  private isDevelopment = env.NODE_ENV === "development";
+  private isDevelopment = process.env.NODE_ENV === "development";
 
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
