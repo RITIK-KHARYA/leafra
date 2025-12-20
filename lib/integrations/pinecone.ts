@@ -1,7 +1,7 @@
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { env } from "@/lib/env";
-import { logger } from "@/lib/logger";
+import { logger } from "../logger";
+import { env } from "../env";
 
 let pinecone: Pinecone | null = null;
 

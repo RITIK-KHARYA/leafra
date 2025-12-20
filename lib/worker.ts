@@ -4,9 +4,9 @@ import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
-import { Pinecone } from "@pinecone-database/pinecone";
+// import { Pinecone } from "@pinecone-database/pinecone";
 import { getPineconeClient } from "./integrations/pinecone";
-import { getRedisClient } from "./integrations/redis";
+// import { getRedisClient } from "./integrations/redis";
 import { env } from "./env";
 import { logger } from "./logger";
 
@@ -81,9 +81,11 @@ const worker = new Worker(
 
       const fileUrl = job.data.fileUrl;
       const response = await fetch(fileUrl);
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch PDF: ${response.status} ${response.statusText}`
+        );
       }
 
       const buffer = await response.buffer();
@@ -122,7 +124,7 @@ const worker = new Worker(
       const namespace = pineconeIndex.namespace(job.data.chatId);
 
       await namespace.upsert(docsWithVectors);
-      
+
       logger.info("PDF embedded and stored in Pinecone", {
         jobId: job.id,
         chatId: job.data.chatId,
@@ -137,7 +139,7 @@ const worker = new Worker(
       // Re-throw error so BullMQ can handle retries
       throw err;
     }
-  },
+  }, 
   {
     connection: redisConnection,
   }
