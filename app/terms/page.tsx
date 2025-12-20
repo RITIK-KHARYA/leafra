@@ -40,9 +40,9 @@ export default function TermsPage() {
             Your privacy is important to us. Please review our Privacy Policy, which also governs your use of Leafra.
           </p>
 
-          <p className="text-gray-400 text-sm mt-12">
+          {/* <p className="text-gray-400 text-sm mt-12">
             Last updated: {new Date().toLocaleDateString()}
-          </p>
+          </p> */}
         </div>
       </div>
     </main>
