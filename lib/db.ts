@@ -5,10 +5,20 @@ import { env } from "./env";
 
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  // Add connection timeout and retry settings
-  connectionTimeoutMillis: 10000, // 10 seconds
-  idleTimeoutMillis: 30000, // 30 seconds
+  // Enhanced connection settings for better reliability
+  connectionTimeoutMillis: 20000, // 20 seconds (increased from 10)
+  idleTimeoutMillis: 45000, // 45 seconds (increased from 30)
   max: 20, // Maximum number of connections
+  min: 2, // Minimum number of connections to maintain
+  // Keep connections alive to prevent timeouts
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 0,
+  // Query timeout to prevent hanging queries
+  query_timeout: 30000, // 30 seconds
+  statement_timeout: 30000, // 30 seconds for individual statements
+  // Retry settings
+  // Allow multiple statements in one query (useful for transactions)
+  allowExitOnIdle: true,
 });
 
 // Test database connection on startup
