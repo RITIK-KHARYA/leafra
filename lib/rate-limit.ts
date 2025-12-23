@@ -54,11 +54,22 @@ class RateLimiter {
         reset: (windowStart + 1) * this.config.windowSeconds * 1000,
       };
     } catch (error) {
-      // On error, allow the request but log the error
+      // On error, log and decide behavior based on environment
+      // In production, we might want to fail-closed, but for development
+      // failing open prevents blocking legitimate requests during Redis issues
       logger.error("Rate limit check failed", error, {
         prefix: this.prefix,
         identifier,
       });
+      
+      // Fail-open: Allow request but log warning
+      // This prevents Redis outages from blocking all requests
+      // In production, consider implementing a circuit breaker pattern
+      logger.warn("Rate limiting unavailable, allowing request", {
+        prefix: this.prefix,
+        identifier,
+      });
+      
       return {
         success: true,
         remaining: this.config.maxRequests,

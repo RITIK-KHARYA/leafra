@@ -61,9 +61,9 @@ export const auth = betterAuth({
     expiresIn: 7 * 24 * 60 * 60, // 7 days
     updateAge: 24 * 60 * 60, // Update session every 24 hours
   },
-  // Add rate limiting to prevent database overload
-  rateLimit: {
-    window: 10 * 60 * 1000, // 10 minutes
-    max: 100, // max requests per window
-  },
+  // Remove rate limiting until Redis is properly configured
+  // rateLimit: {
+  //   window: 10 * 60 * 1000, // 10 minutes
+  //   max: 100, // max requests per window
+  // },
 });

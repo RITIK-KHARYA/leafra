@@ -9,6 +9,13 @@ import { z } from "zod";
 import { ApiResponse } from "@/lib/api-response";
 import { logger } from "@/lib/logger";
 import { chatRateLimiter } from "@/lib/rate-limit";
+import { ensureChatOwnership } from "@/lib/services/auth/chat-authorization";
+import {
+  AuthorizationError,
+  NotFoundError,
+  ValidationError,
+} from "@/lib/errors";
+import { withRetry } from "@/lib/db/transactions";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -103,6 +110,20 @@ export async function POST(req: Request) {
     }
 
     const { messages, chatId } = validationResult.data;
+
+    // Validate chat ownership before processing
+    try {
+      await ensureChatOwnership(chatId, session.user.id);
+    } catch (error) {
+      if (error instanceof AuthorizationError) {
+        return ApiResponse.error(error.message, error.statusCode);
+      }
+      if (error instanceof NotFoundError) {
+        return ApiResponse.notFound(error.message);
+      }
+      throw error;
+    }
+
     const lastMessage = messages[messages.length - 1];
 
     // Extract content from message - handle both content (string) and parts (array) formats
@@ -133,8 +154,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const context = await getResultFromQuery(messageContent, chatId);
-    await createMessage(chatId, messageContent, "user");
+    // Get context from Pinecone
+    let context: string;
+    try {
+      context = await getResultFromQuery(messageContent, chatId);
+    } catch (error) {
+      logger.warn("Failed to get context from Pinecone, using fallback", error);
+      context = "No context available";
+    }
 
     // Transform messages to AI SDK format (extract content from parts if needed)
     // Filter out messages with empty content to prevent sending invalid messages to AI
@@ -171,8 +198,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await streamText({
-      model: togetherai("deepseek-ai/DeepSeek-V3"),
+    // Create stream result - this doesn't start streaming yet
+    const result = streamText({
+      model: togetherai("deepseek-ai/DeepSeek-V3.1"),
       system: getSystemPrompt(context, messageContent),
       messages: transformedMessages,
       experimental_transform: smoothStream({
@@ -181,12 +209,57 @@ export async function POST(req: Request) {
       }),
 
       onFinish: async (responseText) => {
-        await createMessage(chatId, responseText.text, "system");
+        // Save assistant message with retry logic
+        try {
+          await withRetry(
+            () => createMessage(chatId, responseText.text, "system"),
+            3,
+            100
+          );
+        } catch (error) {
+          logger.error(
+            "Failed to save assistant message after retries",
+            error,
+            {
+              chatId,
+              messageLength: responseText.text.length,
+            }
+          );
+          // Don't throw - message is already streamed to user
+        }
       },
     });
+
+    // Save user message right before starting the stream
+    // This happens after all validation and right before streaming begins
+    // If streaming fails, the error will be caught in the outer try-catch
+    try {
+      await createMessage(chatId, messageContent, "user");
+    } catch (error) {
+      logger.error("Failed to save user message before stream", error, {
+        chatId,
+      });
+      // Continue anyway - the stream can still proceed
+      // The user message will be visible in the UI from the request
+    }
+
+    // Return the stream response - this actually starts the streaming
     return result.toUIMessageStreamResponse();
   } catch (error) {
     logger.error("Error processing chat request", error);
+
+    // Handle known error types
+    if (error instanceof AuthorizationError) {
+      return ApiResponse.error(error.message, error.statusCode);
+    }
+    if (error instanceof NotFoundError) {
+      return ApiResponse.notFound(error.message);
+    }
+    if (error instanceof ValidationError) {
+      return ApiResponse.badRequest(error.message, error.details);
+    }
+
+    // Generic error response
     return ApiResponse.error("Error processing chat request", 500, {
       error: error instanceof Error ? error.message : "Unknown error",
       details: error instanceof Error ? error.stack : undefined,

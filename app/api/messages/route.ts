@@ -3,6 +3,8 @@ import { getMessages } from "@/app/actions/message/get";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { ApiResponse } from "@/lib/api-response";
+import { ensureChatOwnership } from "@/lib/services/auth/chat-authorization";
+import { AuthorizationError, NotFoundError } from "@/lib/errors";
 
 const chatIdSchema = z.string().uuid("chatId must be a valid UUID");
 
@@ -30,6 +32,19 @@ export async function GET(req: NextRequest) {
       "Invalid chatId format",
       validationResult.error.errors
     );
+  }
+
+  // Validate chat ownership
+  try {
+    await ensureChatOwnership(validationResult.data, session.user.id);
+  } catch (error) {
+    if (error instanceof AuthorizationError) {
+      return ApiResponse.error(error.message, error.statusCode);
+    }
+    if (error instanceof NotFoundError) {
+      return ApiResponse.notFound(error.message);
+    }
+    throw error;
   }
 
   const messages = await getMessages(validationResult.data);

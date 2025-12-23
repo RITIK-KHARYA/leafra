@@ -53,7 +53,7 @@ function ChatPageContent() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`/api/messages? chatId=${chatId}`);
+        const res = await fetch(`/api/messages?chatId=${chatId}`);
         const response: ApiResponse<DbMessage[]> = await res.json();
         if (response.data) {
           setDbMessages(response.data);
