@@ -5,6 +5,8 @@ import { UTApi } from "uploadthing/server";
 import { useSonner } from "sonner";
 import { updateFile } from "@/app/actions/file/update";
 import { logger } from "@/lib/logger";
+import { ensureChatOwnership } from "@/lib/services/auth/chat-authorization";
+import { AuthorizationError, NotFoundError } from "@/lib/errors";
 import z from "zod";
 
 const f = createUploadthing();
@@ -85,7 +87,56 @@ export const ourFileRouter = {
         );
       }
 
-      await updateFile(metadata.chatId, file.ufsUrl, file.name);
+      // Verify chat exists and user owns it before updating
+      try {
+        await ensureChatOwnership(metadata.chatId, metadata.userId);
+        logger.info("Chat ownership verified", {
+          chatId: metadata.chatId,
+          userId: metadata.userId,
+        });
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          logger.error("Chat not found - cannot save file", error, {
+            chatId: metadata.chatId,
+            userId: metadata.userId,
+            fileUrl: file.ufsUrl,
+          });
+          // Don't throw - upload succeeded, but chat doesn't exist
+          return { uploadedBy: metadata.userId };
+        }
+        if (error instanceof AuthorizationError) {
+          logger.error("User does not own chat - cannot save file", error, {
+            chatId: metadata.chatId,
+            userId: metadata.userId,
+            fileUrl: file.ufsUrl,
+          });
+          // Don't throw - upload succeeded, but user doesn't own chat
+          return { uploadedBy: metadata.userId };
+        }
+        // Re-throw unexpected errors
+        throw error;
+      }
+
+      // Update database with file URL
+      try {
+        logger.info("Attempting to save file to database", {
+          chatId: metadata.chatId,
+          fileUrl: file.ufsUrl,
+          fileName: file.name,
+        });
+        await updateFile(metadata.chatId, file.ufsUrl, file.name);
+        logger.info("File successfully saved to database", {
+          chatId: metadata.chatId,
+          fileUrl: file.ufsUrl,
+        });
+      } catch (error) {
+        logger.error("Failed to save file to database", error, {
+          chatId: metadata.chatId,
+          fileUrl: file.ufsUrl,
+          fileName: file.name,
+        });
+        // Don't throw - upload succeeded, DB update failed
+      }
 
       return { uploadedBy: metadata.userId };
     }),

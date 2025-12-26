@@ -9,9 +9,9 @@ const envSchema = z.object({
   // Pinecone
   PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
 
-  // TogetherAI
-  TOGETHER_AI_API_KEY: z.string().min(1, "TOGETHER_AI_API_KEY is required"),
-  TOGETHER_AI_MODEL: z.string().min(1, "TOGETHER_AI_MODEL is required"),
+  // Google
+  GEMINI_AI_API_KEY: z.string().min(1, "GEMINI_AI_API_KEY is required"),
+  // GOOGLE_EMBEDDINGS_MODEL: z.string().min(1, "GOOGLE_EMBEDDINGS_MODEL is required"),
 
   // Redis (Upstash) - Optional but recommended
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),

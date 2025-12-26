@@ -1,115 +1,215 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Bot,
+  Database,
+  FileText,
+  Layout,
+  Shield,
+  Zap,
+} from "lucide-react";
 import BentoGrid from "@/components/custom/BentoGrid";
 import Footer from "@/components/custom/footer";
-import Hero from "@/components/custom/Hero";
+import Header from "@/components/custom/landingheader";
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.1 } },
+};
 
 export default function Home() {
-  const { scrollYProgress } = useScroll();
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
   return (
-    <main className="relative overflow-x-hidden">
-      {/* Parallax Background Layer */}
-      <motion.div
-        className="fixed inset-0 -z-10 bg-linear-to-b from-neutral-950 via-neutral-900 to-black"
-        style={{ y: backgroundY }}
-      >
-        <motion.div
-          className="absolute inset-0 bg-[url('/noise.png')] mix-blend-overlay pointer-events-none"
-          style={{ opacity }}
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-transparent via-transparent to-neutral-950/50" />
-      </motion.div>
+    <div className="min-h-screen bg-neutral-950 text-white selection:bg-emerald-500/30">
+      {/* Background Noise & Gradient */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
+      </div>
 
-      {/* Content Layer */}
-      <div className="relative z-10">
-        {/* Hero Section with Full Viewport Height */}
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Navigation */}
+        <div className="w-full flex justify-center pt-6">
+          <Header />
+        </div>
 
-        <Hero />
+        {/* Hero Section */}
+        <section className="w-full max-w-7xl mx-auto px-6 pt-40 pb-20 flex flex-col items-center text-center">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+            className="max-w-4xl mx-auto space-y-8"
+          >
+            <motion.div variants={fadeInUp} className="flex justify-center">
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Now with Real-time Streaming
+              </span>
+            </motion.div>
 
-        {/* Features Section with Scroll Animations */}
-        <motion.section
-          className="relative w-full py-20 md:py-28 lg:py-32"
-          aria-labelledby="features-heading"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <div className="w-full mx-auto px-4 sm:px-6 lg:px-0">
-            {/* Section Header with Stagger Animation */}
-            <motion.header
-              className="text-center mb-12 md:mb-16 lg:mb-20"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+            <motion.h1
+              variants={fadeInUp}
+              className="text-5xl md:text-7xl font-bold tracking-tight bg-linear-to-b from-white to-white/60 bg-clip-text text-transparent"
             >
-              <motion.h2
-                id="features-heading"
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-white mb-4 md:mb-6"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+              Chat with your PDFs <br />
+              <span className="text-white">Instantly.</span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeInUp}
+              className="text-lg md:text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed"
+            >
+              Transform static documents into interactive conversations. Leafra
+              uses advanced RAG technology to understand your PDFs and answer
+              questions with precision.
+            </motion.p>
+
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              <Link
+                href="/dashboard"
+                className="group relative px-8 py-3.5 rounded-xl bg-white text-neutral-950 font-semibold hover:bg-neutral-200 transition-colors flex items-center gap-2"
               >
-                Powerful features for{" "}
-                <motion.span
-                  className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent"
-                  initial={{ opacity: 0, backgroundPosition: "200% 0" }}
-                  whileInView={{ opacity: 1, backgroundPosition: "0% 0" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                >
-                  intelligent PDF analysis
-                </motion.span>
-              </motion.h2>
-              <motion.p
-                className="text-base md:text-lg lg:text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed"
+                Get Started
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="https://github.com"
+                target="_blank"
+                className="px-8 py-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-white hover:bg-neutral-800 transition-colors"
+              >
+                View on GitHub
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Tech Stack Banner */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 1 }}
+            className="mt-24 pt-10 border-t border-white/5 w-full max-w-5xl"
+          >
+            <p className="text-sm text-neutral-500 uppercase tracking-widest font-medium mb-8">
+              Powered by Modern Tech Stack
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 grayscale opacity-60 hover:opacity-100 transition-opacity duration-500">
+              {/* Simple text representation for tech stack to keep it clean and fast */}
+              <span className="text-xl font-semibold flex items-center gap-2">
+                <Zap className="w-5 h-5" /> Next.js 15
+              </span>
+              <span className="text-xl font-semibold flex items-center gap-2">
+                <Database className="w-5 h-5" /> PostgreSQL
+              </span>
+              <span className="text-xl font-semibold flex items-center gap-2">
+                <Layout className="w-5 h-5" /> Pinecone
+              </span>
+              <span className="text-xl font-semibold flex items-center gap-2">
+                <Bot className="w-5 h-5" /> TogetherAI
+              </span>
+              <span className="text-xl font-semibold flex items-center gap-2">
+                <Shield className="w-5 h-5" /> Better-Auth
+              </span>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="w-full max-w-7xl mx-auto px-6 py-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              How Leafra Works
+            </h2>
+            <p className="text-neutral-400">
+              From upload to answer in seconds.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <FileText className="w-6 h-6 text-emerald-400" />,
+                title: "1. Upload PDF",
+                desc: "Securely upload your documents. We process them in the background using robust worker queues.",
+              },
+              {
+                icon: <Database className="w-6 h-6 text-cyan-400" />,
+                title: "2. Vector Indexing",
+                desc: "Content is converted into semantic embeddings and stored in Pinecone for lightning-fast retrieval.",
+              },
+              {
+                icon: <Bot className="w-6 h-6 text-purple-400" />,
+                title: "3. AI Chat",
+                desc: "Ask questions naturally. Our AI retrieves relevant context and streams intelligent answers instantly.",
+              },
+            ].map((step, i) => (
+              <motion.div
+                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.8 }}
+                transition={{ delay: i * 0.2 }}
+                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors"
               >
-                Transform how you interact with documents using AI-powered
-                retrieval and generation
-              </motion.p>
-            </motion.header>
+                <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                <p className="text-neutral-400 leading-relaxed">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
-            {/* BentoGrid Component with Entrance Animation */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+        {/* Bento Grid Features */}
+        <section className="w-full py-10">
+          <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Powerful Features
+            </h2>
+            <p className="text-neutral-400">
+              Everything you need to interact with your knowledge base.
+            </p>
+          </div>
+          <BentoGrid />
+        </section>
+
+        {/* CTA Section */}
+        <section className="w-full max-w-3xl mx-auto px-6 py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="p-12 rounded-3xl bg-linear-to-b from-emerald-900/20 to-neutral-900 border border-emerald-500/20"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ready to dive in?
+            </h2>
+            <p className="text-neutral-400 mb-8 max-w-lg mx-auto">
+              Join thousands of users leveraging AI to understand their
+              documents faster. Open source and ready to deploy.
+            </p>
+            <Link
+              href="/dashboard"
+              className="inline-flex px-8 py-3.5 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-colors"
             >
-              <BentoGrid />
-            </motion.div>
-          </div>
-        </motion.section>
+              Start Chatting Free
+            </Link>
+          </motion.div>
+        </section>
 
-        {/* Footer Section with Fade In */}
-        <motion.footer
-          className="relative w-full mt-20 md:mt-24 lg:mt-28"
-          role="contentinfo"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <div
-            className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"
-            aria-hidden="true"
-          />
-          <div className="relative w-full flex justify-center items-center py-8 md:py-12">
-            <Footer />
-          </div>
-        </motion.footer>
+        <Footer />
       </div>
-    </main>
+    </div>
   );
 }

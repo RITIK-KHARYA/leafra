@@ -11,23 +11,9 @@ import { DefaultChatTransport } from "ai";
 import { Input } from "@/components/ui/input";
 import MessageList from "@/components/event/MessageList";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useMemo, Suspense } from "react";
-
-// Database message type
-type DbMessage = {
-  id: number;
-  chatId: string;
-  content: string;
-  role: "user" | "system";
-  createdAt: Date;
-};
-
-// API response type
-type ApiResponse<T> = {
-  data: T;
-  message?: string;
-  statusCode: number;
-};
+import { useEffect, useState, useMemo, Suspense, useRef } from "react";
+import { toast } from "sonner";
+import { DbMessage, ApiResponse } from "../types";
 
 function ChatPageContent() {
   const chatId = useParams().id as string;
@@ -50,21 +36,29 @@ function ChatPageContent() {
   }, [dbMessages]);
 
   // Fetch messages from database
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const res = await fetch(`/api/messages?chatId=${chatId}`);
-        const response: ApiResponse<DbMessage[]> = await res.json();
-        if (response.data) {
-          setDbMessages(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching messages:", error);
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch(`/api/messages?chatId=${chatId}`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch messages: ${res.statusText}`);
       }
-    };
+      const response: ApiResponse<DbMessage[]> = await res.json();
+      if (response.data) {
+        setDbMessages(response.data);
+      } else if (response.statusCode !== 200) {
+        toast.error("Failed to load messages");
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      toast.error("Failed to load chat messages. Please refresh the page.");
+    }
+  };
+
+  useEffect(() => {
     if (chatId) {
       fetchMessages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId]);
 
   // Initialize useChat hook
@@ -88,15 +82,56 @@ function ChatPageContent() {
     messages: initialMessages || [],
     onError: (error) => {
       console.error("Chat error:", error);
+      toast.error("Failed to send message. Please try again.");
     },
   });
+
+  // Sync useChat messages with DB messages when they're loaded
+  useEffect(() => {
+    if (initialMessages.length > 0) {
+      // Only sync if useChat messages are empty or different
+      const currentMessageIds = new Set(messages.map((m) => m.id));
+      const dbMessageIds = new Set(initialMessages.map((m) => m.id));
+
+      // Check if we need to sync (DB has messages that useChat doesn't have)
+      const needsSync = initialMessages.some(
+        (msg) => !currentMessageIds.has(msg.id)
+      );
+
+      if (needsSync || (messages.length === 0 && initialMessages.length > 0)) {
+        setMessages(initialMessages);
+      }
+    }
+  }, [initialMessages, setMessages, messages]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
-  // Handle form submission - FIXED!
+  // Track previous status to detect when stream completes
+  const prevStatusRef = useRef(status);
+
+  // Refresh messages after stream completes
+  useEffect(() => {
+    // Only refresh when status changes from streaming/submitted to ready
+    const wasStreaming =
+      prevStatusRef.current === "streaming" ||
+      prevStatusRef.current === "submitted";
+    const isNowReady = status !== "streaming" && status !== "submitted";
+
+    if (wasStreaming && isNowReady && messages.length > 0) {
+      // Small delay to ensure DB has been updated
+      const timeoutId = setTimeout(() => {
+        fetchMessages();
+      }, 500);
+      prevStatusRef.current = status;
+      return () => clearTimeout(timeoutId);
+    }
+    prevStatusRef.current = status;
+  }, [status, messages.length, chatId]);
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || status === "streaming" || status === "submitted") {

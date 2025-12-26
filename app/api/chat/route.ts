@@ -1,6 +1,6 @@
 import { getResultFromQuery } from "@/lib/integrations/pinecone";
-import { togetherai } from "@ai-sdk/togetherai";
-import { generateText, smoothStream, streamText } from "ai";
+import { google } from "@ai-sdk/google";
+import { generateText, LanguageModel, smoothStream, streamText } from "ai";
 import { getSystemPrompt } from "@/lib/services/ai/prompts";
 import { getChats } from "@/app/actions/chat/get";
 import { createMessage } from "@/app/actions/message/create";
@@ -200,7 +200,7 @@ export async function POST(req: Request) {
 
     // Create stream result - this doesn't start streaming yet
     const result = streamText({
-      model: togetherai("deepseek-ai/DeepSeek-V3.1"),
+      model: google("gemini-2.0-flash") as unknown as LanguageModel,
       system: getSystemPrompt(context, messageContent),
       messages: transformedMessages,
       experimental_transform: smoothStream({
