@@ -1,4 +1,5 @@
-import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { TaskType } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { logger } from "../logger";
 import { env } from "../env";
@@ -14,9 +15,10 @@ export function getPineconeClient() {
   return pinecone;
 }
 
-const embeddingAI = new TogetherAIEmbeddings({
-  model: env.TOGETHER_AI_MODEL,
-  apiKey: env.TOGETHER_AI_API_KEY,
+const embeddingAI = new GoogleGenerativeAIEmbeddings({
+  model: "gemini-embeddings-001",
+  apiKey: env.GEMINI_AI_API_KEY,
+  taskType: TaskType.RETRIEVAL_DOCUMENT,
 });
 
 function createEmbedding(text: string) {
