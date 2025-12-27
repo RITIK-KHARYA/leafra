@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { unstable_noStore } from "next/cache";
 import "./globals.css";
-import {
-  ThemeProvider as NextThemesProvider,
-  ThemeProvider,
-} from "next-themes";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import UploadThingProvider from "./components/uploadthing-provider";
 import ReactQueryProvider from "./providers/queryprovider";
 import { Toaster } from "sonner";
@@ -27,37 +24,98 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Leafra",
-  description: "AI Powered PDF RAG System",
+  metadataBase: new URL("https://leafraa.ai"),
+  title: {
+    default: "Leafra - AI Powered PDF RAG System",
+    template: "%s | Leafra",
+  },
+  description:
+    "Transform your PDF documents into intelligent knowledge bases. Ask questions, get instant AI-powered answers with Leafra's advanced RAG (Retrieval-Augmented Generation) system.",
+  keywords: [
+    "AI",
+    "PDF",
+    "RAG",
+    "Retrieval-Augmented Generation",
+    "Document AI",
+    "PDF Chat",
+    "Document Q&A",
+    "AI Assistant",
+    "PDF Analysis",
+    "Vector Search",
+    "Semantic Search",
+    "Document Intelligence",
+    "Knowledge Base",
+    "AI-Powered Search",
+  ],
+  authors: [{ name: "Leafra" }],
+  creator: "Leafra",
+  publisher: "Leafra",
+  applicationName: "Leafra",
+  category: "technology",
+  classification: "Business Software",
   openGraph: {
-    title: "Leafra",
-    siteName: "Leafra",
-    url: "https://leafraa.ai",
     type: "website",
-    description: "AI Powered PDF RAG System",
+    locale: "en_US",
+    url: "https://leafraa.ai",
+    siteName: "Leafra",
+    title: "Leafra - AI Powered PDF RAG System",
+    description:
+      "Transform your PDF documents into intelligent knowledge bases. Ask questions, get instant AI-powered answers with Leafra's advanced RAG system.",
     images: [
       {
-        url: "/og.png",
+        url: "https://leafraa.ai/og.png",
         width: 1200,
         height: 630,
+        alt: "Leafra - AI Powered PDF RAG System",
+        type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/og.png"],
+    title: "Leafra - AI Powered PDF RAG System",
+    description:
+      "Transform your PDF documents into intelligent knowledge bases. Ask questions, get instant AI-powered answers.",
+    images: ["https://leafraa.ai/og.png"],
+    creator: "@leafra",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   manifest: "/manifest.json",
   alternates: {
     canonical: "https://leafraa.ai",
   },
-  creator: "Leafra",
-  publisher: "Leafra",
-  category: "technology",
-  keywords: ["AI", "PDF", "RAG", "System"],
+  verification: {},
+  formatDetection: {
+    telephone: false,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Leafra",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -72,7 +130,7 @@ export default function RootLayout({
     <ReactQueryProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${instrumentSerif.variable} antialiased`}
+          className={`${geistSans.variable} ${instrumentSerif.variable} ${geistMono.variable} antialiased`}
         >
           <NextThemesProvider
             attribute="class"
