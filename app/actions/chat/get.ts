@@ -3,26 +3,33 @@
 import { chat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { cache } from "react";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
 import { logger } from "@/lib/logger";
 
-export const getSession = cache(async () => {
+export const getSession = async () => {
+  try {
+    return auth.api.getSession({
+      headers: await headers(),
+    });
+  } catch (error) {
+    // Log the error for debugging but don't throw to prevent cascading failures
+    logger.error("Failed to get session", error);
+
+    // Return null session instead of throwing to allow graceful degradation
+    return null;
+  }
+};
+
+export async function getChats() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-
-  return session;
-});
-
-export async function getChats() {
-  const user = await getSession();
-  if (!user) {
+  if (!session || !session.user) {
     return {
       data: [],
-      error: "No user found",
-      status: 404,
+      error: "No authenticated user found",
+      status: 401,
     };
   }
   try {
@@ -40,11 +47,11 @@ export async function getChats() {
         pdfSize: chat.pdfSize,
       })
       .from(chat)
-      .where(eq(chat.userId, user.user?.id))
+      .where(eq(chat.userId, session.user.id))
       .orderBy(chat.createdAt);
 
     if (!findchat || findchat.length === 0) {
-      logger.debug("No chats found for user", { userId: user.user?.id });
+      logger.debug("No chats found for user", { userId: session.user.id });
       return {
         data: [],
         error: "No chats found",
@@ -57,7 +64,7 @@ export async function getChats() {
       status: 200,
     };
   } catch (error) {
-    logger.error("Error getting chats", error, { userId: user.user?.id });
+    logger.error("Error getting chats", error, { userId: session.user?.id });
     return {
       data: [],
       error: "Failed to get chats",
@@ -65,4 +72,3 @@ export async function getChats() {
     };
   }
 }
-

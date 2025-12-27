@@ -43,21 +43,38 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
             // @ts-expect-error - input prop exists at runtime but not in generated types
             input={{ chatId }}
             endpoint="pdfUploader"
-            onClientUploadComplete={(res) => {
-              // Do something with the response
+            onClientUploadComplete={async (res) => {
               toast.success("Files uploaded successfully");
               console.log("Files: ", res);
-              console.log("the file have been uploaded");
-              if (res && res[0]?.url) {
-                setpdfurl(res[0].url);
+
+              // Refetch from database after upload to get the correct URL
+              try {
+                // Wait a bit for server to update DB
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                const fileData = await getFile(chatId);
+                if (fileData.data?.pdfUrl) {
+                  setpdfurl(fileData.data.pdfUrl);
+                } else if (res && res[0]?.url) {
+                  // Fallback to upload response URL
+                  setpdfurl(res[0].url);
+                } else {
+                  toast.warning("File uploaded but preview not available");
+                }
+              } catch (error) {
+                console.error("Error fetching file after upload:", error);
+                if (res && res[0]?.url) {
+                  setpdfurl(res[0].url);
+                } else {
+                  toast.error("Failed to load file preview");
+                }
               }
             }}
             onUploadBegin={(res) => {
               console.log("upload begin", res);
             }}
             onUploadError={(error: Error) => {
-              // Do something with the error.
-              alert(`ERROR! ${error.message}`);
+              console.error("Upload error:", error);
+              toast.error(`Upload failed: ${error.message}`);
             }}
           />
         </div>
