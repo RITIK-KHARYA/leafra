@@ -3,121 +3,114 @@ import { FileText, GitBranch, MessageSquare } from "lucide-react";
 
 // --- Custom SVG Components (Subtle & Linear Micro-Interactions) ---
 
-// 1. Upload & Parse: File Icon with a subtle progress bar reveal.
+// 1. Upload & Parse: File Icon with a scanning beam
 const ProcessingFileSVG = ({ isActive, color }) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    className={`w-36 h-36 transition-opacity duration-500 text-gray-700`}
+    className={`w-28 h-28 transition-all duration-500 text-neutral-600 ${
+      isActive ? "text-opacity-80 scale-105" : "text-opacity-40"
+    }`}
   >
-    {/* Document Body */}
     <path
       d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
       stroke="currentColor"
       strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
     />
-    <polyline
-      points="14 2 14 8 20 8"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-
-    {/* Linear Progress Indicator (Slow draw animation) */}
+    <polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.5" />
+    
+    {/* Scanning Beam */}
     <rect
-      x="7"
-      y="14"
-      width="10"
+      x="4"
+      y="0"
+      width="16"
       height="2"
-      rx="1"
-      fill="currentColor"
-      className={`transition-all duration-1000 ease-out`}
+      fill={color}
+      className="opacity-0"
       style={{
-        width: isActive ? "10px" : "0px",
-        opacity: isActive ? 1 : 0.5,
-        fill: color, // Use accent color for the moving element
+        opacity: isActive ? 0.5 : 0,
+        filter: "blur(4px)",
+        animation: isActive ? "scan 2s ease-in-out infinite" : "none",
       }}
     />
   </svg>
 );
 
-// 2. Smart Embeddings: Connecting nodes with a graceful flow effect.
+// 2. Smart Embeddings: Neural Nodes
 const NetworkFlowSVG = ({ isActive, color }) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    className={`w-36 h-36 transition-opacity duration-500 text-gray-700`}
+    className={`w-28 h-28 transition-all duration-500 text-neutral-600 ${
+      isActive ? "text-opacity-80 scale-105" : "text-opacity-40"
+    }`}
   >
-    {/* Nodes */}
-    <circle cx="6" cy="18" r="1.5" stroke="currentColor" strokeWidth="1.5" />
-    <circle cx="18" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5" />
-    <circle cx="18" cy="18" r="1.5" stroke="currentColor" strokeWidth="1.5" />
-
-    {/* Connecting Lines (Always present) */}
-    <line x1="6" y1="18" x2="18" y2="6" stroke="currentColor" strokeWidth="1" />
-    <line
-      x1="6"
-      y1="18"
-      x2="18"
-      y2="18"
-      stroke="currentColor"
-      strokeWidth="1"
-    />
-
-    {/* Flow Indicator (A small white dot moves along the line) */}
-    <circle
-      cx="6"
-      cy="18"
-      r="1"
-      fill="white"
-      className={`transition-all duration-3000 ease-in-out`}
-      style={{
-        opacity: isActive ? 1 : 0,
-        transform: isActive ? "translate(12px, -12px)" : "translate(0, 0)", // Moves diagonally
-        fill: color, // Use accent color for the moving element
-      }}
-    />
+    <circle cx="6" cy="18" r="2" stroke="currentColor" strokeWidth="1.5" />
+    <circle cx="18" cy="6" r="2" stroke="currentColor" strokeWidth="1.5" />
+    <circle cx="18" cy="18" r="2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M6 18 L18 6" stroke="currentColor" strokeWidth="1" strokeDasharray="4 2" />
+    <path d="M6 18 L18 18" stroke="currentColor" strokeWidth="1" strokeDasharray="4 2" />
+    
+    {/* Active pulses */}
+    {[
+      { cx: 6, cy: 18, delay: "0s" },
+      { cx: 18, cy: 6, delay: "0.5s" },
+      { cx: 18, cy: 18, delay: "1s" }
+    ].map((dot, i) => (
+      <circle
+        key={i}
+        cx={dot.cx}
+        cy={dot.cy}
+        r="2"
+        fill={color}
+        className="opacity-0"
+        style={{
+          animation: isActive ? `pulse 2s ease-out infinite ${dot.delay}` : "none",
+        }}
+      />
+    ))}
   </svg>
 );
 
-// 3. Contextual Chat: Message bubble with a clean, fading typing indicator.
+// 3. Contextual Chat: Message Stream
 const TypingChatSVG = ({ isActive, color }) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    className={`w-36 h-36 transition-opacity duration-500 text-gray-700`}
+    className={`w-28 h-28 transition-all duration-500 text-neutral-600 ${
+      isActive ? "text-opacity-80 scale-105" : "text-opacity-40"
+    }`}
   >
-    {/* Chat Bubble */}
     <path
       d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
       stroke="currentColor"
       strokeWidth="1.5"
     />
-
-    {/* Typing Dots Indicator (Subtle opacity fade) */}
-    <circle
-      cx="8"
-      cy="12"
-      r="1"
-      fill="currentColor"
-      className={isActive ? "animate-[fade_1.5s_infinite_0s]" : "opacity-0"}
+    <path
+      d="M8 10h8"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      className="origin-left transition-all duration-500"
+      style={{ transform: isActive ? "scaleX(1)" : "scaleX(0.5)" }}
+    />
+    <path
+      d="M8 14h5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      className="origin-left transition-all duration-500 delay-100"
+      style={{ transform: isActive ? "scaleX(1)" : "scaleX(0.5)" }}
     />
     <circle
-      cx="12"
-      cy="12"
-      r="1"
-      fill="currentColor"
-      className={isActive ? "animate-[fade_1.5s_infinite_0.2s]" : "opacity-0"}
-    />
-    <circle
-      cx="16"
-      cy="12"
-      r="1"
-      fill="currentColor"
-      className={isActive ? "animate-[fade_1.5s_infinite_0.4s]" : "opacity-0"}
+      cx="18"
+      cy="14"
+      r="1.5"
+      fill={color}
+      className="opacity-0"
+      style={{
+        animation: isActive ? "blink 1.5s ease-in-out infinite" : "none",
+      }}
     />
   </svg>
 );
@@ -130,53 +123,64 @@ const RagBentoGridSleek = () => {
   const cards = [
     {
       id: 1,
-      label: "Document Ingestion",
-      title: "Upload & Parse Files",
-      description:
-        "Seamlessly ingest documents. Our OCR extracts text, tables, and metadata instantly, transforming raw files into a searchable knowledge base.",
-      buttonText: "Start Ingestion",
-      icon: <FileText className="w-4 h-4" />,
-      color: "#06b6d4",
+      label: "Ingestion",
+      title: "Upload & Parse",
+      description: "Extract text and metadata instantly.",
+      buttonText: "Upload",
+      icon: <FileText className="w-3.5 h-3.5" />,
+      color: "#0d9488", // Dark Teal/Green
+      hoverBg: "group-hover:bg-emerald-950/30",
+      borderColor: "group-hover:border-emerald-500/30",
       Component: ProcessingFileSVG,
-    }, // Cyan
+    },
     {
       id: 2,
-      label: "Core RAG System",
-      title: "Ask AI Anything...",
-      description:
-        "Interact with your documents naturally. The LLM retrieves precise citations and generates answers based strictly on your source material.",
-      buttonText: "Launch Chat",
-      icon: <MessageSquare className="w-4 h-4" />,
-      color: "#10b981",
+      label: "RAG Core",
+      title: "Ask AI",
+      description: "Retrieve precise citations from docs.",
+      buttonText: "Chat",
+      icon: <MessageSquare className="w-3.5 h-3.5" />,
+      color: "#1e3a8a", // Dark Blue
+      hoverBg: "group-hover:bg-blue-950/30",
+      borderColor: "group-hover:border-blue-500/30",
       Component: TypingChatSVG,
-    }, // Emerald/Green
+    },
     {
       id: 3,
-      label: "Vector & Indexing",
-      title: "Smart Embeddings",
-      description:
-        "Convert unstructured data into high-dimensional vectors, enabling semantic search and millisecond-latency context retrieval.",
-      buttonText: "View Index",
-      icon: <GitBranch className="w-4 h-4" />,
-      color: "#6366f1",
+      label: "Indexing",
+      title: "Embeddings",
+      description: "Semantic search via vector database.",
+      buttonText: "Index",
+      icon: <GitBranch className="w-3.5 h-3.5" />,
+      color: "#581c87", // Dark Purple
+      hoverBg: "group-hover:bg-purple-950/30",
+      borderColor: "group-hover:border-purple-500/30",
       Component: NetworkFlowSVG,
-    }, // Indigo
+    },
   ];
 
   return (
     <>
-      {/* Custom Keyframes for Subtle Animations (Only opacity) */}
       <style>
         {`
-          @keyframes fade {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+          @keyframes scan {
+            0% { transform: translateY(4px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(20px); opacity: 0; }
+          }
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+          }
+          @keyframes blink {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
           }
         `}
       </style>
 
-      <div className="w-full h-screen bg-transparent flex items-center justify-center p-12">
-        <div className="w-full max-w-7xl h-[600px] flex gap-4">
+      <div className="w-full flex justify-center py-10 px-4">
+        <div className="w-full max-w-5xl h-[450px] flex gap-3">
           {cards.map((card) => {
             const isActive = activeId === card.id;
             return (
@@ -184,90 +188,71 @@ const RagBentoGridSleek = () => {
                 key={card.id}
                 onMouseEnter={() => setActiveId(card.id)}
                 className={`
-                  relative h-full rounded-xl cursor-pointer overflow-hidden
-                  transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]
-                  bg-neutral-900/50 border border-neutral-800/30
-                  ${
-                    isActive
-                      ? "flex-3 border-white/20"
-                      : "flex-1 opacity-80 hover:opacity-90"
-                  }
+                  relative group h-full rounded-2xl cursor-pointer overflow-hidden
+                  transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]
+                  bg-neutral-900/40 border border-white/5 backdrop-blur-sm
+                  ${isActive ? "flex-[2]" : "flex-[0.8] hover:flex-[0.9]"}
                 `}
-                // Accent Shadow only on the active card
                 style={{
-                  boxShadow: isActive
-                    ? `0 0 20px -5px ${card.color}99`
-                    : "none",
-                  border: isActive
-                    ? `1px solid ${card.color}`
-                    : "1px solid var(--tw-border-gray-800)",
+                  boxShadow: isActive ? `0 0 30px -10px ${card.color}40` : "none",
                 }}
               >
-                {/* Visual Icon (Muted background element) */}
-                <div
-                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 opacity-10 scale-125`}
-                >
-                  <card.Component isActive={isActive} color={card.color} />
-                </div>
+                {/* Dynamic Background Glow */}
+                <div 
+                  className={`absolute inset-0 transition-colors duration-500 opacity-0 group-hover:opacity-100 ${card.hoverBg}`} 
+                />
+                
+                {/* Active Border Overlay */}
+                <div 
+                  className={`absolute inset-0 border-2 rounded-2xl transition-all duration-500 ${
+                    isActive ? `border-[${card.color}] opacity-20` : "border-transparent"
+                  }`}
+                  style={{ borderColor: isActive ? card.color : 'transparent' }}
+                />
 
-                {/* Inner Content Area */}
-                <div className="relative h-full flex flex-col justify-between p-8 z-10">
-                  {/* Top Header */}
-                  <div
-                    className={`flex items-center gap-3 text-sm font-semibold uppercase tracking-wider transition-colors duration-300 ${
-                      isActive ? "text-white" : "text-gray-500"
-                    }`}
-                  >
-                    <div
-                      className={`p-1.5 rounded-md transition-all duration-300`}
-                      style={{
-                        backgroundColor: isActive ? card.color : "transparent",
-                      }}
-                    >
-                      {card.icon}
-                    </div>
-                    <span
-                      className={
-                        isActive ? "opacity-100 block" : "opacity-0 hidden"
-                      }
-                    >
+                {/* Content Container */}
+                <div className="relative h-full flex flex-col p-6 z-10">
+                  {/* Header Badge */}
+                  <div className={`
+                    flex items-center gap-2 self-start px-3 py-1.5 rounded-full 
+                    text-xs font-medium tracking-wide transition-all duration-300
+                    ${isActive ? "bg-white/10 text-white" : "bg-white/5 text-neutral-500"}
+                  `}>
+                    <span style={{ color: isActive ? card.color : 'currentColor' }}>{card.icon}</span>
+                    <span className={`transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}>
                       {card.label}
                     </span>
                   </div>
 
-                  {/* Bottom Content (Title, Desc, Button) */}
-                  <div
-                    className={`flex flex-col gap-5 transition-all duration-500 ${
-                      isActive ? "translate-y-0" : "translate-y-4"
-                    }`}
-                  >
-                    <h2
-                      className={`text-2xl font-bold text-white leading-snug whitespace-nowrap transition-transform duration-500`}
-                    >
-                      {card.title}
-                    </h2>
+                  {/* Main Visual - Centered when inactive, moves when active */}
+                  <div className={`
+                    flex-1 flex items-center justify-center transition-all duration-700
+                    ${isActive ? "scale-100 translate-y-0" : "scale-90 opacity-60 grayscale"}
+                  `}>
+                    <card.Component isActive={isActive} color={card.color} />
+                  </div>
 
-                    <div
-                      className={`space-y-6 overflow-hidden transition-all duration-300 ${
-                        isActive
-                          ? "max-h-96 opacity-100 delay-200"
-                          : "max-h-0 opacity-0"
-                      }`}
-                    >
-                      <p className="text-gray-400 text-sm leading-relaxed max-w-xl">
+                  {/* Bottom Text Content */}
+                  <div className={`
+                    space-y-3 transition-all duration-500
+                    ${isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-50"}
+                  `}>
+                    <h3 className="text-xl font-bold text-white tracking-tight">
+                      {card.title}
+                    </h3>
+                    
+                    <div className={`
+                      overflow-hidden transition-all duration-500
+                      ${isActive ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}
+                    `}>
+                      <p className="text-sm text-neutral-400 leading-relaxed mb-4">
                         {card.description}
                       </p>
-
-                      {/* Button with Accent */}
-                      <button
-                        className="px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] flex items-center gap-2 text-gray-900"
-                        style={{
-                          backgroundColor: card.color,
-                        }}
-                      >
+                      
+                      <div className="flex items-center text-xs font-semibold uppercase tracking-wider group/btn" style={{ color: card.color }}>
                         {card.buttonText}
-                        <span className="text-lg">→</span>
-                      </button>
+                        <span className="ml-2 transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+                      </div>
                     </div>
                   </div>
                 </div>

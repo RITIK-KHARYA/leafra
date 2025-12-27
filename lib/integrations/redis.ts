@@ -11,6 +11,11 @@ if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
 const redis = new Redis({
   url: env.UPSTASH_REDIS_REST_URL || "",
   token: env.UPSTASH_REDIS_REST_TOKEN || "",
+  // Add retry configuration
+  retry: {
+    retries: 3,
+    backoff: (retryCount) => Math.min(1000 * 2 ** retryCount, 30000),
+  },
 });
 
 // Function to test Redis connection
@@ -31,7 +36,15 @@ export async function getRedisClient() {
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     throw new Error("Redis environment variables are not configured");
   }
-  return redis;
+  
+  // Test connection before returning
+  try {
+    await redis.ping();
+    return redis;
+  } catch (error) {
+    console.error("Redis connection failed:", error);
+    throw new Error("Redis connection unavailable");
+  }
 }
 
 export default redis;

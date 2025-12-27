@@ -11,15 +11,32 @@ export async function updateFile(
   pdfName: string
 ) {
   try {
-    await db
+    logger.info("Updating file in database", { chatId, pdfUrl, pdfName });
+    const result = await db
       .update(chat)
       .set({
         pdfUrl,
         pdfName,
       })
       .where(eq(chat.id, chatId));
+
+    logger.info("Database update result", {
+      chatId,
+      rowCount: result.rowCount || 0,
+    });
+
+    if (result.rowCount === 0) {
+      logger.warn("No rows updated - chat may not exist", { chatId });
+      throw new Error(`Chat with id ${chatId} not found or no rows updated`);
+    }
+
+    logger.info("File successfully updated in database", {
+      chatId,
+      pdfUrl,
+      pdfName,
+    });
   } catch (error) {
     logger.error("Error updating file", error, { chatId, pdfUrl, pdfName });
-    throw new Error("Failed to update file");
+    throw error;
   }
 }
