@@ -48,7 +48,7 @@
     "@types/three": "^0.177.0",
     "@uploadthing/react": "^7.3.3",
     "@upstash/redis": "^1.35.8",
-    "ai": "5",
+    "ai": "6",
     "better-auth": "^1.4.7",
     "bullmq": "^5.66.2",
     "class-variance-authority": "^0.7.1",
