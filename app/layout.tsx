@@ -5,6 +5,8 @@ import "./globals.css";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import UploadThingProvider from "./components/uploadthing-provider";
 import ReactQueryProvider from "./providers/queryprovider";
+import { WebVitals } from "./components/WebVitals";
+import { RootJsonLd } from "./components/JsonLd";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -91,19 +93,10 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    icon: [{ url: "/favicon.ico" }],
+    apple: [{ url: "/og.png", sizes: "1200x630", type: "image/png" }],
   },
   manifest: "/manifest.json",
-  alternates: {
-    canonical: "https://leafraa.ai",
-  },
   verification: {},
   formatDetection: {
     telephone: false,
@@ -132,6 +125,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${instrumentSerif.variable} ${geistMono.variable} antialiased`}
         >
+          <RootJsonLd />
           <NextThemesProvider
             attribute="class"
             defaultTheme="dark"
@@ -139,6 +133,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <UploadThingProvider />
+            <WebVitals />
             {children}
             <Toaster />
           </NextThemesProvider>

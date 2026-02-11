@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Learn how Leafra protects your privacy and handles your data. Our privacy policy covers information collection, use, and your rights.",
+  alternates: { canonical: "https://leafraa.ai/privacy" },
+};
 
 export default function PrivacyPage() {
   return (
@@ -61,12 +69,19 @@ export default function PrivacyPage() {
           <h2 className="text-2xl font-semibold mb-4">6. Contact Us</h2>
           <p className="text-gray-300 mb-6">
             If you have any questions about this Privacy Policy, please contact
-            us through our support channels.
+            us through our{" "}
+            <Link
+              href="/support"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              support
+            </Link>{" "}
+            channels.
           </p>
 
-          {/* <p className="text-gray-400 text-sm mt-12">
-            Last updated: {new Date().toLocaleDateString()}
-          </p> */}
+          <p className="text-gray-400 text-sm mt-12">
+            Last updated: February 2025
+          </p>
         </div>
       </div>
     </main>

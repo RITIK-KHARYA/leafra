@@ -1,10 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "How to Use Leafra",
+  description:
+    "Step-by-step guide to using Leafra: create an account, upload PDFs, and get AI-powered answers from your documents in minutes.",
+  alternates: { canonical: "https://leafraa.ai/how-to-use" },
+};
 
 export default function HowToUsePage() {
   return (
     <main className="min-h-screen bg-black text-white px-4 py-16">
       <div className="max-w-4xl mx-auto">
-        <Link href="/" className="text-blue-400 hover:text-blue-300 mb-8 inline-block">
+        <Link
+          href="/"
+          className="text-blue-400 hover:text-blue-300 mb-8 inline-block"
+        >
           ← Back to Home
         </Link>
 
@@ -12,16 +23,22 @@ export default function HowToUsePage() {
 
         <div className="space-y-8">
           <section className="bg-gray-900/50 p-6 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-400">1. Create an Account</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-blue-400">
+              1. Create an Account
+            </h2>
             <p className="text-gray-300 mb-4">
-              Sign up using your email or social accounts (Google, GitHub, Discord) to get started with Leafra.
+              Sign up using your email or social accounts (Google, GitHub,
+              Discord) to get started with Leafra.
             </p>
           </section>
 
           <section className="bg-gray-900/50 p-6 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-400">2. Upload Your PDF</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-blue-400">
+              2. Upload Your PDF
+            </h2>
             <p className="text-gray-300 mb-4">
-              Create a new chat and upload your PDF document. Our system will process and analyze it automatically.
+              Create a new chat and upload your PDF document. Our system will
+              process and analyze it automatically.
             </p>
             <ul className="text-gray-300 list-disc list-inside space-y-2">
               <li>Supported format: PDF (up to 8MB)</li>
@@ -31,9 +48,12 @@ export default function HowToUsePage() {
           </section>
 
           <section className="bg-gray-900/50 p-6 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-400">3. Ask Questions</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-blue-400">
+              3. Ask Questions
+            </h2>
             <p className="text-gray-300 mb-4">
-              Start asking questions about your document. Our AI will provide accurate answers based on the PDF content.
+              Start asking questions about your document. Our AI will provide
+              accurate answers based on the PDF content.
             </p>
             <div className="bg-gray-800/50 p-4 rounded border-l-4 border-blue-400">
               <p className="text-sm text-gray-400 mb-2">Example questions:</p>
@@ -46,24 +66,45 @@ export default function HowToUsePage() {
           </section>
 
           <section className="bg-gray-900/50 p-6 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-400">4. Manage Your Chats</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-blue-400">
+              4. Manage Your Chats
+            </h2>
             <p className="text-gray-300 mb-4">
-              Access all your previous conversations from the dashboard. Each chat is associated with a specific document.
+              Access all your previous conversations from the dashboard. Each
+              chat is associated with a specific document.
             </p>
           </section>
 
           <section className="bg-gray-900/50 p-6 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-400">Tips for Best Results</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-blue-400">
+              Tips for Best Results
+            </h2>
             <ul className="text-gray-300 space-y-2">
               <li>Be specific in your questions for more accurate answers</li>
               <li>Upload clear, high-quality PDF documents</li>
               <li>Use the chat interface for follow-up questions</li>
-              <li>Try different phrasings if you don't get the expected answer</li>
+              <li>
+                Try different phrasings if you don't get the expected answer
+              </li>
             </ul>
           </section>
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/features"
+            className="text-blue-400 hover:text-blue-300 underline"
+          >
+            Explore Features
+          </Link>
+          <span className="text-gray-500">|</span>
+          <Link
+            href="/support"
+            className="text-blue-400 hover:text-blue-300 underline"
+          >
+            Support & Help
+          </Link>
+          <span className="text-gray-500">|</span>
           <Link
             href="/signin"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
