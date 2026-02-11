@@ -16,7 +16,7 @@ export function getPineconeClient() {
 }
 
 const embeddingAI = new GoogleGenerativeAIEmbeddings({
-  model: "gemini-embeddings-001",
+  model: "gemini-2.5-flash",
   apiKey: env.GEMINI_AI_API_KEY,
   taskType: TaskType.RETRIEVAL_DOCUMENT,
 });
@@ -39,7 +39,7 @@ export async function getResultFromQuery(query: string, chatId: string) {
   const thresholdvalue = 0.5;
   const data = results.matches
     .filter(
-      (match) => match.score !== undefined && match.score > thresholdvalue
+      (match) => match.score !== undefined && match.score > thresholdvalue,
     )
     .map((match) => {
       const content = match.metadata?.content;

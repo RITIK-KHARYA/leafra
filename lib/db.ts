@@ -3,21 +3,39 @@ import { Pool } from "pg";
 import { sql } from "drizzle-orm";
 import { env } from "./env";
 
+const isProduction = env.NODE_ENV === "production";
+const isDevelopment = env.NODE_ENV === "development";
+
+// Environment-specific connection pool settings
+const poolConfig = isProduction
+  ? {
+      // Production: Optimized for performance and reliability
+      connectionTimeoutMillis: 30000, // 30 seconds
+      idleTimeoutMillis: 60000, // 60 seconds
+      max: 20, // Maximum number of connections (higher for production)
+      min: 5, // Minimum connections to maintain (higher for production)
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000, // 10 seconds
+      query_timeout: 45000, // 45 seconds
+      statement_timeout: 45000, // 45 seconds
+      allowExitOnIdle: false, // Keep connections alive in production
+    }
+  : {
+      // Development: More relaxed settings for easier debugging
+      connectionTimeoutMillis: 10000, // 10 seconds (faster failure in dev)
+      idleTimeoutMillis: 30000, // 30 seconds (shorter timeout in dev)
+      max: 10, // Fewer connections needed in development
+      min: 1, // Minimum connections (lower for dev)
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 5000, // 5 seconds
+      query_timeout: 30000, // 30 seconds (shorter in dev)
+      statement_timeout: 30000, // 30 seconds
+      allowExitOnIdle: true, // Allow exit on idle in development
+    };
+
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  // Enhanced connection settings for better reliability
-  connectionTimeoutMillis: 30000, // 30 seconds (further increased)
-  idleTimeoutMillis: 60000, // 60 seconds (further increased)
-  max: 20, // Maximum number of connections
-  min: 2, // Minimum number of connections to maintain
-  // Keep connections alive to prevent timeouts
-  keepAlive: true,
-  keepAliveInitialDelayMillis: 10000, // 10 seconds delay
-  // Query timeout to prevent hanging queries
-  query_timeout: 45000, // 45 seconds
-  statement_timeout: 45000, // 45 seconds for individual statements
-  // Allow multiple statements in one query (useful for transactions)
-  allowExitOnIdle: true,
+  ...poolConfig,
 });
 
 // Test database connection on startup

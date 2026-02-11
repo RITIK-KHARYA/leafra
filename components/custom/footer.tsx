@@ -16,18 +16,18 @@ export default function Footer() {
     <footer className="relative w-full text-gray-300 py-6 overflow-hidden">
       {/* Blue gradient in top right corner */}
      
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2z">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-2">
           {/* Company Logo and Name */}
           <div className="flex items-center gap-2">
             <Image
               src="/logo2.png"
               alt="Leafra Logo"
-              width={52}
-              height={52}
-              className="object-center"
+              width={40}
+              height={40}
+              className="object-center sm:w-[52px] sm:h-[52px]"
             />
-            <span className="text-white font-medium">Leafra</span>
+            <span className="text-white font-medium text-sm sm:text-base">Leafra</span>
           </div>
 
           {/* Social Icons */}

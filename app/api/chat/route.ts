@@ -1,6 +1,5 @@
 import { getResultFromQuery } from "@/lib/integrations/pinecone";
-import { google } from "@ai-sdk/google";
-import { generateText, LanguageModel, smoothStream, streamText } from "ai";
+import { smoothStream, streamText } from "ai";
 import { getSystemPrompt } from "@/lib/services/ai/prompts";
 import { getChats } from "@/app/actions/chat/get";
 import { createMessage } from "@/app/actions/message/create";
@@ -39,7 +38,7 @@ const messagePartSchema = z
     {
       message:
         "Message part must have either a non-empty 'text' or 'content' field",
-    }
+    },
   );
 
 // Message schema that handles both content (string) and parts (array) formats
@@ -62,7 +61,7 @@ const messageSchema = z
         return data.parts.some(
           (part) =>
             (typeof part.text === "string" && part.text.length > 0) ||
-            (typeof part.content === "string" && part.content.length > 0)
+            (typeof part.content === "string" && part.content.length > 0),
         );
       }
       return false;
@@ -70,7 +69,7 @@ const messageSchema = z
     {
       message:
         "Message must have either a non-empty 'content' string or a non-empty 'parts' array with at least one part containing text or content",
-    }
+    },
   );
 
 const chatRequestSchema = z.object({
@@ -105,7 +104,7 @@ export async function POST(req: Request) {
     if (!validationResult.success) {
       return ApiResponse.badRequest(
         "Invalid request",
-        validationResult.error.errors
+        validationResult.error.errors,
       );
     }
 
@@ -145,12 +144,12 @@ export async function POST(req: Request) {
 
       if (messageContent.length === 0) {
         return ApiResponse.badRequest(
-          "Last message must have valid content in either 'content' field or 'parts' array"
+          "Last message must have valid content in either 'content' field or 'parts' array",
         );
       }
     } else {
       return ApiResponse.badRequest(
-        "Last message must have either a non-empty 'content' string or a non-empty 'parts' array"
+        "Last message must have either a non-empty 'content' string or a non-empty 'parts' array",
       );
     }
 
@@ -194,14 +193,24 @@ export async function POST(req: Request) {
     // Ensure we have at least one message with content
     if (transformedMessages.length === 0) {
       return ApiResponse.badRequest(
-        "All messages must have valid content. No messages with extractable content found."
+        "All messages must have valid content. No messages with extractable content found.",
       );
     }
 
     // Create stream result - this doesn't start streaming yet
     const result = streamText({
-      model: google("gemini-2.0-flash") as unknown as LanguageModel,
+      model: "gemini-2.5-flash",
       system: getSystemPrompt(context, messageContent),
+      providerOptions: {
+        google: {
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_LOW_AND_ABOVE",
+            },
+          ],
+        },
+      },
       messages: transformedMessages,
       experimental_transform: smoothStream({
         delayInMs: 20, // optional: defaults to 10ms
@@ -214,7 +223,7 @@ export async function POST(req: Request) {
           await withRetry(
             () => createMessage(chatId, responseText.text, "system"),
             3,
-            100
+            100,
           );
         } catch (error) {
           logger.error(
@@ -223,7 +232,7 @@ export async function POST(req: Request) {
             {
               chatId,
               messageLength: responseText.text.length,
-            }
+            },
           );
           // Don't throw - message is already streamed to user
         }

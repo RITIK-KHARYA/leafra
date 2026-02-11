@@ -9,9 +9,13 @@ const envSchema = z.object({
   // Pinecone
   PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
 
-  // Google
+  // Google Gemini (for embeddings)
   GEMINI_AI_API_KEY: z.string().min(1, "GEMINI_AI_API_KEY is required"),
   // GOOGLE_EMBEDDINGS_MODEL: z.string().min(1, "GOOGLE_EMBEDDINGS_MODEL is required"),
+
+  // TogetherAI (for worker embeddings)
+  TOGETHER_AI_API_KEY: z.string().min(1, "TOGETHER_AI_API_KEY is required"),
+  TOGETHER_AI_MODEL: z.string().min(1, "TOGETHER_AI_MODEL is required"),
 
   // Redis (Upstash) - Optional but recommended
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
@@ -30,7 +34,11 @@ const envSchema = z.object({
     .string()
     .url()
     .optional()
-    .default("http://localhost:3000"),
+    .default(
+      process.env.NODE_ENV === "production"
+        ? "https://your-production-domain.com"
+        : "http://localhost:3000"
+    ),
 
   // Node Environment
   NODE_ENV: z

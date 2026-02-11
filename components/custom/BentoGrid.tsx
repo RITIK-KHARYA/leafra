@@ -3,8 +3,13 @@ import { FileText, GitBranch, MessageSquare } from "lucide-react";
 
 // --- Custom SVG Components (Subtle & Linear Micro-Interactions) ---
 
+interface SVGProps {
+  isActive: boolean;
+  color: string;
+}
+
 // 1. Upload & Parse: File Icon with a scanning beam
-const ProcessingFileSVG = ({ isActive, color }) => (
+const ProcessingFileSVG = ({ isActive, color }: SVGProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -37,7 +42,7 @@ const ProcessingFileSVG = ({ isActive, color }) => (
 );
 
 // 2. Smart Embeddings: Neural Nodes
-const NetworkFlowSVG = ({ isActive, color }) => (
+const NetworkFlowSVG = ({ isActive, color }: SVGProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -73,7 +78,7 @@ const NetworkFlowSVG = ({ isActive, color }) => (
 );
 
 // 3. Contextual Chat: Message Stream
-const TypingChatSVG = ({ isActive, color }) => (
+const TypingChatSVG = ({ isActive, color }: SVGProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -179,16 +184,17 @@ const RagBentoGridSleek = () => {
         `}
       </style>
 
-      <div className="w-full flex justify-center py-10 px-4">
-        <div className="w-full max-w-5xl h-[450px] flex gap-3">
+      <div className="w-full flex justify-center py-6 sm:py-10 px-4">
+        <div className="w-full max-w-5xl h-auto sm:h-[400px] md:h-[450px] flex flex-col sm:flex-row gap-3">
           {cards.map((card) => {
             const isActive = activeId === card.id;
             return (
               <div
                 key={card.id}
                 onMouseEnter={() => setActiveId(card.id)}
+                onClick={() => setActiveId(card.id)}
                 className={`
-                  relative group h-full rounded-2xl cursor-pointer overflow-hidden
+                  relative group h-[280px] sm:h-full rounded-xl sm:rounded-2xl cursor-pointer overflow-hidden
                   transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]
                   bg-neutral-900/40 border border-white/5 backdrop-blur-sm
                   ${isActive ? "flex-[2]" : "flex-[0.8] hover:flex-[0.9]"}
@@ -211,7 +217,7 @@ const RagBentoGridSleek = () => {
                 />
 
                 {/* Content Container */}
-                <div className="relative h-full flex flex-col p-6 z-10">
+                <div className="relative h-full flex flex-col p-4 sm:p-6 z-10">
                   {/* Header Badge */}
                   <div className={`
                     flex items-center gap-2 self-start px-3 py-1.5 rounded-full 
@@ -237,7 +243,7 @@ const RagBentoGridSleek = () => {
                     space-y-3 transition-all duration-500
                     ${isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-50"}
                   `}>
-                    <h3 className="text-xl font-bold text-white tracking-tight">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                       {card.title}
                     </h3>
                     
@@ -245,7 +251,7 @@ const RagBentoGridSleek = () => {
                       overflow-hidden transition-all duration-500
                       ${isActive ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}
                     `}>
-                      <p className="text-sm text-neutral-400 leading-relaxed mb-4">
+                      <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-3 sm:mb-4">
                         {card.description}
                       </p>
                       
