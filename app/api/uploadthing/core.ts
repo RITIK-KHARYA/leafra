@@ -13,15 +13,11 @@ const f = createUploadthing();
 
 import { env } from "@/lib/env";
 
-// Get Redis connection details from environment variables
-// Returns null if Redis is not configured (consistent with rest of codebase)
-const getRedisConnection = () => {
+// BullMQ requires TCP Redis. Upstash uses REST (HTTPS), so only create queue for classic Redis.
+const getRedisConnectionForBullMQ = () => {
   const url = env.UPSTASH_REDIS_REST_URL;
-  if (!url || !env.UPSTASH_REDIS_REST_TOKEN) {
-    // Return null to indicate Redis is not configured (consistent with rate-limit.ts)
-    return null;
-  }
-
+  if (!url || !env.UPSTASH_REDIS_REST_TOKEN) return null;
+  if (url.startsWith("https://") || url.startsWith("http://")) return null;
   const urlObj = new URL(url);
   return {
     host: urlObj.hostname,
@@ -30,13 +26,9 @@ const getRedisConnection = () => {
   };
 };
 
-// Only create queue if Redis is configured
-// If Redis is not available, queue operations will need to be handled differently
-const redisConnection = getRedisConnection();
+const redisConnection = getRedisConnectionForBullMQ();
 const queue = redisConnection
-  ? new Queue("upload-pdf", {
-      connection: redisConnection,
-    })
+  ? new Queue("upload-pdf", { connection: redisConnection })
   : null;
 
 export const ourFileRouter = {
@@ -73,13 +65,24 @@ export const ourFileRouter = {
         fileUrl: file.ufsUrl,
       });
 
-      // Add to queue if Redis is configured, otherwise log a warning
+      // Add to queue if Redis is configured (non-blocking: DB update must always run)
       if (queue) {
-        await queue.add("upload-pdf", {
-          fileUrl: file.ufsUrl,
-          userId: metadata.userId,
-          chatId: metadata.chatId,
-        });
+        try {
+          await queue.add("upload-pdf", {
+            fileUrl: file.ufsUrl,
+            userId: metadata.userId,
+            chatId: metadata.chatId,
+          });
+        } catch (queueError) {
+          logger.warn(
+            "Failed to add PDF to processing queue (file still saved to DB)",
+            {
+              error: queueError,
+              chatId: metadata.chatId,
+              fileUrl: file.ufsUrl,
+            }
+          );
+        }
       } else {
         logger.warn(
           "Redis not configured - PDF processing queue unavailable. File uploaded but not queued for processing.",

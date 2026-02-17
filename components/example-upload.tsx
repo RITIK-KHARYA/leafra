@@ -45,26 +45,23 @@ export default function ExampleUpload({ chatId }: { chatId: string }) {
             endpoint="pdfUploader"
             onClientUploadComplete={async (res) => {
               toast.success("Files uploaded successfully");
-              console.log("Files: ", res);
-
-              // Refetch from database after upload to get the correct URL
+              // Show preview immediately from upload response so UI updates even if DB is slow
+              const uploadUrl = res?.[0]?.url;
+              if (uploadUrl) {
+                setpdfurl(uploadUrl);
+              }
+              // Refetch from DB to stay in sync (server may have saved a different URL e.g. ufsUrl)
               try {
-                // Wait a bit for server to update DB
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 800));
                 const fileData = await getFile(chatId);
                 if (fileData.data?.pdfUrl) {
                   setpdfurl(fileData.data.pdfUrl);
-                } else if (res && res[0]?.url) {
-                  // Fallback to upload response URL
-                  setpdfurl(res[0].url);
-                } else {
+                } else if (!uploadUrl) {
                   toast.warning("File uploaded but preview not available");
                 }
               } catch (error) {
                 console.error("Error fetching file after upload:", error);
-                if (res && res[0]?.url) {
-                  setpdfurl(res[0].url);
-                } else {
+                if (!uploadUrl) {
                   toast.error("Failed to load file preview");
                 }
               }

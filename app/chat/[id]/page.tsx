@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, FileText, Send, Home } from "lucide-react";
-import PdfViewer from "@/components/custom/pdf-viewer";
 import PdfUpload from "@/components/custom/pdf-upload";
 import Header from "@/components/custom/Header";
 import { UIMessage, useChat } from "@ai-sdk/react";

@@ -215,7 +215,7 @@ export default function HomePage() {
 
         <Footer />
       </div>
-      <GpuSvg />
+      {/* <GpuSvg /> */}
     </div>
   );
 }

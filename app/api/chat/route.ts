@@ -15,9 +15,15 @@ import {
   ValidationError,
 } from "@/lib/errors";
 import { withRetry } from "@/lib/db/transactions";
+import { createDeepSeek } from "@ai-sdk/deepseek";
+import { env } from "@/lib/env";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
+
+const deepseek = createDeepSeek({
+  apiKey: env.DEEPSEEK_API_KEY,
+});
 
 // Message part schema for parts array format
 // At least one of text or content must be present and non-empty
@@ -199,10 +205,10 @@ export async function POST(req: Request) {
 
     // Create stream result - this doesn't start streaming yet
     const result = streamText({
-      model: "gemini-2.5-flash",
+      model: deepseek("deepseek-chat"),
       system: getSystemPrompt(context, messageContent),
       providerOptions: {
-        google: {
+        deepseek: {
           safetySettings: [
             {
               category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",

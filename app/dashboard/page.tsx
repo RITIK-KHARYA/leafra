@@ -97,8 +97,6 @@ export default function DashboardPage() {
                   href={stat.id}
                   title={stat.title}
                   description={stat.description || ""}
-                  imageSrc={stat.pdfUrl || ""}
-                  imageAlt={stat.pdfName || ""}
                   onClick={() => console.log("clicked")}
                 />
               ))

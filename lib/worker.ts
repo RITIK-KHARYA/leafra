@@ -3,7 +3,8 @@ import fetch from "node-fetch";
 import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
+import { PremEmbeddings } from "@langchain/community/embeddings/premai";
+
 // import { Pinecone } from "@pinecone-database/pinecone";
 import { getPineconeClient } from "./integrations/pinecone";
 // import { getRedisClient } from "./integrations/redis";
@@ -57,9 +58,9 @@ const pinecone = getPineconeClient();
 const pineconeIndex = pinecone.index("leafravectordb");
 
 // 🧠 Embeddings setup
-const embeddingAI = new TogetherAIEmbeddings({
-  model: env.TOGETHER_AI_MODEL,
-  apiKey: env.TOGETHER_AI_API_KEY,
+const embeddings = new PremEmbeddings({
+  apiKey: env.PREM_API_KEY,
+  model: "@cf/baai/bge-small-en-v1.5",
 });
 
 // 🧾 PDF Upload Worker
@@ -110,7 +111,7 @@ const worker = new Worker(
 
       const docsPromise = docs.map(async (doc, idx) => ({
         id: `${fileUrl}-${doc.metadata.loc.pageNumber}-${idx}`,
-        values: await embeddingAI.embedQuery(
+        values: await embeddings.embedQuery(
           doc.pageContent.replace(/\n/g, "")
         ),
         metadata: {

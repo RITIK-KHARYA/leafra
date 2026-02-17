@@ -1,19 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { priorityEmojis } from "./custom/newChatbtn";
 import { Skeleton } from "./ui/skeleton";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 interface DarkCardProps {
   title?: string;
   description?: string;
-  imageSrc?: string;
   value: string;
-  imageAlt?: string;
   onClick?: () => void;
   href?: string;
 }
@@ -21,9 +17,7 @@ interface DarkCardProps {
 export default function Chatcard({
   title,
   description,
-  imageSrc,
-  imageAlt,
-  href,
+  href, 
   value,
   onClick,
 }: DarkCardProps) {
@@ -40,7 +34,7 @@ export default function Chatcard({
                 {title}
               </h2>
             </div>
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <div className="w-12 h-12 bg-neutral-700 border border-neutral-600 rounded-md overflow-hidden transition-colors duration-300 group-hover:border-neutral-500">
                 {value ? (
                   <div className="flex items-center justify-center w-full h-full hover:scale-110 transition-all duration-300 ease-in-out">
