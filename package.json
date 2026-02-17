@@ -51,7 +51,7 @@
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.44.7",
     "framer-motion": "^12.34.1",
-    "langchain": "^0.3.37",
+    "langchain": "^1.2.24",
     "lucide-react": "^0.513.0",
     "motion": "^12.34.1",
     "next": "^16.1.6",
