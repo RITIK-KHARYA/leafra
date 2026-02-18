@@ -36,15 +36,12 @@ const envSchema = z.object({
     .optional()
     .default(
       process.env.NODE_ENV === "production"
-        ? "https://your-production-domain.com"
+        ? "https://leafra-eight.vercel.app"
         : "http://localhost:3000"
     ),
 
   // Node Environment
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .optional()
-    .default("development"),
+  NODE_ENV: z.enum(["development", "production", "test"]).optional().default("development"),
 });
 
 function getEnv() {

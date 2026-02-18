@@ -1,5 +1,11 @@
+"use client";
+
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { FileText, GitBranch, MessageSquare } from "lucide-react";
+
+const easeOut = [0.16, 1, 0.3, 1] as const;
+const viewportOnce = { once: true, margin: "-100px 0px" } as const;
 
 // --- Custom SVG Components (Subtle & Linear Micro-Interactions) ---
 
@@ -13,7 +19,7 @@ const ProcessingFileSVG = ({ isActive, color }: SVGProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    className={`w-28 h-28 transition-all duration-500 text-neutral-600 ${
+    className={`w-28 h-28 text-neutral-600 transition-[transform,opacity] duration-300 ${
       isActive ? "text-opacity-80 scale-105" : "text-opacity-40"
     }`}
   >
@@ -46,7 +52,7 @@ const NetworkFlowSVG = ({ isActive, color }: SVGProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    className={`w-28 h-28 transition-all duration-500 text-neutral-600 ${
+    className={`w-28 h-28 text-neutral-600 transition-[transform,opacity] duration-300 ${
       isActive ? "text-opacity-80 scale-105" : "text-opacity-40"
     }`}
   >
@@ -82,7 +88,7 @@ const TypingChatSVG = ({ isActive, color }: SVGProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    className={`w-28 h-28 transition-all duration-500 text-neutral-600 ${
+    className={`w-28 h-28 text-neutral-600 transition-[transform,opacity] duration-300 ${
       isActive ? "text-opacity-80 scale-105" : "text-opacity-40"
     }`}
   >
@@ -96,7 +102,7 @@ const TypingChatSVG = ({ isActive, color }: SVGProps) => (
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
-      className="origin-left transition-all duration-500"
+      className="origin-left transition-[transform,opacity] duration-300"
       style={{ transform: isActive ? "scaleX(1)" : "scaleX(0.5)" }}
     />
     <path
@@ -104,7 +110,7 @@ const TypingChatSVG = ({ isActive, color }: SVGProps) => (
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
-      className="origin-left transition-all duration-500 delay-100"
+      className="origin-left transition-[transform,opacity] duration-300 delay-75"
       style={{ transform: isActive ? "scaleX(1)" : "scaleX(0.5)" }}
     />
     <circle
@@ -184,73 +190,99 @@ const RagBentoGridSleek = () => {
         `}
       </style>
 
-      <div className="w-full flex justify-center py-6 sm:py-10 px-4">
+      <motion.div
+        className="w-full flex justify-center py-6 sm:py-10 px-4"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={{
+          visible: { transition: { staggerChildren: 0.08 } },
+        }}
+      >
         <div className="w-full max-w-5xl h-auto sm:h-[400px] md:h-[450px] flex flex-col sm:flex-row gap-3">
-          {cards.map((card) => {
+          {cards.map((card, index) => {
             const isActive = activeId === card.id;
             return (
-              <div
+              <motion.div
                 key={card.id}
+                variants={{
+                  hidden: { opacity: 0, y: 12 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.25, ease: easeOut },
+                  },
+                }}
                 onMouseEnter={() => setActiveId(card.id)}
                 onClick={() => setActiveId(card.id)}
                 className={`
                   relative group h-[280px] sm:h-full rounded-xl sm:rounded-2xl cursor-pointer overflow-hidden
-                  transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]
                   bg-neutral-900/40 border border-white/5 backdrop-blur-sm
-                  ${isActive ? "flex-[2]" : "flex-[0.8] hover:flex-[0.9]"}
+                  ${isActive ? "flex-2" : "flex-[0.8] hover:flex-[0.9]"}
                 `}
                 style={{
                   boxShadow: isActive ? `0 0 30px -10px ${card.color}40` : "none",
+                  transition: "box-shadow 0.2s ease-out",
                 }}
               >
                 {/* Dynamic Background Glow */}
-                <div 
-                  className={`absolute inset-0 transition-colors duration-500 opacity-0 group-hover:opacity-100 ${card.hoverBg}`} 
+                <div
+                  className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${card.hoverBg}`}
                 />
-                
+
                 {/* Active Border Overlay */}
-                <div 
-                  className={`absolute inset-0 border-2 rounded-2xl transition-all duration-500 ${
-                    isActive ? `border-[${card.color}] opacity-20` : "border-transparent"
-                  }`}
-                  style={{ borderColor: isActive ? card.color : 'transparent' }}
+                <div
+                  className="absolute inset-0 border-2 rounded-2xl border-transparent transition-[border-color,opacity] duration-200"
+                  style={{
+                    borderColor: isActive ? card.color : "transparent",
+                    opacity: isActive ? 0.2 : 0,
+                  }}
                 />
 
                 {/* Content Container */}
                 <div className="relative h-full flex flex-col p-4 sm:p-6 z-10">
                   {/* Header Badge */}
-                  <div className={`
+                  <div
+                    className={`
                     flex items-center gap-2 self-start px-3 py-1.5 rounded-full 
-                    text-xs font-medium tracking-wide transition-all duration-300
+                    text-xs font-medium tracking-wide transition-[background-color,color,opacity] duration-200
                     ${isActive ? "bg-white/10 text-white" : "bg-white/5 text-neutral-500"}
-                  `}>
-                    <span style={{ color: isActive ? card.color : 'currentColor' }}>{card.icon}</span>
-                    <span className={`transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}>
+                  `}
+                  >
+                    <span style={{ color: isActive ? card.color : "currentColor" }}>{card.icon}</span>
+                    <span className={`transition-opacity duration-200 ${isActive ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}>
                       {card.label}
                     </span>
                   </div>
 
-                  {/* Main Visual - Centered when inactive, moves when active */}
-                  <div className={`
-                    flex-1 flex items-center justify-center transition-all duration-700
+                  {/* Main Visual - transform and opacity only */}
+                  <div
+                    className={`
+                    flex-1 flex items-center justify-center transition-[transform,opacity] duration-300
                     ${isActive ? "scale-100 translate-y-0" : "scale-90 opacity-60 grayscale"}
-                  `}>
+                  `}
+                  >
                     <card.Component isActive={isActive} color={card.color} />
                   </div>
 
                   {/* Bottom Text Content */}
-                  <div className={`
-                    space-y-3 transition-all duration-500
+                  <div
+                    className={`
+                    space-y-3 transition-[transform,opacity] duration-200
                     ${isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-50"}
-                  `}>
+                  `}
+                  >
                     <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                       {card.title}
                     </h3>
-                    
-                    <div className={`
-                      overflow-hidden transition-all duration-500
-                      ${isActive ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}
-                    `}>
+
+                    <div
+                      className="overflow-hidden transition-[opacity,clip-path] duration-200"
+                      style={{
+                        opacity: isActive ? 1 : 0,
+                        clipPath: isActive ? "inset(0)" : "inset(100% 0 0 0)",
+                      }}
+                    >
                       <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-3 sm:mb-4">
                         {card.description}
                       </p>
@@ -262,11 +294,11 @@ const RagBentoGridSleek = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };

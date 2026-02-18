@@ -13,11 +13,9 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="relative w-full text-gray-300 py-6 overflow-hidden">
-      {/* Blue gradient in top right corner */}
-
+    <footer className="relative w-full border-t border-white/5 bg-neutral-950 text-neutral-400 py-10 sm:py-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8">
           {/* Company Logo and Name */}
           <div className="flex items-center gap-2">
             <Image
@@ -33,38 +31,47 @@ export default function Footer() {
           </div>
 
           {/* Footer links */}
-          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm text-gray-400">
+          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm">
             <Link
               href="/features"
-              className="hover:text-white transition-colors"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
             >
               Features
             </Link>
             <Link
               href="/glossary"
-              className="hover:text-white transition-colors"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
             >
               Glossary
             </Link>
             <Link
               href="/how-to-use"
-              className="hover:text-white transition-colors"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
             >
               How to Use
             </Link>
             <Link
               href="/support"
-              className="hover:text-white transition-colors"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
             >
               Support
             </Link>
             <Link
+              href="/pricing"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
+            >
+              Pricing
+            </Link>
+            <Link
               href="/privacy"
-              className="hover:text-white transition-colors"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
             >
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-white transition-colors">
+            <Link
+              href="/terms"
+              className="opacity-80 hover:opacity-100 transition-opacity duration-200 text-neutral-400 hover:text-white"
+            >
               Terms of Service
             </Link>
           </nav>
@@ -75,7 +82,8 @@ export default function Footer() {
               href="https://x.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 text-white opacity-80 hover:opacity-100 hover:bg-white/10 transition-opacity duration-200"
+              aria-label="X (Twitter)"
             >
               <Twitter size={16} className="text-white" />
             </Link>
@@ -83,7 +91,7 @@ export default function Footer() {
               href="https://peerlist.io"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 text-white opacity-80 hover:opacity-100 hover:bg-white/10 transition-opacity duration-200"
               aria-label="Peerlist"
             >
               <svg
@@ -121,7 +129,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-4 text-center sm:text-right text-xs text-gray-500">
+        <div className="mt-8 pt-6 border-t border-white/5 text-center sm:text-right text-xs text-neutral-500">
           <p>&copy; {year ?? "2024"} Leafra. All rights reserved.</p>
         </div>
       </div>

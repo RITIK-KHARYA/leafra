@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -14,18 +14,31 @@ import {
 import BentoGrid from "@/components/custom/BentoGrid";
 import Footer from "@/components/custom/footer";
 import Header from "@/components/custom/landingheader";
-import GpuSvg from "./gpu";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
+const easeOut = [0.16, 1, 0.3, 1] as const;
+const heroDuration = 0.45;
+const reducedDuration = 0.15;
 
-const stagger = {
-  visible: { transition: { staggerChildren: 0.1 } },
-};
+function useVariants(reduced: boolean) {
+  const duration = reduced ? reducedDuration : heroDuration;
+  const fadeInUp = {
+    hidden: { opacity: 0, ...(reduced ? {} : { y: 20 }) },
+    visible: {
+      opacity: 1,
+      ...(reduced ? {} : { y: 0 }),
+      transition: { duration, ease: easeOut },
+    },
+  };
+  const stagger = {
+    visible: { transition: { staggerChildren: reduced ? 0.03 : 0.07 } },
+  };
+  return { fadeInUp, stagger };
+}
 
 export default function HomePage() {
+  const reduced = useReducedMotion() ?? false;
+  const { fadeInUp, stagger } = useVariants(reduced);
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white selection:bg-emerald-500/30">
       {/* Background Noise & Gradient */}
@@ -74,20 +87,24 @@ export default function HomePage() {
               variants={fadeInUp}
               className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-2"
             >
-              <Link
-                href="/dashboard"
-                className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-white text-neutral-950 font-semibold hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
-              >
-                Get Started
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="https://github.com"
-                target="_blank"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-white hover:bg-neutral-800 transition-colors text-sm sm:text-base text-center"
-              >
-                View on GitHub
-              </Link>
+              <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.15 }}>
+                <Link
+                  href="/dashboard"
+                  className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-white text-neutral-950 font-semibold hover:bg-neutral-200 transition-colors text-sm sm:text-base"
+                >
+                  Get Started
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                </Link>
+              </motion.div>
+              <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.15 }}>
+                <Link
+                  href="https://github.com"
+                  target="_blank"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-white hover:bg-neutral-800 transition-colors text-sm sm:text-base"
+                >
+                  View on GitHub
+                </Link>
+              </motion.div>
             </motion.div>
           </motion.div>
 
@@ -95,7 +112,11 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 1 }}
+            transition={{
+              delay: reduced ? 0.2 : 0.6,
+              duration: reduced ? reducedDuration : 0.4,
+              ease: easeOut,
+            }}
             className="mt-16 sm:mt-20 md:mt-24 pt-8 sm:pt-10 border-t border-white/5 w-full max-w-5xl px-4"
           >
             <p className="text-xs sm:text-sm text-neutral-500 uppercase tracking-widest font-medium mb-6 sm:mb-8">
@@ -156,10 +177,14 @@ export default function HomePage() {
             ].map((step, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
+                viewport={{ once: true, margin: "-100px 0px" }}
+                transition={{
+                  duration: reduced ? reducedDuration : 0.25,
+                  delay: reduced ? 0 : i * 0.08,
+                  ease: easeOut,
+                }}
                 className="p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors"
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white/5 flex items-center justify-center mb-3 sm:mb-4">
@@ -192,9 +217,13 @@ export default function HomePage() {
         {/* CTA Section */}
         <section className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: reduced ? 1 : 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px 0px" }}
+            transition={{
+              duration: reduced ? reducedDuration : 0.25,
+              ease: easeOut,
+            }}
             className="p-6 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl bg-linear-to-b from-emerald-900/20 to-neutral-900 border border-emerald-500/20"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
@@ -204,12 +233,14 @@ export default function HomePage() {
               Join thousands of users leveraging AI to understand their
               documents faster. Open source and ready to deploy.
             </p>
-            <Link
-              href="/dashboard"
-              className="inline-flex px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-colors text-sm sm:text-base"
-            >
-              Start Chatting Free
-            </Link>
+            <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.15 }}>
+              <Link
+                href="/dashboard"
+                className="inline-flex px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-colors text-sm sm:text-base"
+              >
+                Start Chatting Free
+              </Link>
+            </motion.div>
           </motion.div>
         </section>
 
