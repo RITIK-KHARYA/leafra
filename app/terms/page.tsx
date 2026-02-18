@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Terms of Service",
   description:
     "Terms of use for Leafra's AI-powered PDF analysis platform. By using our services you agree to these terms.",
-  alternates: { canonical: "https://leafraa.ai/terms" },
+  alternates: { canonical: "https://leafra-eight.vercel.app/terms" },
 };
 
 const sections = [

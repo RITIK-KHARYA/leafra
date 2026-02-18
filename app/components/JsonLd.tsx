@@ -1,4 +1,4 @@
-const baseUrl = "https://leafraa.ai";
+const baseUrl = "https://leafra-eight.vercel.app";
 
 const organizationSchema = {
   "@context": "https://schema.org",

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = "https://leafraa.ai";
+const baseUrl = "https://leafra-eight.vercel.app";
 
 export default function robots(): MetadataRoute.Robots {
   return {

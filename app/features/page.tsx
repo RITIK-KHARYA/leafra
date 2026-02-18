@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: "Features",
   description:
     "Explore Leafra's AI PDF analysis features: upload & process PDFs, AI-powered chat, vector search, real-time streaming, and secure document handling.",
-  alternates: { canonical: "https://leafraa.ai/features" },
+  alternates: { canonical: "https://leafra-eight.vercel.app/features" },
 };
 
 const features = [

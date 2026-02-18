@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://leafraa.ai"),
+  metadataBase: new URL("https://leafra-eight.vercel.app"),
   title: {
     default: "Leafra - AI Powered PDF RAG System",
     template: "%s | Leafra",
@@ -58,14 +58,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://leafraa.ai",
+    url: "https://leafra-eight.vercel.app",
     siteName: "Leafra",
     title: "Leafra - AI Powered PDF RAG System",
     description:
       "Transform your PDF documents into intelligent knowledge bases. Ask questions, get instant AI-powered answers with Leafra's advanced RAG system.",
     images: [
       {
-        url: "https://leafraa.ai/og.png",
+        url: "https://leafra-eight.vercel.app/og.png",
         width: 1200,
         height: 630,
         alt: "Leafra - AI Powered PDF RAG System",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     title: "Leafra - AI Powered PDF RAG System",
     description:
       "Transform your PDF documents into intelligent knowledge bases. Ask questions, get instant AI-powered answers.",
-    images: ["https://leafraa.ai/og.png"],
+    images: ["https://leafra-eight.vercel.app/og.png"],
     creator: "@leafra",
   },
   robots: {

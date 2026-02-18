@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Pricing",
   description:
     "Leafra pricing: start free with AI-powered PDF chat. Simple, transparent pricing for individuals and teams.",
-  alternates: { canonical: "https://leafraa.ai/pricing" },
+  alternates: { canonical: "https://leafra-eight.vercel.app/pricing" },
 };
 
 const included = [

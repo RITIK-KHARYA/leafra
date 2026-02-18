@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "How to Use Leafra",
   description:
     "Step-by-step guide to using Leafra: create an account, upload PDFs, and get AI-powered answers from your documents in minutes.",
-  alternates: { canonical: "https://leafraa.ai/how-to-use" },
+  alternates: { canonical: "https://leafra-eight.vercel.app/how-to-use" },
 };
 
 const steps = [

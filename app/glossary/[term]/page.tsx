@@ -7,7 +7,7 @@ import {
   getAllGlossarySlugs,
 } from "@/lib/seo/glossary-data";
 
-const baseUrl = "https://leafraa.ai";
+const baseUrl = "https://leafra-eight.vercel.app";
 
 type Props = { params: Promise<{ term: string }> };
 

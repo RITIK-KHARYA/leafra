@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ContentPageLayout from "@/components/custom/ContentPageLayout";
-import { HelpCircle, Wrench, MessageCircle } from "lucide-react";
+import { HelpCircle, Wrench, MessageCircle, LucideIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Support & Help",
   description:
     "Get help with Leafra: account setup, PDF uploads, AI chat, and troubleshooting. Find answers and contact support.",
-  alternates: { canonical: "https://leafraa.ai/support" },
+  alternates: { canonical: "https://leafra-eight.vercel.app/support" },
 };
 
 const gettingStarted = [
@@ -62,18 +62,18 @@ const faqs = [
 function QaBlock({
   title,
   items,
-  icon: Icon,
+  icon: IconComponent,
   iconClass,
 }: {
   title: string;
   items: { q: string; a: string }[];
-  icon: React.ElementType;
+  icon: LucideIcon;
   iconClass: string;
 }) {
   return (
     <div className="p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10">
       <div className={`flex items-center gap-2 mb-4 ${iconClass}`}>
-        <Icon className="w-5 h-5 shrink-0" />
+        <IconComponent className="w-5 h-5 shrink-0" />
         <h2 className="text-lg font-semibold text-white">{title}</h2>
       </div>
       <div className="space-y-4">

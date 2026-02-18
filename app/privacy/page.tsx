@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "Learn how Leafra protects your privacy and handles your data. Our privacy policy covers information collection, use, and your rights.",
-  alternates: { canonical: "https://leafraa.ai/privacy" },
+  alternates: { canonical: "https://leafra-eight.vercel.app/privacy" },
 };
 
 const sections = [
