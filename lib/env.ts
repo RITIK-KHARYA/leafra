@@ -1,0 +1,77 @@
+import { z } from "zod";
+
+const envSchema = z.object({
+  // Database
+  DATABASE_URL: z
+    .string()
+    .url("DATABASE_URL must be a valid PostgreSQL connection string"),
+
+  // Pinecone
+  PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
+
+
+  // PREM_AI_API_KEY: z.string().min(1, "PREM_AI_API_KEY is required"),
+
+PREM_API_KEY: z.string().min(1, "PREM_API_KEY is required"),
+
+  // Redis (Upstash) - Optional but recommended
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+
+  // OAuth Providers - Optional
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  DISCORD_CLIENT_ID: z.string().optional(),
+  DISCORD_CLIENT_SECRET: z.string().optional(),
+
+  // Next.js Public Variables
+  NEXT_PUBLIC_BASE_URL: z
+    .string()
+    .url()
+    .optional()
+    .default(
+      process.env.NODE_ENV === "production"
+        ? "https://leafra-eight.vercel.app"
+        : "http://localhost:3000"
+    ),
+
+  // Node Environment
+  NODE_ENV: z.enum(["development", "production", "test"]).optional().default("development"),
+});
+
+function getEnv() {
+  // Lazy validation - only validate when accessed, not on import
+  let validatedEnv: any = null;
+
+  const validateEnv = () => {
+    if (validatedEnv) return validatedEnv;
+
+    try {
+      validatedEnv = envSchema.parse(process.env);
+      return validatedEnv;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const missingVars = error.errors.map(
+          (err) => `${err.path.join(".")}: ${err.message}`
+        );
+        throw new Error(
+          `❌ Invalid environment variables:\n${missingVars.join(
+            "\n"
+          )}\n\nPlease check your .env.local file.`
+        );
+      }
+      throw error;
+    }
+  };
+
+  // Return a proxy that validates on first access
+  return new Proxy({} as any, {
+    get(target, prop) {
+      return validateEnv()[prop];
+    },
+  });
+}
+
+export const env = getEnv();
