@@ -37,8 +37,8 @@ import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import { newChatSchema } from "@/types/chat";
 import { createChat } from "@/app/actions/chat/create";
-import { useSession } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   MessageCircle,
   Plus,
@@ -72,7 +72,6 @@ const workSections = [
 ];
 
 export function Newchatform() {
-  const user = useSession();
   const form = useForm<z.infer<typeof newChatSchema>>({
     resolver: zodResolver(newChatSchema),
     defaultValues: {
@@ -80,7 +79,6 @@ export function Newchatform() {
       description: "",
       priority: "",
       workSection: "",
-      userid: user?.data?.user,
     },
   });
 
@@ -91,13 +89,17 @@ export function Newchatform() {
   async function onSubmit(data: z.infer<typeof newChatSchema>) {
     try {
       setLoading(true);
-      await createChat(data);
-      await queryClient.invalidateQueries({
-        queryKey: ["chats"],
-      });
-      setLoading(false);
+      const res = await createChat(data);
+      await queryClient.invalidateQueries({ queryKey: ["chats"] });
+      if (res && "data" in res && res.data?.id) {
+        router.push(`/chat/${res.data.id}`);
+      } else if (res && "error" in res && res.error) {
+        toast.error(res.error);
+      }
     } catch (error) {
       console.log(error);
+      toast.error("Failed to create chat");
+    } finally {
       setLoading(false);
     }
   }

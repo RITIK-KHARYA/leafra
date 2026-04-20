@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { messages } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import { logger } from "@/lib/logger";
 
@@ -10,7 +10,8 @@ export async function getMessages(chatId: ParamValue) {
     const messagesList = await db
       .select()
       .from(messages)
-      .where(eq(messages.chatId, chatId.toString()));
+      .where(eq(messages.chatId, chatId.toString()))
+      .orderBy(asc(messages.createdAt), asc(messages.id));
     return messagesList;
   } catch (error) {
     logger.error("Error getting messages", error, {

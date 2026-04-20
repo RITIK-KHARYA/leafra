@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import {
   signIn,
   signInWithDiscord,
@@ -13,19 +15,36 @@ import {
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingDiscord, setLoadingDiscord] = useState(false);
   const [loadingGithub, setLoadingGithub] = useState(false);
   const [loadingEmail, setLoadingEmail] = useState(false);
+  const router = useRouter();
 
   const handleEmailSignIn = async () => {
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      return;
+    }
     setLoadingEmail(true);
     try {
       await signIn.email({
         email,
-        password: "",
+        password,
+        callbackURL: "/dashboard",
+        fetchOptions: {
+          onError: (ctx) => {
+            toast.error(ctx.error.message);
+            setLoadingEmail(false);
+          },
+          onSuccess: async () => {
+            router.push("/dashboard");
+          },
+        },
       });
-    } finally {
+    } catch (error) {
+      console.error("Sign in error:", error);
       setLoadingEmail(false);
     }
   };
@@ -127,38 +146,44 @@ export default function SignIn() {
 
           <div className="text-center text-xs text-zinc-500">or</div>
 
-          <div className="space-y-5">
+          <div className="space-y-3">
             <Input
               type="email"
               placeholder="Email address"
               className="bg-transparent border-zinc-800 text-white placeholder:text-zinc-500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleEnterKey}
+              disabled={loadingEmail}
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              className="bg-transparent border-zinc-800 text-white placeholder:text-zinc-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleEnterKey}
+              disabled={loadingEmail}
             />
             <Button
-              className="w-full bg-white text-black hover:bg-zinc-200 active:scale-[0.98] active:bg-zinc-300 transition-all duration-75"
-              disabled={!email.trim() || loadingEmail}
+              className="w-full bg-white text-black hover:bg-neutral-100 font-medium"
               onClick={handleEmailSignIn}
+              disabled={loadingEmail || !email || !password}
             >
               {loadingEmail ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
-                "Continue"
+                "Sign in with Email"
               )}
             </Button>
           </div>
-        </div>
 
-        <div className="text-center text-[11px] text-zinc-500">
-          By signing in, you agree to our{" "}
-          <a href="/terms" className="underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="/privacy" className="underline">
-            Privacy Policy
-          </a>
-          .
+          <p className="text-xs text-zinc-500 text-center pt-2">
+            Don&apos;t have an account?{" "}
+            <a href="/signup" className="text-white hover:underline">
+              Sign up
+            </a>
+          </p>
         </div>
       </div>
     </main>

@@ -10,8 +10,7 @@ export async function createChat(input: NewChatInput) {
   const user = await getSession();
   if (!user || !user.user?.id) return { error: "Not logged in", status: 401 };
 
-  const userId = input.userid?.id || user.user.id;
-  if (!userId) return { error: "User ID is required", status: 400 };
+  const userId = user.user.id;
 
   try {
     const chatId = crypto.randomUUID();

@@ -9,10 +9,12 @@ const envSchema = z.object({
   // Pinecone
   PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
 
+  // Embeddings (worker)
+  PREM_API_KEY: z.string().min(1, "PREM_API_KEY is required"),
 
-  // PREM_AI_API_KEY: z.string().min(1, "PREM_AI_API_KEY is required"),
-
-PREM_API_KEY: z.string().min(1, "PREM_API_KEY is required"),
+  // LLMs
+  DEEPSEEK_API_KEY: z.string().min(1, "DEEPSEEK_API_KEY is required"),
+  GEMINI_AI_API_KEY: z.string().min(1, "GEMINI_AI_API_KEY is required"),
 
   // Redis (Upstash) - Optional but recommended
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
@@ -41,11 +43,13 @@ PREM_API_KEY: z.string().min(1, "PREM_API_KEY is required"),
   NODE_ENV: z.enum(["development", "production", "test"]).optional().default("development"),
 });
 
-function getEnv() {
-  // Lazy validation - only validate when accessed, not on import
-  let validatedEnv: any = null;
+type Env = z.infer<typeof envSchema>;
 
-  const validateEnv = () => {
+function getEnv(): Env {
+  // Lazy validation - only validate when accessed, not on import
+  let validatedEnv: Env | null = null;
+
+  const validateEnv = (): Env => {
     if (validatedEnv) return validatedEnv;
 
     try {
@@ -67,9 +71,9 @@ function getEnv() {
   };
 
   // Return a proxy that validates on first access
-  return new Proxy({} as any, {
-    get(target, prop) {
-      return validateEnv()[prop];
+  return new Proxy({} as Env, {
+    get(_target, prop) {
+      return validateEnv()[prop as keyof Env];
     },
   });
 }

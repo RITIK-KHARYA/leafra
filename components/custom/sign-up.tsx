@@ -126,7 +126,7 @@ export default function SignUp() {
             {loadingDiscord ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              <img src="discordd.png" className="h-7 w-7" />
+              <img src="/discord.svg" className="h-5 w-5 invert m-1" />
             )}
             <p>Sign up with Discord</p>
           </Button>

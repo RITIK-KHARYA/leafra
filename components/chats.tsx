@@ -1,10 +1,15 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { priorityEmojis } from "./custom/newChatbtn";
 import { Skeleton } from "./ui/skeleton";
+import { Button } from "./ui/button";
 import Link from "next/link";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { deleteChat } from "@/app/actions/chat/delete";
 
 interface DarkCardProps {
   title?: string;
@@ -17,16 +22,54 @@ interface DarkCardProps {
 export default function Chatcard({
   title,
   description,
-  href, 
+  href,
   value,
   onClick,
 }: DarkCardProps) {
+  const [deleting, setDeleting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!href) return;
+    if (!window.confirm("Delete this chat? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const res = await deleteChat(href);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Chat deleted");
+        await queryClient.invalidateQueries({ queryKey: ["chats"] });
+      }
+    } catch {
+      toast.error("Failed to delete chat");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="bg-neutral-900 flex items-center justify-center">
       <Card
-        className="bg-neutral-900 border-neutral-600 max-w-sm w-full cursor-pointer transition-all duration-300 ease-in-out flex flex-col h-52 group hover:bg-neutral-750 hover:border-neutral-500 hover:shadow-xl hover:shadow-neutral-900/30 hover:-translate-y-1"
+        className="bg-neutral-900 border-neutral-600 max-w-sm w-full cursor-pointer transition-all duration-300 ease-in-out flex flex-col h-52 group hover:bg-neutral-750 hover:border-neutral-500 hover:shadow-xl hover:shadow-neutral-900/30 hover:-translate-y-1 relative"
         onClick={onClick}
       >
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDelete}
+          disabled={deleting}
+          aria-label="Delete chat"
+          className="absolute top-2 right-2 z-10 h-7 w-7 text-neutral-400 hover:text-red-400 hover:bg-neutral-800 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          {deleting ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Trash2 className="h-3.5 w-3.5" />
+          )}
+        </Button>
         <Link href={`/chat/${href}`}>
           <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="flex-1 pr-4">

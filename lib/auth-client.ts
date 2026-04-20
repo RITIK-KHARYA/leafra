@@ -5,7 +5,7 @@ const DEVELOPER_URL = "http://localhost:3000";
 const baseURL =
   typeof window !== "undefined"
     ? window.location.origin
-    : (process.env.NEXT_PUBLIC_APP_URL ??
+    : (process.env.NEXT_PUBLIC_BASE_URL ??
         (process.env.NODE_ENV === "production" ? PRODUCTION_URL : DEVELOPER_URL));
 
 export const { signIn, signUp, useSession, getSession, signOut, $Infer } =
@@ -23,6 +23,8 @@ export const signInWithGoogle = async () => {
   await signIn.social({ provider: "google", callbackURL: dashboardCallback });
 };
 
+// Better-auth does not expose `signUp.social`; OAuth providers use
+// `signIn.social` for both first-time sign-up and subsequent sign-in.
 export const signUpWithGithub = async () => {
   await signIn.social({ provider: "github", callbackURL: dashboardCallback });
 };

@@ -50,14 +50,6 @@ export async function getChats() {
       .where(eq(chat.userId, session.user.id))
       .orderBy(chat.createdAt);
 
-    if (!findchat || findchat.length === 0) {
-      logger.debug("No chats found for user", { userId: session.user.id });
-      return {
-        data: [],
-        error: "No chats found",
-        status: 404,
-      };
-    }
     return {
       data: findchat,
       error: null,

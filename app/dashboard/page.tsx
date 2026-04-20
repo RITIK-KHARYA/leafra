@@ -24,7 +24,6 @@ import PdfUpload from "@/components/custom/pdf-upload";
 import NewchatBtn from "@/components/custom/newChatbtn";
 import { useQuery } from "@tanstack/react-query";
 import { getChats } from "../actions/chat/get";
-import { useSession } from "@/lib/auth-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import Chatcard from "@/components/chats";
 
@@ -42,7 +41,6 @@ interface ChatProps {
 }
 
 export default function DashboardPage() {
-  const user = useSession();
   const { data, isLoading, error } = useQuery<ChatProps[]>({
     queryKey: ["chats"],
     queryFn: async () => {

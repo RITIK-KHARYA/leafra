@@ -85,23 +85,15 @@ function ChatPageContent() {
     },
   });
 
-  // Sync useChat messages with DB messages when they're loaded
+  // One-shot hydration: seed useChat with DB messages only while the in-memory
+  // history is empty. Once the user has started streaming we never overwrite
+  // the SDK's state from the DB snapshot (that caused mid-stream oscillation).
   useEffect(() => {
-    if (initialMessages.length > 0) {
-      // Only sync if useChat messages are empty or different
-      const currentMessageIds = new Set(messages.map((m) => m.id));
-      const dbMessageIds = new Set(initialMessages.map((m) => m.id));
-
-      // Check if we need to sync (DB has messages that useChat doesn't have)
-      const needsSync = initialMessages.some(
-        (msg) => !currentMessageIds.has(msg.id)
-      );
-
-      if (needsSync || (messages.length === 0 && initialMessages.length > 0)) {
-        setMessages(initialMessages);
-      }
+    if (messages.length === 0 && initialMessages.length > 0) {
+      setMessages(initialMessages);
     }
-  }, [initialMessages, setMessages, messages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMessages]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

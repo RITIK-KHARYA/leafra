@@ -8,15 +8,22 @@ import { logger } from "@/lib/logger";
 export async function updateFile(
   chatId: string,
   pdfUrl: string,
-  pdfName: string
+  pdfName: string,
+  pdfSize?: number
 ) {
   try {
-    logger.info("Updating file in database", { chatId, pdfUrl, pdfName });
+    logger.info("Updating file in database", {
+      chatId,
+      pdfUrl,
+      pdfName,
+      pdfSize,
+    });
     const result = await db
       .update(chat)
       .set({
         pdfUrl,
         pdfName,
+        ...(typeof pdfSize === "number" ? { pdfSize } : {}),
       })
       .where(eq(chat.id, chatId));
 
@@ -34,9 +41,15 @@ export async function updateFile(
       chatId,
       pdfUrl,
       pdfName,
+      pdfSize,
     });
   } catch (error) {
-    logger.error("Error updating file", error, { chatId, pdfUrl, pdfName });
+    logger.error("Error updating file", error, {
+      chatId,
+      pdfUrl,
+      pdfName,
+      pdfSize,
+    });
     throw error;
   }
 }
