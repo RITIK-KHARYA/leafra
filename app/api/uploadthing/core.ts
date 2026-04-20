@@ -1,19 +1,18 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import { Queue } from "bullmq";
-import { UTApi } from "uploadthing/server";
-import { useSonner } from "sonner";
 import { updateFile } from "@/app/actions/file/update";
 import { logger } from "@/lib/logger";
 import { ensureChatOwnership } from "@/lib/services/auth/chat-authorization";
 import { AuthorizationError, NotFoundError } from "@/lib/errors";
+import { getPineconeClient } from "@/lib/integrations/pinecone";
 import z from "zod";
 
 const f = createUploadthing();
 
 import { env } from "@/lib/env";
 
-// BullMQ requires TCP Redis. Upstash uses REST (HTTPS), so only create queue for classic Redis.
+// BullMQ requires TCP Redis. Upstash REST (HTTPS) is not compatible.
 const getRedisConnectionForBullMQ = () => {
   const url = env.UPSTASH_REDIS_REST_URL;
   if (!url || !env.UPSTASH_REDIS_REST_TOKEN) return null;
@@ -21,7 +20,7 @@ const getRedisConnectionForBullMQ = () => {
   const urlObj = new URL(url);
   return {
     host: urlObj.hostname,
-    port: 6379,
+    port: urlObj.port ? Number(urlObj.port) : 6379,
     password: env.UPSTASH_REDIS_REST_TOKEN,
   };
 };
@@ -30,6 +29,27 @@ const redisConnection = getRedisConnectionForBullMQ();
 const queue = redisConnection
   ? new Queue("upload-pdf", { connection: redisConnection })
   : null;
+
+async function purgePreviousVectors(chatId: string) {
+  try {
+    const pinecone = getPineconeClient();
+    const namespace = pinecone.index("leafravectordb").namespace(chatId);
+    await namespace.deleteAll();
+    logger.info("Purged existing vectors for chat namespace", { chatId });
+  } catch (error) {
+    // Pinecone returns 404 for empty / missing namespaces - treat as no-op.
+    const message =
+      error instanceof Error ? error.message : String(error);
+    if (/not\s*found|404/i.test(message)) {
+      logger.debug("No existing namespace to purge", { chatId });
+      return;
+    }
+    logger.warn("Failed to purge previous vectors (continuing)", {
+      chatId,
+      error: message,
+    });
+  }
+}
 
 export const ourFileRouter = {
   pdfUploader: f({
@@ -65,6 +85,37 @@ export const ourFileRouter = {
         fileUrl: file.ufsUrl,
       });
 
+      // Verify chat exists and user owns it before any side effects.
+      try {
+        await ensureChatOwnership(metadata.chatId, metadata.userId);
+        logger.info("Chat ownership verified", {
+          chatId: metadata.chatId,
+          userId: metadata.userId,
+        });
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          logger.error("Chat not found - cannot save file", error, {
+            chatId: metadata.chatId,
+            userId: metadata.userId,
+            fileUrl: file.ufsUrl,
+          });
+          return { uploadedBy: metadata.userId };
+        }
+        if (error instanceof AuthorizationError) {
+          logger.error("User does not own chat - cannot save file", error, {
+            chatId: metadata.chatId,
+            userId: metadata.userId,
+            fileUrl: file.ufsUrl,
+          });
+          return { uploadedBy: metadata.userId };
+        }
+        throw error;
+      }
+
+      // Re-uploads: clear the chat's previous Pinecone namespace before
+      // enqueuing new vectors so old PDF content cannot bleed into answers.
+      await purgePreviousVectors(metadata.chatId);
+
       // Add to queue if Redis is configured (non-blocking: DB update must always run)
       if (queue) {
         try {
@@ -90,44 +141,20 @@ export const ourFileRouter = {
         );
       }
 
-      // Verify chat exists and user owns it before updating
-      try {
-        await ensureChatOwnership(metadata.chatId, metadata.userId);
-        logger.info("Chat ownership verified", {
-          chatId: metadata.chatId,
-          userId: metadata.userId,
-        });
-      } catch (error) {
-        if (error instanceof NotFoundError) {
-          logger.error("Chat not found - cannot save file", error, {
-            chatId: metadata.chatId,
-            userId: metadata.userId,
-            fileUrl: file.ufsUrl,
-          });
-          // Don't throw - upload succeeded, but chat doesn't exist
-          return { uploadedBy: metadata.userId };
-        }
-        if (error instanceof AuthorizationError) {
-          logger.error("User does not own chat - cannot save file", error, {
-            chatId: metadata.chatId,
-            userId: metadata.userId,
-            fileUrl: file.ufsUrl,
-          });
-          // Don't throw - upload succeeded, but user doesn't own chat
-          return { uploadedBy: metadata.userId };
-        }
-        // Re-throw unexpected errors
-        throw error;
-      }
-
       // Update database with file URL
       try {
         logger.info("Attempting to save file to database", {
           chatId: metadata.chatId,
           fileUrl: file.ufsUrl,
           fileName: file.name,
+          fileSize: file.size,
         });
-        await updateFile(metadata.chatId, file.ufsUrl, file.name);
+        await updateFile(
+          metadata.chatId,
+          file.ufsUrl,
+          file.name,
+          typeof file.size === "number" ? file.size : undefined
+        );
         logger.info("File successfully saved to database", {
           chatId: metadata.chatId,
           fileUrl: file.ufsUrl,

@@ -169,7 +169,9 @@ export async function POST(req: Request) {
     }
 
     // Transform messages to AI SDK format (extract content from parts if needed)
-    // Filter out messages with empty content to prevent sending invalid messages to AI
+    // Filter out messages with empty content to prevent sending invalid messages to AI.
+    // Any persisted "system" role is remapped to "assistant" since the DB stores
+    // assistant replies under the "system" enum value (see lib/db/schema.ts).
     const transformedMessages = messages
       .map((msg) => {
         let content: string;
@@ -189,8 +191,11 @@ export async function POST(req: Request) {
           content = "";
         }
 
+        const role: "user" | "assistant" =
+          msg.role === "user" ? "user" : "assistant";
+
         return {
-          role: msg.role,
+          role,
           content,
         };
       })
@@ -207,16 +212,6 @@ export async function POST(req: Request) {
     const result = streamText({
       model: deepseek("deepseek-chat"),
       system: getSystemPrompt(context, messageContent),
-      providerOptions: {
-        deepseek: {
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_LOW_AND_ABOVE",
-            },
-          ],
-        },
-      },
       messages: transformedMessages,
       experimental_transform: smoothStream({
         delayInMs: 20, // optional: defaults to 10ms

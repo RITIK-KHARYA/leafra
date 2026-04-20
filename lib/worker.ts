@@ -1,13 +1,10 @@
 import { Worker } from "bullmq";
-import fetch from "node-fetch";
 import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { PremEmbeddings } from "@langchain/community/embeddings/premai";
 
-// import { Pinecone } from "@pinecone-database/pinecone";
 import { getPineconeClient } from "./integrations/pinecone";
-// import { getRedisClient } from "./integrations/redis";
 import { env } from "./env";
 import { logger } from "./logger";
 
@@ -24,29 +21,27 @@ interface Vector {
   };
 }
 
-// Get Redis connection details from environment variables
-// Returns null if Redis is not configured (consistent with rest of codebase)
+// Get Redis connection details from environment variables.
+// Returns null if Redis is not configured, or if the URL is HTTP(S)
+// (Upstash REST cannot be used with BullMQ which requires raw TCP).
 const getRedisConnection = () => {
   const url = env.UPSTASH_REDIS_REST_URL?.trim();
-  if (!url || !env.UPSTASH_REDIS_REST_TOKEN) {
-    // Return null to indicate Redis is not configured
-    return null;
-  }
+  if (!url || !env.UPSTASH_REDIS_REST_TOKEN) return null;
+  if (url.startsWith("https://") || url.startsWith("http://")) return null;
 
   const urlObj = new URL(url);
   return {
     host: urlObj.hostname,
-    port: 6379,
+    port: urlObj.port ? Number(urlObj.port) : 6379,
     password: env.UPSTASH_REDIS_REST_TOKEN,
   };
 };
 
-// Check if Redis is configured before starting the worker
 const redisConnection = getRedisConnection();
 
 if (!redisConnection) {
   logger.error(
-    "Redis is not configured. Worker requires Redis to function. Please set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables."
+    "Redis is not configured or using REST URL. Worker requires a TCP Redis connection (BullMQ does not support Upstash REST). Set UPSTASH_REDIS_REST_URL (redis://...) and UPSTASH_REDIS_REST_TOKEN."
   );
   process.exit(1);
 }
@@ -64,7 +59,6 @@ const embeddings = new PremEmbeddings({
 });
 
 // 🧾 PDF Upload Worker
-// Only create worker if Redis is configured
 const worker = new Worker(
   "upload-pdf",
   async (job) => {
@@ -80,7 +74,9 @@ const worker = new Worker(
         fileUrl: job.data.fileUrl,
       });
 
-      const fileUrl = job.data.fileUrl;
+      const fileUrl = job.data.fileUrl as string;
+      const chatId = job.data.chatId as string;
+
       const response = await fetch(fileUrl);
 
       if (!response.ok) {
@@ -89,7 +85,7 @@ const worker = new Worker(
         );
       }
 
-      const buffer = await response.buffer();
+      const buffer = Buffer.from(await response.arrayBuffer());
       const blob = new Blob([new Uint8Array(buffer)], {
         type: "application/pdf",
       });
@@ -106,29 +102,31 @@ const worker = new Worker(
 
       logger.debug("PDF split into chunks", {
         totalChunks: docs.length,
-        chatId: job.data.chatId,
+        chatId,
       });
 
-      const docsPromise = docs.map(async (doc, idx) => ({
-        id: `${fileUrl}-${doc.metadata.loc.pageNumber}-${idx}`,
-        values: await embeddings.embedQuery(
-          doc.pageContent.replace(/\n/g, "")
-        ),
-        metadata: {
-          pageNumber: doc.metadata.loc.pageNumber.toString(),
-          content: doc.pageContent.replace(/\n/g, ""),
-        },
-      }));
+      const docsPromise = docs.map(async (doc, idx) => {
+        const pageNumber = Number(doc.metadata?.loc?.pageNumber ?? 0);
+        const content = doc.pageContent.replace(/\n/g, "");
+        return {
+          id: `${fileUrl}-${pageNumber}-${idx}`,
+          values: await embeddings.embedQuery(content),
+          metadata: {
+            pageNumber,
+            content,
+          },
+        } satisfies Vector;
+      });
 
-      const docsWithVectors = (await Promise.all(docsPromise)) as Vector[];
+      const docsWithVectors = await Promise.all(docsPromise);
 
-      const namespace = pineconeIndex.namespace(job.data.chatId);
+      const namespace = pineconeIndex.namespace(chatId);
 
       await namespace.upsert(docsWithVectors);
 
       logger.info("PDF embedded and stored in Pinecone", {
         jobId: job.id,
-        chatId: job.data.chatId,
+        chatId,
         vectorCount: docsWithVectors.length,
       });
     } catch (err) {
@@ -140,8 +138,16 @@ const worker = new Worker(
       // Re-throw error so BullMQ can handle retries
       throw err;
     }
-  }, 
+  },
   {
     connection: redisConnection,
   }
 );
+
+worker.on("completed", (job) => {
+  logger.info("Job completed", { jobId: job.id });
+});
+
+worker.on("failed", (job, err) => {
+  logger.error("Job failed", err, { jobId: job?.id });
+});
