@@ -154,7 +154,11 @@ export function sanitizeFilename(raw: unknown): string {
 // Redis key
 // ---------------------------------------------------------------------------
 
-const REDIS_KEY_CHAR_RE = /[^A-Za-z0-9_:-]/g;
+// Note: `:` is the segment separator in our Redis key templates
+// (e.g. `${prefix}:${userId}:${windowStart}`), so it MUST NOT be in the
+// allowlist — otherwise a userId like `u1:flushdb` would silently break out
+// of its prefix segment.
+const REDIS_KEY_CHAR_RE = /[^A-Za-z0-9_-]/g;
 
 /**
  * Escape an identifier before embedding it in a Redis key. Prevents

@@ -149,7 +149,12 @@ describe("sanitizeFilename", () => {
 describe("sanitizeRedisKey", () => {
   it("allows safe identifiers", () => {
     expect(sanitizeRedisKey("user-abc_123")).toBe("user-abc_123");
-    expect(sanitizeRedisKey("id:0")).toBe("id:0");
+  });
+  it("escapes the key-segment separator `:` (key-injection defence)", () => {
+    // `:` is the key separator in our rate-limit key template, so it MUST
+    // be escaped when embedded from a user-controlled identifier.
+    expect(sanitizeRedisKey("u1:flushdb")).toBe("u1_flushdb");
+    expect(sanitizeRedisKey("id:0")).toBe("id_0");
   });
   it("escapes attacker-controlled separators", () => {
     // Prevents a userId like "u1\nFLUSHDB" from breaking the prefix.
