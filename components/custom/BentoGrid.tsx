@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText, GitBranch, MessageSquare } from "lucide-react";
 
@@ -200,7 +200,7 @@ const RagBentoGridSleek = () => {
         }}
       >
         <div className="w-full max-w-5xl h-auto sm:h-[400px] md:h-[450px] flex flex-col sm:flex-row gap-3">
-          {cards.map((card, index) => {
+          {cards.map((card) => {
             const isActive = activeId === card.id;
             return (
               <motion.div

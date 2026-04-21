@@ -4,23 +4,14 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
-import PdfUpload from "@/components/custom/pdf-upload";
 import NewchatBtn from "@/components/custom/newChatbtn";
 import { useQuery } from "@tanstack/react-query";
 import { getChats } from "../actions/chat/get";

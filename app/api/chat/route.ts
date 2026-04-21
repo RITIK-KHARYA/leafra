@@ -1,7 +1,6 @@
 import { getResultFromQuery } from "@/lib/integrations/pinecone";
 import { smoothStream, streamText } from "ai";
 import { getSystemPrompt } from "@/lib/services/ai/prompts";
-import { getChats } from "@/app/actions/chat/get";
 import { createMessage } from "@/app/actions/message/create";
 import { headers } from "next/headers";
 import { z } from "zod";

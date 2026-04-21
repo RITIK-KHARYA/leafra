@@ -61,16 +61,7 @@ function ChatPageContent() {
   }, [chatId]);
 
   // Initialize useChat hook
-  const {
-    messages,
-    status,
-    sendMessage,
-    error,
-    regenerate,
-    setMessages,
-    resumeStream,
-    stop,
-  } = useChat<UIMessage>({
+  const { messages, status, sendMessage, setMessages } = useChat<UIMessage>({
     id: chatId,
     transport: new DefaultChatTransport({
       api: "/api/chat",
