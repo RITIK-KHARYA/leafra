@@ -21,9 +21,28 @@ describe("newChatSchema (create-chat form)", () => {
     },
   );
 
-  it("trims are NOT automatic (caller must trim before submit)", () => {
-    // This test documents current behaviour - updating it requires a schema change.
-    const res = newChatSchema.safeParse({ ...valid, chatName: "   " });
+  it("trims whitespace around free-text fields", () => {
+    const res = newChatSchema.safeParse({
+      ...valid,
+      chatName: "  Research PDF  ",
+    });
     expect(res.success).toBe(true);
+    if (res.success) expect(res.data.chatName).toBe("Research PDF");
+  });
+
+  it("rejects whitespace-only free-text (post-sanitization empty)", () => {
+    // zSanitizedText trims + NFKC + strips invisibles. A whitespace-only
+    // chatName becomes "" after sanitization and must fail the refine.
+    const res = newChatSchema.safeParse({ ...valid, chatName: "   " });
+    expect(res.success).toBe(false);
+  });
+
+  it("strips zero-width / bidi-override characters (homograph defence)", () => {
+    const res = newChatSchema.safeParse({
+      ...valid,
+      chatName: "ev\u202Eil\u202Dname",
+    });
+    expect(res.success).toBe(true);
+    if (res.success) expect(res.data.chatName).toBe("evilname");
   });
 });

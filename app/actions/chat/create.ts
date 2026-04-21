@@ -2,7 +2,7 @@
 import { db } from "@/lib/db";
 import { getSession } from "./get";
 import { chat } from "@/lib/db/schema";
-import { NewChatInput } from "@/types/chat";
+import { newChatSchema, NewChatInput } from "@/types/chat";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger";
 
@@ -10,15 +10,22 @@ export async function createChat(input: NewChatInput) {
   const user = await getSession();
   if (!user || !user.user?.id) return { error: "Not logged in", status: 401 };
 
+  // Defense-in-depth: even though the form already runs this schema,
+  // server actions are independently reachable. Always re-validate + sanitize.
+  const parsed = newChatSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: "Invalid input", status: 400 };
+  }
+
   const userId = user.user.id;
 
   try {
     const chatId = crypto.randomUUID();
     await db.insert(chat).values({
       id: chatId,
-      title: input.chatName,
-      description: input.description || "",
-      value: input.priority,
+      title: parsed.data.chatName,
+      description: parsed.data.description,
+      value: parsed.data.priority,
       userId: userId,
     });
 
@@ -37,7 +44,7 @@ export async function createChat(input: NewChatInput) {
   } catch (error) {
     logger.error("Error creating chat", error, {
       userId,
-      chatName: input.chatName,
+      chatName: parsed.data.chatName,
     });
     return {
       error: "Failed to create new chat",

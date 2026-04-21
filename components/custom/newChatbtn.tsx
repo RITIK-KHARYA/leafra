@@ -72,11 +72,14 @@ const workSections = [
 export function Newchatform() {
   const form = useForm<z.infer<typeof newChatSchema>>({
     resolver: zodResolver(newChatSchema),
+    // `priority` and `workSection` are z.enum() now, so "" is no longer a
+    // valid literal. We keep them `undefined` so the Select stays unselected
+    // and the zod error fires on submit rather than on first render.
     defaultValues: {
       chatName: "",
       description: "",
-      priority: "",
-      workSection: "",
+      priority: undefined,
+      workSection: undefined,
     },
   });
 
