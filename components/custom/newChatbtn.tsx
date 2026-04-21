@@ -31,7 +31,6 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
@@ -43,7 +42,6 @@ import {
   MessageCircle,
   Plus,
   Loader2,
-  Sparkles,
   Settings,
   Zap,
 } from "lucide-react";

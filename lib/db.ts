@@ -4,7 +4,6 @@ import { sql } from "drizzle-orm";
 import { env } from "./env";
 
 const isProduction = env.NODE_ENV === "production";
-const isDevelopment = env.NODE_ENV === "development";
 
 // Environment-specific connection pool settings
 const poolConfig = isProduction
