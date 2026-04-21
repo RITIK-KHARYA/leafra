@@ -16,6 +16,12 @@ import {
 import { withRetry } from "@/lib/db/transactions";
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import { env } from "@/lib/env";
+import { sanitizeText } from "@/lib/security/sanitize";
+
+// Upper bounds tuned for the chat model's practical limits. Anything larger is
+// either abuse or a client bug, and we'd rather 400 than burn tokens.
+const MAX_MESSAGE_CONTENT_LEN = 50_000;
+const MAX_MESSAGES_PER_REQUEST = 100;
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -78,7 +84,13 @@ const messageSchema = z
   );
 
 const chatRequestSchema = z.object({
-  messages: z.array(messageSchema).min(1, "At least one message is required"),
+  messages: z
+    .array(messageSchema)
+    .min(1, "At least one message is required")
+    .max(
+      MAX_MESSAGES_PER_REQUEST,
+      `At most ${MAX_MESSAGES_PER_REQUEST} messages per request`,
+    ),
   chatId: z.string().uuid("chatId must be a valid UUID"),
 });
 
@@ -158,6 +170,18 @@ export async function POST(req: Request) {
       );
     }
 
+    // Sanitize the extracted user input before sending it to Pinecone, the
+    // model, or the database. Strips control chars / zero-widths / RTL
+    // override and caps length. If sanitization strips everything, 400.
+    messageContent = sanitizeText(messageContent, {
+      maxLen: MAX_MESSAGE_CONTENT_LEN,
+    });
+    if (messageContent.length === 0) {
+      return ApiResponse.badRequest(
+        "Last message content is empty after sanitization",
+      );
+    }
+
     // Get context from Pinecone
     let context: string;
     try {
@@ -189,6 +213,11 @@ export async function POST(req: Request) {
           // Fallback - should not happen due to validation, but handle gracefully
           content = "";
         }
+
+        // Sanitize every message in the history before re-sending to the model.
+        // Stored messages can include data from PDFs / older clients / attacker
+        // edits, so we scrub each one on the way out.
+        content = sanitizeText(content, { maxLen: MAX_MESSAGE_CONTENT_LEN });
 
         const role: "user" | "assistant" =
           msg.role === "user" ? "user" : "assistant";

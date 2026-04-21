@@ -1,6 +1,7 @@
 import { getRedisClient } from "./integrations/redis";
 import { env } from "./env";
 import { logger } from "./logger";
+import { sanitizeRedisKey } from "./security/sanitize";
 
 interface RateLimitConfig {
   maxRequests: number;
@@ -30,7 +31,11 @@ class RateLimiter {
 
     try {
       const redis = await getRedisClient();
-      const key = `${this.prefix}:${identifier}`;
+      // Escape the identifier before embedding it into the Redis key. A raw
+      // user-controlled string could otherwise break out of the prefix (e.g.
+      // `userId = "u1:flushdb"` manipulating key structure).
+      const safeIdentifier = sanitizeRedisKey(identifier);
+      const key = `${this.prefix}:${safeIdentifier}`;
       const windowStart = Math.floor(
         Date.now() / (this.config.windowSeconds * 1000)
       );

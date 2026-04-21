@@ -4,8 +4,13 @@ import { Queue } from "bullmq";
 import { updateFile } from "@/app/actions/file/update";
 import { logger } from "@/lib/logger";
 import { ensureChatOwnership } from "@/lib/services/auth/chat-authorization";
-import { AuthorizationError, NotFoundError } from "@/lib/errors";
+import {
+  AuthorizationError,
+  NotFoundError,
+  ValidationError,
+} from "@/lib/errors";
 import { getPineconeClient } from "@/lib/integrations/pinecone";
+import { sanitizeFilename, sanitizeUrl } from "@/lib/security/sanitize";
 import z from "zod";
 
 const f = createUploadthing();
@@ -141,29 +146,54 @@ export const ourFileRouter = {
         );
       }
 
+      // Sanitize attacker-controlled fields before persisting them. UploadThing
+      // hosts the file itself, but file.name comes from the client and could
+      // contain path-traversal / control chars / homograph spoofing.
+      let safeFileUrl: string;
+      let safeFileName: string;
+      try {
+        safeFileUrl = sanitizeUrl(file.ufsUrl);
+        safeFileName = sanitizeFilename(file.name);
+      } catch (sanitizeError) {
+        if (sanitizeError instanceof ValidationError) {
+          logger.error(
+            "Rejected uploaded file due to invalid URL or filename",
+            sanitizeError,
+            {
+              chatId: metadata.chatId,
+              userId: metadata.userId,
+              fileUrl: file.ufsUrl,
+              fileName: file.name,
+            },
+          );
+          return { uploadedBy: metadata.userId };
+        }
+        throw sanitizeError;
+      }
+
       // Update database with file URL
       try {
         logger.info("Attempting to save file to database", {
           chatId: metadata.chatId,
-          fileUrl: file.ufsUrl,
-          fileName: file.name,
+          fileUrl: safeFileUrl,
+          fileName: safeFileName,
           fileSize: file.size,
         });
         await updateFile(
           metadata.chatId,
-          file.ufsUrl,
-          file.name,
+          safeFileUrl,
+          safeFileName,
           typeof file.size === "number" ? file.size : undefined
         );
         logger.info("File successfully saved to database", {
           chatId: metadata.chatId,
-          fileUrl: file.ufsUrl,
+          fileUrl: safeFileUrl,
         });
       } catch (error) {
         logger.error("Failed to save file to database", error, {
           chatId: metadata.chatId,
-          fileUrl: file.ufsUrl,
-          fileName: file.name,
+          fileUrl: safeFileUrl,
+          fileName: safeFileName,
         });
         // Don't throw - upload succeeded, DB update failed
       }
