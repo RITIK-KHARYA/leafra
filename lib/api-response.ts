@@ -16,7 +16,7 @@ export class ApiResponse {
   static success<T>(
     data: T,
     message?: string,
-    statusCode: number = 200
+    statusCode: number = 200,
   ): NextResponse<ApiSuccess<T>> {
     return NextResponse.json(
       {
@@ -24,14 +24,14 @@ export class ApiResponse {
         message,
         statusCode,
       },
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 
   static error(
     error: string,
     statusCode: number = 500,
-    details?: unknown
+    details?: unknown,
   ): NextResponse<ApiError> {
     return NextResponse.json(
       {
@@ -39,17 +39,19 @@ export class ApiResponse {
         details,
         statusCode,
       },
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 
-  static unauthorized(message: string = "Unauthorized"): NextResponse<ApiError> {
+  static unauthorized(
+    message: string = "Unauthorized",
+  ): NextResponse<ApiError> {
     return this.error(message, 401);
   }
 
   static badRequest(
     message: string = "Bad Request",
-    details?: unknown
+    details?: unknown,
   ): NextResponse<ApiError> {
     return this.error(message, 400, details);
   }
@@ -60,9 +62,8 @@ export class ApiResponse {
 
   static internalError(
     message: string = "Internal Server Error",
-    details?: unknown
+    details?: unknown,
   ): NextResponse<ApiError> {
     return this.error(message, 500, details);
   }
 }
-

@@ -64,8 +64,23 @@ export function sanitizeText(
 // ---------------------------------------------------------------------------
 
 const ALLOWED_TAGS = [
-  "p", "br", "b", "i", "em", "strong", "code", "pre",
-  "a", "ul", "ol", "li", "blockquote", "h1", "h2", "h3", "span",
+  "p",
+  "br",
+  "b",
+  "i",
+  "em",
+  "strong",
+  "code",
+  "pre",
+  "a",
+  "ul",
+  "ol",
+  "li",
+  "blockquote",
+  "h1",
+  "h2",
+  "h3",
+  "span",
 ];
 const ALLOWED_ATTR = ["href", "title", "rel", "target"];
 
@@ -193,9 +208,13 @@ export function sanitizeUuid(raw: unknown): string {
  * result to be non-empty. Intended as a drop-in replacement for
  * `z.string().min(1)` on any user-facing text field.
  */
-export function zSanitizedText(opts: SanitizeTextOptions = {}): z.ZodType<string> {
+export function zSanitizedText(
+  opts: SanitizeTextOptions = {},
+): z.ZodType<string> {
   return z
     .string()
     .transform((v) => sanitizeText(v, opts))
-    .refine((v) => v.length > 0, { message: "Field is empty after sanitization" });
+    .refine((v) => v.length > 0, {
+      message: "Field is empty after sanitization",
+    });
 }

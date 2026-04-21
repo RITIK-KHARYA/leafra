@@ -6,7 +6,7 @@ const baseURL =
   typeof window !== "undefined"
     ? window.location.origin
     : (process.env.NEXT_PUBLIC_BASE_URL ??
-        (process.env.NODE_ENV === "production" ? PRODUCTION_URL : DEVELOPER_URL));
+      (process.env.NODE_ENV === "production" ? PRODUCTION_URL : DEVELOPER_URL));
 
 export const { signIn, signUp, useSession, getSession, signOut, $Infer } =
   createAuthClient({ baseURL });
