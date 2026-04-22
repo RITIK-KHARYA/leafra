@@ -1,22 +1,23 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  // Database
+  // Database (required - app cannot start without it)
   DATABASE_URL: z
     .string()
     .url("DATABASE_URL must be a valid PostgreSQL connection string"),
 
-  // Pinecone
+  // Pinecone (required - retrieval is core)
   PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
 
-  // Embeddings (worker)
-  PREM_API_KEY: z.string().min(1, "PREM_API_KEY is required"),
+  // LLM / embedding providers are optional at boot because the app can
+  // render marketing / auth / dashboard pages without them. They are
+  // asserted at their call sites (chat route, worker, pinecone query)
+  // with clear, feature-specific error messages.
+  PREM_API_KEY: z.string().min(1).optional(),
+  DEEPSEEK_API_KEY: z.string().min(1).optional(),
+  GEMINI_AI_API_KEY: z.string().min(1).optional(),
 
-  // LLMs
-  DEEPSEEK_API_KEY: z.string().min(1, "DEEPSEEK_API_KEY is required"),
-  GEMINI_AI_API_KEY: z.string().min(1, "GEMINI_AI_API_KEY is required"),
-
-  // Redis (Upstash) - Optional but recommended
+  // Redis (Upstash) - Optional
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 
@@ -46,31 +47,27 @@ const envSchema = z.object({
 type Env = z.infer<typeof envSchema>;
 
 function getEnv(): Env {
-  // Lazy validation - only validate when accessed, not on import
   let validatedEnv: Env | null = null;
 
   const validateEnv = (): Env => {
     if (validatedEnv) return validatedEnv;
 
-    try {
-      validatedEnv = envSchema.parse(process.env);
+    const result = envSchema.safeParse(process.env);
+    if (result.success) {
+      validatedEnv = result.data;
       return validatedEnv;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const missingVars = error.errors.map(
-          (err) => `${err.path.join(".")}: ${err.message}`
-        );
-        throw new Error(
-          `❌ Invalid environment variables:\n${missingVars.join(
-            "\n"
-          )}\n\nPlease check your .env.local file.`
-        );
-      }
-      throw error;
     }
+
+    const missingVars = result.error.errors.map(
+      (err) => `${err.path.join(".")}: ${err.message}`
+    );
+    throw new Error(
+      `Invalid environment variables:\n${missingVars.join(
+        "\n"
+      )}\n\nPlease check your .env.local file against .env.example.`
+    );
   };
 
-  // Return a proxy that validates on first access
   return new Proxy({} as Env, {
     get(_target, prop) {
       return validateEnv()[prop as keyof Env];
@@ -79,3 +76,23 @@ function getEnv(): Env {
 }
 
 export const env = getEnv();
+
+/**
+ * Assert that an optional env var is present. Use this at the entry point
+ * of any feature that requires the value, so the user gets a clear,
+ * feature-scoped error instead of a cryptic boot-time failure.
+ */
+export function requireEnv<K extends keyof Env>(
+  key: K,
+  feature: string
+): NonNullable<Env[K]> {
+  const value = env[key];
+  if (value === undefined || value === null || value === "") {
+    throw new Error(
+      `Missing required env var ${String(
+        key
+      )} for ${feature}. Set it in .env.local (see .env.example).`
+    );
+  }
+  return value as NonNullable<Env[K]>;
+}

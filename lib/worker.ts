@@ -4,13 +4,16 @@ import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { PremEmbeddings } from "@langchain/community/embeddings/premai";
 
-import { getPineconeClient } from "./integrations/pinecone";
-import { env } from "./env";
-import { logger } from "./logger";
+// Load `.env.local` BEFORE importing any module that touches the validated
+// env schema. Next.js conventionally uses `.env.local`, not `.env`, so the
+// worker (run standalone via `dev:worker`) was previously starting with an
+// unvalidated environment.
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
 
-dotenv.config({
-  path: ".env",
-});
+import { getPineconeClient } from "./integrations/pinecone";
+import { env, requireEnv } from "./env";
+import { logger } from "./logger";
 
 interface Vector {
   id: string;
@@ -54,7 +57,7 @@ const pineconeIndex = pinecone.index("leafravectordb");
 
 // 🧠 Embeddings setup
 const embeddings = new PremEmbeddings({
-  apiKey: env.PREM_API_KEY,
+  apiKey: requireEnv("PREM_API_KEY", "PDF ingestion worker"),
   model: "@cf/baai/bge-small-en-v1.5",
 });
 
