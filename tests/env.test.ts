@@ -37,6 +37,30 @@ describe("env schema - boot-time validation", () => {
     expect(env.GEMINI_AI_API_KEY).toBeUndefined();
   });
 
+  it("treats declared-but-empty feature keys (e.g. DEEPSEEK_API_KEY=) as unset", async () => {
+    // Simulates the realistic case: a user copies .env.example and leaves
+    // the feature-gated keys empty. dotenv loads them as "" - the schema
+    // must NOT treat that as a min(1) violation.
+    process.env.DATABASE_URL = "postgres://u:p@localhost:5432/db";
+    process.env.PINECONE_API_KEY = "pk_123";
+    process.env.PREM_API_KEY = "";
+    process.env.DEEPSEEK_API_KEY = "";
+    process.env.GEMINI_AI_API_KEY = "";
+    process.env.UPSTASH_REDIS_REST_URL = "";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "";
+    process.env.GOOGLE_CLIENT_ID = "";
+    process.env.GOOGLE_CLIENT_SECRET = "";
+
+    const { env } = await import("../lib/env");
+
+    expect(() => env.DATABASE_URL).not.toThrow();
+    expect(env.PREM_API_KEY).toBeUndefined();
+    expect(env.DEEPSEEK_API_KEY).toBeUndefined();
+    expect(env.GEMINI_AI_API_KEY).toBeUndefined();
+    expect(env.UPSTASH_REDIS_REST_URL).toBeUndefined();
+    expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
+  });
+
   it("still throws when a required key is missing", async () => {
     for (const k of [...REQUIRED_KEYS, ...FEATURE_KEYS]) delete process.env[k];
     process.env.PINECONE_API_KEY = "pk_123";

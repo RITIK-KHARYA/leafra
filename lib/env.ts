@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+// dotenv loads declared-but-empty `.env` lines (e.g. `DEEPSEEK_API_KEY=`) as
+// the empty string. For optional schemas, we want that to behave the same
+// as "not set" rather than trigger `.min(1)` validation failures.
+const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((v) => (v === "" ? undefined : v), schema);
+
 const envSchema = z.object({
   // Database (required - app cannot start without it)
   DATABASE_URL: z
@@ -13,21 +19,27 @@ const envSchema = z.object({
   // render marketing / auth / dashboard pages without them. They are
   // asserted at their call sites (chat route, worker, pinecone query)
   // with clear, feature-specific error messages.
-  PREM_API_KEY: z.string().min(1).optional(),
-  DEEPSEEK_API_KEY: z.string().min(1).optional(),
-  GEMINI_AI_API_KEY: z.string().min(1).optional(),
+  //
+  // NOTE on `emptyToUndefined`: users will often follow `.env.example` and
+  // leave these keys declared but empty (e.g. `DEEPSEEK_API_KEY=`). dotenv
+  // loads those as `""`, which `z.string().min(1)` would reject. The
+  // preprocess step coerces `""` to `undefined` so they're treated as
+  // "not set" rather than "invalid".
+  PREM_API_KEY: emptyToUndefined(z.string().min(1).optional()),
+  DEEPSEEK_API_KEY: emptyToUndefined(z.string().min(1).optional()),
+  GEMINI_AI_API_KEY: emptyToUndefined(z.string().min(1).optional()),
 
   // Redis (Upstash) - Optional
-  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
-  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  UPSTASH_REDIS_REST_URL: emptyToUndefined(z.string().url().optional()),
+  UPSTASH_REDIS_REST_TOKEN: emptyToUndefined(z.string().optional()),
 
   // OAuth Providers - Optional
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
-  GITHUB_CLIENT_ID: z.string().optional(),
-  GITHUB_CLIENT_SECRET: z.string().optional(),
-  DISCORD_CLIENT_ID: z.string().optional(),
-  DISCORD_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: emptyToUndefined(z.string().optional()),
+  GOOGLE_CLIENT_SECRET: emptyToUndefined(z.string().optional()),
+  GITHUB_CLIENT_ID: emptyToUndefined(z.string().optional()),
+  GITHUB_CLIENT_SECRET: emptyToUndefined(z.string().optional()),
+  DISCORD_CLIENT_ID: emptyToUndefined(z.string().optional()),
+  DISCORD_CLIENT_SECRET: emptyToUndefined(z.string().optional()),
 
   // Next.js Public Variables
   NEXT_PUBLIC_BASE_URL: z
