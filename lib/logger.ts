@@ -1,13 +1,17 @@
-import { env } from "./env";
-
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogContext {
   [key: string]: unknown;
 }
 
+// Read NODE_ENV directly from process.env instead of the validated env proxy
+// so that importing logger from any module does NOT trigger full env
+// schema validation. The validated `env` is only needed for required app
+// secrets; NODE_ENV has a sensible default even when unset.
 class Logger {
-  private isDevelopment = env.NODE_ENV === "development";
+  private get isDevelopment(): boolean {
+    return process.env.NODE_ENV !== "production";
+  }
 
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();

@@ -14,8 +14,8 @@ import {
   ValidationError,
 } from "@/lib/errors";
 import { withRetry } from "@/lib/db/transactions";
-import { createDeepSeek } from "@ai-sdk/deepseek";
-import { env } from "@/lib/env";
+import { createDeepSeek, type DeepSeekProvider } from "@ai-sdk/deepseek";
+import { requireEnv } from "@/lib/env";
 import { sanitizeText } from "@/lib/security/sanitize";
 
 // Upper bounds tuned for the chat model's practical limits. Anything larger is
@@ -26,9 +26,17 @@ const MAX_MESSAGES_PER_REQUEST = 100;
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-const deepseek = createDeepSeek({
-  apiKey: env.DEEPSEEK_API_KEY,
-});
+// Lazy DeepSeek client so importing this route module does not require the
+// API key at build time (only when a chat request actually lands here).
+let deepseekClient: DeepSeekProvider | null = null;
+function getDeepSeek(): DeepSeekProvider {
+  if (!deepseekClient) {
+    deepseekClient = createDeepSeek({
+      apiKey: requireEnv("DEEPSEEK_API_KEY", "chat streaming"),
+    });
+  }
+  return deepseekClient;
+}
 
 // Message part schema for parts array format
 // At least one of text or content must be present and non-empty
@@ -238,7 +246,7 @@ export async function POST(req: Request) {
 
     // Create stream result - this doesn't start streaming yet
     const result = streamText({
-      model: deepseek("deepseek-chat"),
+      model: getDeepSeek()("deepseek-chat"),
       system: getSystemPrompt(context, messageContent),
       messages: transformedMessages,
       experimental_transform: smoothStream({
