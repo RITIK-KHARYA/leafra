@@ -1,8 +1,8 @@
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TaskType } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { logger } from "../logger";
-import { env, requireEnv } from "../env";
+import { env } from "../env";
+import { embedText } from "../embeddings";
 
 let pinecone: Pinecone | null = null;
 
@@ -15,23 +15,8 @@ export function getPineconeClient() {
   return pinecone;
 }
 
-// Lazily create the embedding client so simply importing this module (e.g.
-// from a server component that never calls getResultFromQuery) does not
-// require GEMINI_AI_API_KEY to be set.
-let embeddingAI: GoogleGenerativeAIEmbeddings | null = null;
-function getEmbeddingClient(): GoogleGenerativeAIEmbeddings {
-  if (!embeddingAI) {
-    embeddingAI = new GoogleGenerativeAIEmbeddings({
-      model: "gemini-embedding-001",
-      apiKey: requireEnv("GEMINI_AI_API_KEY", "Pinecone retrieval"),
-      taskType: TaskType.RETRIEVAL_QUERY,
-    });
-  }
-  return embeddingAI;
-}
-
 function createEmbedding(text: string) {
-  return getEmbeddingClient().embedQuery(text);
+  return embedText(text, TaskType.RETRIEVAL_QUERY);
 }
 
 export async function getResultFromQuery(query: string, chatId: string) {
