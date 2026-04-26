@@ -14,7 +14,7 @@ import {
   ValidationError,
 } from "@/lib/errors";
 import { withRetry } from "@/lib/db/transactions";
-import { createDeepSeek, type DeepSeekProvider } from "@ai-sdk/deepseek";
+import { createGoogleGenerativeAI, type GoogleGenerativeAIProvider } from "@ai-sdk/google";
 import { requireEnv } from "@/lib/env";
 import { sanitizeText } from "@/lib/security/sanitize";
 
@@ -26,16 +26,16 @@ const MAX_MESSAGES_PER_REQUEST = 100;
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-// Lazy DeepSeek client so importing this route module does not require the
-// API key at build time (only when a chat request actually lands here).
-let deepseekClient: DeepSeekProvider | null = null;
-function getDeepSeek(): DeepSeekProvider {
-  if (!deepseekClient) {
-    deepseekClient = createDeepSeek({
-      apiKey: requireEnv("DEEPSEEK_API_KEY", "chat streaming"),
+// Lazy Google Gemini client so importing this route module does not require
+// the API key at build time (only when a chat request actually lands here).
+let googleClient: GoogleGenerativeAIProvider | null = null;
+function getGoogle(): GoogleGenerativeAIProvider {
+  if (!googleClient) {
+    googleClient = createGoogleGenerativeAI({
+      apiKey: requireEnv("GEMINI_AI_API_KEY", "chat streaming"),
     });
   }
-  return deepseekClient;
+  return googleClient;
 }
 
 // Message part schema for parts array format
@@ -246,7 +246,7 @@ export async function POST(req: Request) {
 
     // Create stream result - this doesn't start streaming yet
     const result = streamText({
-      model: getDeepSeek()("deepseek-chat"),
+      model: getGoogle()("gemini-2.5-flash"),
       system: getSystemPrompt(context, messageContent),
       messages: transformedMessages,
       experimental_transform: smoothStream({
