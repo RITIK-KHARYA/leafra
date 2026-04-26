@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { UIMessage } from "@ai-sdk/react";
-import { Loader2 } from "lucide-react";
 
 type Props = {
   isLoading: boolean;
@@ -16,14 +15,17 @@ const getMessageContent = (message: UIMessage): string => {
 };
 
 const MessageList = ({ messages, isLoading }: Props) => {
-  if (isLoading) {
-    return (
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <Loader2 className="w-6 h-6 animate-spin" />
-      </div>
-    );
+  if (!messages || messages.length === 0) {
+    if (isLoading) {
+      return (
+        <div className="flex justify-start pr-10 px-4 pt-2">
+          <TypingIndicator />
+        </div>
+      );
+    }
+    return <></>;
   }
-  if (!messages) return <></>;
+
   return (
     <div className="flex flex-col gap-2 px-4">
       {messages.map((message) => {
@@ -49,8 +51,26 @@ const MessageList = ({ messages, isLoading }: Props) => {
           </div>
         );
       })}
+
+      {isLoading && (
+        <div className="flex justify-start pr-10">
+          <TypingIndicator />
+        </div>
+      )}
     </div>
   );
 };
+
+function TypingIndicator() {
+  return (
+    <div className="rounded-lg px-4 py-2 shadow-md ring-1 ring-gray-900/10">
+      <div className="flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce [animation-delay:0ms]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce [animation-delay:150ms]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce [animation-delay:300ms]" />
+      </div>
+    </div>
+  );
+}
 
 export default MessageList;

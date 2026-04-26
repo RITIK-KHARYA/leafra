@@ -2,7 +2,6 @@ import { Worker } from "bullmq";
 import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TaskType } from "@google/generative-ai";
 
 // Load `.env.local` BEFORE importing any module that touches the validated
@@ -13,7 +12,8 @@ dotenv.config({ path: ".env.local" });
 dotenv.config({ path: ".env" });
 
 import { getPineconeClient } from "./integrations/pinecone";
-import { env, requireEnv } from "./env";
+import { embedText } from "./embeddings";
+import { env } from "./env";
 import { logger } from "./logger";
 
 interface Vector {
@@ -56,12 +56,7 @@ logger.info("PDF processing worker started");
 const pinecone = getPineconeClient();
 const pineconeIndex = pinecone.index("leafravectordb");
 
-// 🧠 Embeddings setup (same model as retrieval for consistent vectors)
-const embeddings = new GoogleGenerativeAIEmbeddings({
-  model: "gemini-embedding-001",
-  apiKey: requireEnv("GEMINI_AI_API_KEY", "PDF ingestion worker"),
-  taskType: TaskType.RETRIEVAL_DOCUMENT,
-});
+// 🧠 Embedding helper (shared with retrieval for consistent dimensions)
 
 // 🧾 PDF Upload Worker
 const worker = new Worker(
@@ -115,7 +110,7 @@ const worker = new Worker(
         const content = doc.pageContent.replace(/\n/g, "");
         return {
           id: `${fileUrl}-${pageNumber}-${idx}`,
-          values: await embeddings.embedQuery(content),
+          values: await embedText(content, TaskType.RETRIEVAL_DOCUMENT),
           metadata: {
             pageNumber,
             content,
