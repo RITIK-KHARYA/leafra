@@ -22,9 +22,9 @@ let embeddingAI: GoogleGenerativeAIEmbeddings | null = null;
 function getEmbeddingClient(): GoogleGenerativeAIEmbeddings {
   if (!embeddingAI) {
     embeddingAI = new GoogleGenerativeAIEmbeddings({
-      model: "gemini-2.5-flash",
+      model: "gemini-embedding-001",
       apiKey: requireEnv("GEMINI_AI_API_KEY", "Pinecone retrieval"),
-      taskType: TaskType.RETRIEVAL_DOCUMENT,
+      taskType: TaskType.RETRIEVAL_QUERY,
     });
   }
   return embeddingAI;

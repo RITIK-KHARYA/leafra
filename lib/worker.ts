@@ -2,7 +2,8 @@ import { Worker } from "bullmq";
 import * as dotenv from "dotenv";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { PremEmbeddings } from "@langchain/community/embeddings/premai";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { TaskType } from "@google/generative-ai";
 
 // Load `.env.local` BEFORE importing any module that touches the validated
 // env schema. Next.js conventionally uses `.env.local`, not `.env`, so the
@@ -55,10 +56,11 @@ logger.info("PDF processing worker started");
 const pinecone = getPineconeClient();
 const pineconeIndex = pinecone.index("leafravectordb");
 
-// 🧠 Embeddings setup
-const embeddings = new PremEmbeddings({
-  apiKey: requireEnv("PREM_API_KEY", "PDF ingestion worker"),
-  model: "@cf/baai/bge-small-en-v1.5",
+// 🧠 Embeddings setup (same model as retrieval for consistent vectors)
+const embeddings = new GoogleGenerativeAIEmbeddings({
+  model: "gemini-embedding-001",
+  apiKey: requireEnv("GEMINI_AI_API_KEY", "PDF ingestion worker"),
+  taskType: TaskType.RETRIEVAL_DOCUMENT,
 });
 
 // 🧾 PDF Upload Worker

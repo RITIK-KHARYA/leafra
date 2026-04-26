@@ -6,8 +6,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 const REQUIRED_KEYS = ["DATABASE_URL", "PINECONE_API_KEY"] as const;
 const FEATURE_KEYS = [
-  "PREM_API_KEY",
-  "DEEPSEEK_API_KEY",
   "GEMINI_AI_API_KEY",
 ] as const;
 
@@ -32,19 +30,15 @@ describe("env schema - boot-time validation", () => {
     const { env } = await import("../lib/env");
 
     expect(env.DATABASE_URL).toBe("postgres://u:p@localhost:5432/db");
-    expect(env.PREM_API_KEY).toBeUndefined();
-    expect(env.DEEPSEEK_API_KEY).toBeUndefined();
     expect(env.GEMINI_AI_API_KEY).toBeUndefined();
   });
 
-  it("treats declared-but-empty feature keys (e.g. DEEPSEEK_API_KEY=) as unset", async () => {
+  it("treats declared-but-empty feature keys (e.g. GEMINI_AI_API_KEY=) as unset", async () => {
     // Simulates the realistic case: a user copies .env.example and leaves
     // the feature-gated keys empty. dotenv loads them as "" - the schema
     // must NOT treat that as a min(1) violation.
     process.env.DATABASE_URL = "postgres://u:p@localhost:5432/db";
     process.env.PINECONE_API_KEY = "pk_123";
-    process.env.PREM_API_KEY = "";
-    process.env.DEEPSEEK_API_KEY = "";
     process.env.GEMINI_AI_API_KEY = "";
     process.env.UPSTASH_REDIS_REST_URL = "";
     process.env.UPSTASH_REDIS_REST_TOKEN = "";
@@ -54,8 +48,6 @@ describe("env schema - boot-time validation", () => {
     const { env } = await import("../lib/env");
 
     expect(() => env.DATABASE_URL).not.toThrow();
-    expect(env.PREM_API_KEY).toBeUndefined();
-    expect(env.DEEPSEEK_API_KEY).toBeUndefined();
     expect(env.GEMINI_AI_API_KEY).toBeUndefined();
     expect(env.UPSTASH_REDIS_REST_URL).toBeUndefined();
     expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
@@ -75,22 +67,22 @@ describe("env - requireEnv guard", () => {
   it("returns the value when the feature key is set", async () => {
     process.env.DATABASE_URL = "postgres://u:p@localhost:5432/db";
     process.env.PINECONE_API_KEY = "pk_123";
-    process.env.DEEPSEEK_API_KEY = "ds_abc";
+    process.env.GEMINI_AI_API_KEY = "gm_abc";
 
     const { requireEnv } = await import("../lib/env");
 
-    expect(requireEnv("DEEPSEEK_API_KEY", "chat")).toBe("ds_abc");
+    expect(requireEnv("GEMINI_AI_API_KEY", "chat")).toBe("gm_abc");
   });
 
   it("throws a feature-scoped error when the feature key is missing", async () => {
     process.env.DATABASE_URL = "postgres://u:p@localhost:5432/db";
     process.env.PINECONE_API_KEY = "pk_123";
-    delete process.env.DEEPSEEK_API_KEY;
+    delete process.env.GEMINI_AI_API_KEY;
 
     const { requireEnv } = await import("../lib/env");
 
-    expect(() => requireEnv("DEEPSEEK_API_KEY", "chat streaming")).toThrow(
-      /DEEPSEEK_API_KEY.*chat streaming/
+    expect(() => requireEnv("GEMINI_AI_API_KEY", "chat streaming")).toThrow(
+      /GEMINI_AI_API_KEY.*chat streaming/
     );
   });
 });

@@ -19,7 +19,7 @@ Leafra is a Next.js application that provides a Retrieval-Augmented Generation (
 - **Framework**: Next.js 15 (App Router)
 - **Database**: PostgreSQL with Drizzle ORM
 - **Vector Database**: Pinecone
-- **AI/ML**: TogetherAI (Embeddings & Chat)
+- **AI/ML**: Google Gemini via Vercel AI SDK (Chat) & LangChain (Embeddings)
 - **Queue**: BullMQ with Redis (Upstash)
 - **File Upload**: UploadThing
 - **Authentication**: Better-auth
@@ -68,9 +68,8 @@ DATABASE_URL=postgresql://username:password@host:port/database
 # Pinecone
 PINECONE_API_KEY=your-pinecone-api-key
 
-# TogetherAI
-TOGETHER_AI_API_KEY=your-together-ai-api-key
-TOGETHER_AI_MODEL=your-model-name
+# Google Gemini (single key for chat + embeddings)
+GEMINI_AI_API_KEY=your-gemini-api-key
 
 # Redis (Upstash) - Optional
 UPSTASH_REDIS_REST_URL=https://your-redis-instance.upstash.io

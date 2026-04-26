@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// dotenv loads declared-but-empty `.env` lines (e.g. `DEEPSEEK_API_KEY=`) as
+// dotenv loads declared-but-empty `.env` lines (e.g. `GEMINI_AI_API_KEY=`) as
 // the empty string. For optional schemas, we want that to behave the same
 // as "not set" rather than trigger `.min(1)` validation failures.
 const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
@@ -21,12 +21,10 @@ const envSchema = z.object({
   // with clear, feature-specific error messages.
   //
   // NOTE on `emptyToUndefined`: users will often follow `.env.example` and
-  // leave these keys declared but empty (e.g. `DEEPSEEK_API_KEY=`). dotenv
+  // leave these keys declared but empty (e.g. `GEMINI_AI_API_KEY=`). dotenv
   // loads those as `""`, which `z.string().min(1)` would reject. The
   // preprocess step coerces `""` to `undefined` so they're treated as
   // "not set" rather than "invalid".
-  PREM_API_KEY: emptyToUndefined(z.string().min(1).optional()),
-  DEEPSEEK_API_KEY: emptyToUndefined(z.string().min(1).optional()),
   GEMINI_AI_API_KEY: emptyToUndefined(z.string().min(1).optional()),
 
   // Redis (Upstash) - Optional
