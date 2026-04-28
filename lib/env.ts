@@ -12,12 +12,9 @@ const envSchema = z.object({
     .string()
     .url("DATABASE_URL must be a valid PostgreSQL connection string"),
 
-  // Pinecone (required - retrieval is core)
-  PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
-
   // LLM / embedding providers are optional at boot because the app can
   // render marketing / auth / dashboard pages without them. They are
-  // asserted at their call sites (chat route, worker, pinecone query)
+  // asserted at their call sites (chat route, supermemory integration)
   // with clear, feature-specific error messages.
   //
   // NOTE on `emptyToUndefined`: users will often follow `.env.example` and
@@ -26,6 +23,9 @@ const envSchema = z.object({
   // preprocess step coerces `""` to `undefined` so they're treated as
   // "not set" rather than "invalid".
   GEMINI_AI_API_KEY: emptyToUndefined(z.string().min(1).optional()),
+
+  // SuperMemory (RAG pipeline — document storage, embeddings, search)
+  SUPERMEMORY_API_KEY: emptyToUndefined(z.string().min(1).optional()),
 
   // Redis (Upstash) - Optional
   UPSTASH_REDIS_REST_URL: emptyToUndefined(z.string().url().optional()),
