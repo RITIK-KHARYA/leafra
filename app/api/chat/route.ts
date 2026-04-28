@@ -1,4 +1,4 @@
-import { getResultFromQuery } from "@/lib/integrations/pinecone";
+import { searchDocuments } from "@/lib/integrations/supermemory";
 import { smoothStream, streamText } from "ai";
 import { getSystemPrompt } from "@/lib/services/ai/prompts";
 import { createMessage } from "@/app/actions/message/create";
@@ -178,7 +178,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Sanitize the extracted user input before sending it to Pinecone, the
+    // Sanitize the extracted user input before sending it to SuperMemory, the
     // model, or the database. Strips control chars / zero-widths / RTL
     // override and caps length. If sanitization strips everything, 400.
     messageContent = sanitizeText(messageContent, {
@@ -190,12 +190,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get context from Pinecone
+    // Get context from SuperMemory
     let context: string;
     try {
-      context = await getResultFromQuery(messageContent, chatId);
+      context = await searchDocuments(messageContent, chatId);
     } catch (error) {
-      logger.warn("Failed to get context from Pinecone, using fallback", error);
+      logger.warn("Failed to get context from SuperMemory, using fallback", error);
       context = "No context available";
     }
 
