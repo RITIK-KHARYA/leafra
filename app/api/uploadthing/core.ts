@@ -77,14 +77,32 @@ export const ourFileRouter = {
 
       // Re-uploads: clear the chat's previous documents before adding new
       // ones so old PDF content cannot bleed into answers.
-      await purgeDocuments(metadata.chatId);
+      try {
+        await purgeDocuments(metadata.chatId);
+      } catch (purgeError) {
+        logger.warn(
+          "Failed to purge previous documents (continuing with add)",
+          {
+            error: purgeError,
+            chatId: metadata.chatId,
+          },
+        );
+      }
+
+      // Sanitize file name before sending to external services.
+      let safeFileNameForSM: string;
+      try {
+        safeFileNameForSM = sanitizeFilename(file.name);
+      } catch {
+        safeFileNameForSM = "unknown.pdf";
+      }
 
       // Send the PDF URL to SuperMemory for processing (chunking, embedding,
       // indexing). SuperMemory handles everything asynchronously.
       try {
         await addDocument(file.ufsUrl, metadata.chatId, undefined, {
           source: "uploadthing",
-          fileName: file.name,
+          fileName: safeFileNameForSM,
         });
       } catch (smError) {
         logger.warn(

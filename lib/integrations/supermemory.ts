@@ -83,8 +83,8 @@ export async function searchDocuments(
  * Remove all documents scoped to a chat namespace.
  */
 export async function purgeDocuments(chatId: string): Promise<void> {
-  const sm = getClient();
   try {
+    const sm = getClient();
     await sm.documents.deleteBulk({ containerTags: [chatId] });
     logger.info("SuperMemory documents purged", { chatId });
   } catch (error) {
@@ -93,9 +93,10 @@ export async function purgeDocuments(chatId: string): Promise<void> {
       logger.debug("No existing documents to purge", { chatId });
       return;
     }
-    logger.warn("Failed to purge documents (continuing)", {
+    logger.warn("Failed to purge documents", {
       chatId,
       error: message,
     });
+    throw error;
   }
 }
