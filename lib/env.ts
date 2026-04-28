@@ -12,7 +12,7 @@ const envSchema = z.object({
     .string()
     .url("DATABASE_URL must be a valid PostgreSQL connection string"),
 
-  // Pinecone (required - retrieval is core)
+  // Pinecone (required - retrieval is core)w
   PINECONE_API_KEY: z.string().min(1, "PINECONE_API_KEY is required"),
 
   // LLM / embedding providers are optional at boot because the app can
