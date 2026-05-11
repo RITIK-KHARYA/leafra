@@ -27,6 +27,10 @@ const envSchema = z.object({
   // "not set" rather than "invalid".
   GEMINI_AI_API_KEY: emptyToUndefined(z.string().min(1).optional()),
 
+  // Email (Resend) - Optional at boot, used for welcome emails
+  RESEND_API_KEY: emptyToUndefined(z.string().min(1).optional()),
+  RESEND_FROM_EMAIL: emptyToUndefined(z.string().min(1).optional()),
+
   // Redis (Upstash) - Optional
   UPSTASH_REDIS_REST_URL: emptyToUndefined(z.string().url().optional()),
   UPSTASH_REDIS_REST_TOKEN: emptyToUndefined(z.string().optional()),

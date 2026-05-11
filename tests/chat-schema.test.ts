@@ -2,17 +2,11 @@ import { describe, it, expect } from "vitest";
 import { z } from "zod";
 
 // Mirrored from app/api/chat/route.ts - kept in sync by hand.
-const messagePartSchema = z
-  .object({
-    type: z.string(),
-    text: z.string().optional(),
-    content: z.string().optional(),
-  })
-  .refine(
-    (d) =>
-      (typeof d.text === "string" && d.text.length > 0) ||
-      (typeof d.content === "string" && d.content.length > 0),
-  );
+const messagePartSchema = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+  content: z.string().optional(),
+});
 
 const messageSchema = z
   .object({
@@ -79,6 +73,24 @@ describe("chatRequestSchema", () => {
         ],
       }).success,
     ).toBe(false);
+  });
+
+  it("accepts assistant history with non-text metadata parts", () => {
+    expect(
+      chatRequestSchema.safeParse({
+        chatId: UUID,
+        messages: [
+          {
+            role: "assistant",
+            parts: [
+              { type: "step-start" },
+              { type: "text", text: "Uploaded PDF is ready." },
+            ],
+          },
+          { role: "user", parts: [{ type: "text", text: "Summarize it" }] },
+        ],
+      }).success,
+    ).toBe(true);
   });
 
   it("rejects invalid chatId", () => {

@@ -38,27 +38,14 @@ function getGoogle(): GoogleGenerativeAIProvider {
   return googleClient;
 }
 
-// Message part schema for parts array format
-// At least one of text or content must be present and non-empty
-const messagePartSchema = z
-  .object({
-    type: z.string(),
-    text: z.string().optional(),
-    content: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // At least one of text or content must be a non-empty string
-      const hasText = typeof data.text === "string" && data.text.length > 0;
-      const hasContent =
-        typeof data.content === "string" && data.content.length > 0;
-      return hasText || hasContent;
-    },
-    {
-      message:
-        "Message part must have either a non-empty 'text' or 'content' field",
-    },
-  );
+// UIMessage.parts can include non-text metadata blocks such as `step-start`.
+// We allow those through and only require that the message as a whole contains
+// at least one extractable text/content part somewhere.
+const messagePartSchema = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+  content: z.string().optional(),
+});
 
 // Message schema that handles both content (string) and parts (array) formats
 const messageSchema = z
@@ -76,7 +63,8 @@ const messageSchema = z
       }
       // If parts is provided, it must be non-empty and each part must have content
       if (Array.isArray(data.parts) && data.parts.length > 0) {
-        // Validate that at least one part has extractable content
+        // UIMessage history may contain non-text parts; require at least one
+        // extractable text/content part rather than enforcing that on every part.
         return data.parts.some(
           (part) =>
             (typeof part.text === "string" && part.text.length > 0) ||
@@ -127,6 +115,12 @@ export async function POST(req: Request) {
     const validationResult = chatRequestSchema.safeParse(body);
 
     if (!validationResult.success) {
+      logger.warn("Invalid chat request payload", {
+        issues: validationResult.error.errors,
+        chatId:
+          typeof body?.chatId === "string" ? body.chatId : undefined,
+        messageCount: Array.isArray(body?.messages) ? body.messages.length : 0,
+      });
       return ApiResponse.badRequest(
         "Invalid request",
         validationResult.error.errors,

@@ -10,6 +10,7 @@ import {
   ValidationError,
 } from "@/lib/errors";
 import { getPineconeClient } from "@/lib/integrations/pinecone";
+import { processUploadedPdf } from "@/lib/services/pdf/process-upload";
 import { sanitizeFilename, sanitizeUrl } from "@/lib/security/sanitize";
 import z from "zod";
 
@@ -121,7 +122,9 @@ export const ourFileRouter = {
       // enqueuing new vectors so old PDF content cannot bleed into answers.
       await purgePreviousVectors(metadata.chatId);
 
-      // Add to queue if Redis is configured (non-blocking: DB update must always run)
+      // Add to queue if BullMQ has a TCP Redis connection. If this deployment
+      // only has Upstash REST, we fall back to inline processing so PDF context
+      // still reaches Pinecone.
       if (queue) {
         try {
           await queue.add("upload-pdf", {
@@ -140,10 +143,24 @@ export const ourFileRouter = {
           );
         }
       } else {
-        logger.warn(
-          "Redis not configured - PDF processing queue unavailable. File uploaded but not queued for processing.",
-          { userId: metadata.userId, fileUrl: file.ufsUrl }
-        );
+        logger.warn("BullMQ queue unavailable; processing PDF inline", {
+          chatId: metadata.chatId,
+          userId: metadata.userId,
+          fileUrl: file.ufsUrl,
+        });
+        try {
+          await processUploadedPdf({
+            chatId: metadata.chatId,
+            fileUrl: file.ufsUrl,
+            source: "inline",
+          });
+        } catch (inlineError) {
+          logger.error("Inline PDF processing failed", inlineError, {
+            chatId: metadata.chatId,
+            userId: metadata.userId,
+            fileUrl: file.ufsUrl,
+          });
+        }
       }
 
       // Sanitize attacker-controlled fields before persisting them. UploadThing

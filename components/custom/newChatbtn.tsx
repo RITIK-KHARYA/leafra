@@ -1,10 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { toast } from "sonner";
+import {
+  BriefcaseBusiness,
+  Check,
+  ClipboardList,
+  Diamond,
+  Flame,
+  Gauge,
+  GraduationCap,
+  Headphones,
+  Laptop,
+  Loader2,
+  Megaphone,
+  MessageCircle,
+  Palette,
+  PenLine,
+  Plus,
+  Sparkles,
+  Sprout,
+  Star,
+  UserRound,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+import { createChat } from "@/app/actions/chat/create";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -14,67 +58,73 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Form,
-} from "@/components/ui/form";
-import { Badge } from "@/components/ui/badge";
-import { useForm } from "react-hook-form";
-import type { z } from "zod";
-import { useRouter } from "next/navigation";
 import { newChatSchema } from "@/types/chat";
-import { createChat } from "@/app/actions/chat/create";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import {
-  MessageCircle,
-  Plus,
-  Loader2,
-  Settings,
-  Zap,
-} from "lucide-react";
 
 export const priorityEmojis = [
-  { emoji: "🔥", label: "High Priority", value: "high" },
-  { emoji: "⚡", label: "Medium Priority", value: "medium" },
-  { emoji: "🌱", label: "Low Priority", value: "low" },
-  { emoji: "💎", label: "Premium", value: "premium" },
-  { emoji: "⭐", label: "Important", value: "important" },
+  {
+    emoji: "H",
+    label: "High",
+    value: "high",
+    icon: Flame,
+    accent: "text-rose-300",
+    active: "border-rose-400/50 bg-rose-500/10 shadow-rose-950/30",
+  },
+  {
+    emoji: "M",
+    label: "Medium",
+    value: "medium",
+    icon: Zap,
+    accent: "text-amber-300",
+    active: "border-amber-400/50 bg-amber-500/10 shadow-amber-950/30",
+  },
+  {
+    emoji: "L",
+    label: "Low",
+    value: "low",
+    icon: Sprout,
+    accent: "text-emerald-300",
+    active: "border-emerald-400/50 bg-emerald-500/10 shadow-emerald-950/30",
+  },
+  {
+    emoji: "P",
+    label: "Premium",
+    value: "premium",
+    icon: Diamond,
+    accent: "text-cyan-300",
+    active: "border-cyan-400/50 bg-cyan-500/10 shadow-cyan-950/30",
+  },
+  {
+    emoji: "I",
+    label: "Important",
+    value: "important",
+    icon: Star,
+    accent: "text-violet-300",
+    active: "border-violet-400/50 bg-violet-500/10 shadow-violet-950/30",
+  },
 ];
 
-const workSections = [
-  { value: "student", label: "Student", icon: "🎓" },
-  { value: "office", label: "Office", icon: "🏢" },
-  { value: "remote", label: "Remote Work", icon: "🏠" },
-  { value: "freelancer", label: "Freelancer", icon: "💼" },
-  { value: "team-lead", label: "Team Lead", icon: "👥" },
-  { value: "developer", label: "Developer", icon: "💻" },
-  { value: "designer", label: "Designer", icon: "🎨" },
-  { value: "marketing", label: "Marketing", icon: "📈" },
-  { value: "sales", label: "Sales", icon: "💰" },
-  { value: "support", label: "Support", icon: "🎧" },
-  { value: "personal", label: "Personal", icon: "👤" },
-  { value: "other", label: "Other", icon: "📋" },
+const workSections: {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { value: "student", label: "Student", icon: GraduationCap },
+  { value: "office", label: "Office", icon: BriefcaseBusiness },
+  { value: "remote", label: "Remote Work", icon: Laptop },
+  { value: "freelancer", label: "Freelancer", icon: PenLine },
+  { value: "team-lead", label: "Team Lead", icon: Gauge },
+  { value: "developer", label: "Developer", icon: Laptop },
+  { value: "designer", label: "Designer", icon: Palette },
+  { value: "marketing", label: "Marketing", icon: Megaphone },
+  { value: "sales", label: "Sales", icon: Sparkles },
+  { value: "support", label: "Support", icon: Headphones },
+  { value: "personal", label: "Personal", icon: UserRound },
+  { value: "other", label: "Other", icon: ClipboardList },
 ];
 
 export function Newchatform() {
   const form = useForm<z.infer<typeof newChatSchema>>({
     resolver: zodResolver(newChatSchema),
-    // `priority` and `workSection` are z.enum() now, so "" is no longer a
-    // valid literal. We keep them `undefined` so the Select stays unselected
-    // and the zod error fires on submit rather than on first render.
     defaultValues: {
       chatName: "",
       description: "",
@@ -92,6 +142,7 @@ export function Newchatform() {
       setLoading(true);
       const res = await createChat(data);
       await queryClient.invalidateQueries({ queryKey: ["chats"] });
+
       if (res && "data" in res && res.data?.id) {
         router.push(`/chat/${res.data.id}`);
       } else if (res && "error" in res && res.error) {
@@ -109,223 +160,195 @@ export function Newchatform() {
     (p) => p.value === form.watch("priority")
   );
   const selectedWorkSection = workSections.find(
-    (section) => section.value.toLowerCase() === form.watch("workSection")
+    (section) => section.value === form.watch("workSection")
   );
 
   return (
-    <div className="bg-black min-h-full flex items-start justify-center">
-      <div className="w-full max-w-lg space-y-2">
-        {/* Header Section */}
-        {/* <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 rounded-2xl flex items-center justify-center shadow-2xl">
-            <Sparkles className="w-8 h-8 text-zinc-300" />
+    <div className="min-h-full bg-neutral-950 px-5 pb-6 pt-2 text-white">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+                <MessageCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">
+                  Workspace details
+                </h3>
+                <p className="text-xs text-neutral-500">
+                  Name it clearly, then set its focus.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="chatName"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium text-zinc-200">
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Research notes, client brief, exam prep..."
+                        {...field}
+                        className="h-11 rounded-lg border-zinc-800 bg-black/40 text-white placeholder:text-zinc-600 focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/10"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium text-zinc-200">
+                      Description
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={3}
+                        placeholder="Short context for this workspace..."
+                        {...field}
+                        className="resize-none rounded-lg border-zinc-800 bg-black/40 text-white placeholder:text-zinc-600 focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/10"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              Create New Workspace
-            </h2>
-            <p className="text-zinc-400 text-sm">
-              Set up your personalized AI chat environment
-            </p>
-          </div>
-        </div> */}
 
-        {/* Form Card */}
-        <Card className="bg-zinc-950/80 border-zinc-800 shadow-2xl backdrop-blur-sm">
-          <CardContent className="p-8">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                {/* Chat Name */}
-                <FormField
-                  control={form.control}
-                  name="chatName"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel className="text-base font-semibold text-zinc-200 flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4" />
-                        Chat Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter a descriptive name for your chat..."
-                          {...field}
-                          className="h-12 bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/20 transition-all duration-200"
-                        />
-                      </FormControl>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Description */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel className="text-base font-semibold text-zinc-200 flex items-center gap-2">
-                        <Settings className="w-4 h-4" />
-                        Description
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          rows={4}
-                          placeholder="Describe the purpose and context of this chat workspace..."
-                          {...field}
-                          className="resize-none bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/20 transition-all duration-200"
-                        />
-                      </FormControl>
-                      <FormDescription className="text-zinc-500 text-sm">
-                        This helps the AI understand your specific needs and
-                        provide better responses
-                      </FormDescription>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Priority Level */}
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <FormLabel className="text-base font-semibold text-zinc-200 flex items-center gap-2">
-                          <Zap className="w-4 h-4" />
-                          Priority Level
-                        </FormLabel>
-                        {selectedPriority && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-zinc-800 text-zinc-300 border-zinc-600 px-3 py-1"
-                          >
-                            {selectedPriority.emoji} {selectedPriority.label}
-                          </Badge>
-                        )}
-                      </div>
-                      <FormControl>
-                        <div className="grid grid-cols-5 gap-3">
-                          {priorityEmojis.map((item) => (
-                            <button
-                              key={item.value}
-                              type="button"
-                              onClick={() => field.onChange(item.value)}
-                              className={`group relative p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg ${
-                                field.value === item.value
-                                  ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/25 ring-2 ring-emerald-500/20"
-                                  : "border-zinc-700 bg-zinc-900/50 hover:border-zinc-600 hover:bg-zinc-800/50"
-                              }`}
-                            >
-                              <span className="text-2xl block mb-1">
-                                {item.emoji}
-                              </span>
-                              <span className="text-xs font-medium text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex  items-center justify-center">
-                                {item.label.split(" ")[0]}
-                              </span>
-                              {field.value === item.value && (
-                                <div className="absolute -top-2 -right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                                  <div className="w-2 h-2 bg-white rounded-full" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </FormControl>
-                      <FormDescription className="text-zinc-500 text-sm">
-                        {selectedPriority ? (
-                          <span className="text-emerald-400">
-                            Selected: {selectedPriority.label}
-                          </span>
-                        ) : (
-                          "Choose a priority level to help organize your chats"
-                        )}
-                      </FormDescription>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Work Section */}
-                <FormField
-                  control={form.control}
-                  name="workSection"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <FormLabel className="text-base font-semibold text-zinc-200">
-                          Work Section
-                        </FormLabel>
-                        {selectedWorkSection && (
-                          <Badge
-                            variant="outline"
-                            className="bg-zinc-900 text-zinc-300 border-zinc-600 px-3 py-1"
-                          >
-                            {selectedWorkSection.value}
-                          </Badge>
-                        )}
-                      </div>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger className="h-12 bg-zinc-900/50 border-zinc-700 text-white focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/20 transition-all duration-200">
-                            <SelectValue
-                              placeholder="Select your work context..."
-                              className="text-zinc-500"
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="bg-zinc-900 border-zinc-700 shadow-2xl">
-                            {workSections.map((section) => (
-                              <SelectItem
-                                key={section.value}
-                                value={section.value.toLowerCase()}
-                                className="text-white hover:bg-zinc-800 focus:bg-zinc-800 cursor-pointer transition-colors duration-150"
-                              >
-                                {section.icon} {section.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription className="text-zinc-500 text-sm">
-                        This helps customize the AI's responses for your
-                        specific workflow
-                      </FormDescription>
-                      <FormMessage className="text-red-400" />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Submit Button */}
-                <div className="">
-                  <Button
-                    type="submit"
-                    className="w-full h-14 bg-white text-black hover:bg-zinc-100 font-semibold text-base transition-all duration-200 shad2ow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    disabled={form.formState.isSubmitting || loading}
-                  >
-                    {form.formState.isSubmitting || loading ? (
-                      <div className="flex items-center gap-3">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Creating Workspace...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <Plus className="w-5 h-5" />
-                        <span>Create Chat Workspace</span>
-                      </div>
+          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="flex items-center gap-2 text-sm font-semibold text-zinc-200">
+                      <Zap className="h-4 w-4 text-emerald-300" />
+                      Priority
+                    </FormLabel>
+                    {selectedPriority && (
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-neutral-300">
+                        {selectedPriority.label}
+                      </span>
                     )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+                  </div>
+                  <FormControl>
+                    <div className="grid grid-cols-5 gap-2">
+                      {priorityEmojis.map((item) => {
+                        const Icon = item.icon;
+                        const isSelected = field.value === item.value;
+
+                        return (
+                          <button
+                            key={item.value}
+                            type="button"
+                            onClick={() => field.onChange(item.value)}
+                            className={`relative flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border p-2 text-center shadow-lg transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.06] ${
+                              isSelected
+                                ? item.active
+                                : "border-white/10 bg-black/30"
+                            }`}
+                          >
+                            <Icon className={`h-5 w-5 ${item.accent}`} />
+                            <span className="text-[11px] font-medium text-neutral-300">
+                              {item.label}
+                            </span>
+                            {isSelected && (
+                              <div className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-black">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-red-400" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+            <FormField
+              control={form.control}
+              name="workSection"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-sm font-semibold text-zinc-200">
+                      Context
+                    </FormLabel>
+                    {selectedWorkSection && (
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-neutral-300">
+                        {selectedWorkSection.label}
+                      </span>
+                    )}
+                  </div>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="h-11 rounded-lg border-zinc-800 bg-black/40 text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/10">
+                        <SelectValue
+                          placeholder="Choose a workspace context"
+                          className="text-zinc-500"
+                        />
+                      </SelectTrigger>
+                      <SelectContent className="border-zinc-800 bg-zinc-950 text-white shadow-2xl">
+                        {workSections.map((section) => {
+                          const Icon = section.icon;
+
+                          return (
+                            <SelectItem
+                              key={section.value}
+                              value={section.value}
+                              className="cursor-pointer text-white focus:bg-white/10"
+                            >
+                              <span className="flex items-center gap-2">
+                                <Icon className="h-4 w-4 text-neutral-400" />
+                                {section.label}
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-red-400" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-lg bg-white font-semibold text-black shadow-lg shadow-white/10 transition duration-200 hover:-translate-y-0.5 hover:bg-zinc-100 disabled:translate-y-0 disabled:opacity-50"
+            disabled={form.formState.isSubmitting || loading}
+          >
+            {form.formState.isSubmitting || loading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Creating workspace
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Create workspace
+              </span>
+            )}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
@@ -336,23 +359,27 @@ export default function NewChatBtn() {
       <SheetTrigger asChild>
         <Button
           variant="outline"
-          className="rounded-sm bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-zinc-200 font-medium h-8 transition-all duration-200 hover:shadow-lg hover:border-zinc-600"
+          className="h-8 rounded-lg border-zinc-700 bg-zinc-900 text-zinc-200 transition-all duration-200 hover:border-emerald-400/30 hover:bg-zinc-800 hover:text-white hover:shadow-lg"
         >
-          <Plus className="w-4 h-4 " />
+          <Plus className="h-4 w-4" />
           New Chat
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg bg-black border-zinc-800 overflow-y-auto">
-        <SheetHeader className="px-8 py-4 border-zinc-800 bg-zinc-950/50">
-          <SheetTitle className="flex items-center gap-3 text-xl text-white">
-            <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-zinc-300" />
+      <SheetContent className="w-full overflow-y-auto border-zinc-800 bg-neutral-950 p-0 sm:max-w-lg">
+        <SheetHeader className="border-b border-white/10 bg-black px-6 py-5 text-left">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+              <MessageCircle className="h-5 w-5" />
             </div>
-            New Chat Workspace
+            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-neutral-400">
+              New workspace
+            </span>
+          </div>
+          <SheetTitle className="text-2xl font-semibold tracking-tight text-white">
+            Create a chat workspace
           </SheetTitle>
-          <SheetDescription className="text-zinc-400 text-base mt-2">
-            Create a personalized AI chat environment tailored to your specific
-            needs and workflow
+          <SheetDescription className="mt-2 text-sm leading-6 text-zinc-400">
+            Give the session a clear shape before the conversation starts.
           </SheetDescription>
         </SheetHeader>
         <Newchatform />

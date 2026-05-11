@@ -7,6 +7,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 const REQUIRED_KEYS = ["DATABASE_URL", "PINECONE_API_KEY"] as const;
 const FEATURE_KEYS = [
   "GEMINI_AI_API_KEY",
+  "RESEND_API_KEY",
+  "RESEND_FROM_EMAIL",
 ] as const;
 
 let originalEnv: NodeJS.ProcessEnv;
@@ -42,6 +44,8 @@ describe("env schema - boot-time validation", () => {
     process.env.GEMINI_AI_API_KEY = "";
     process.env.UPSTASH_REDIS_REST_URL = "";
     process.env.UPSTASH_REDIS_REST_TOKEN = "";
+    process.env.RESEND_API_KEY = "";
+    process.env.RESEND_FROM_EMAIL = "";
     process.env.GOOGLE_CLIENT_ID = "";
     process.env.GOOGLE_CLIENT_SECRET = "";
 
@@ -49,6 +53,7 @@ describe("env schema - boot-time validation", () => {
 
     expect(() => env.DATABASE_URL).not.toThrow();
     expect(env.GEMINI_AI_API_KEY).toBeUndefined();
+    expect(env.RESEND_API_KEY).toBeUndefined();
     expect(env.UPSTASH_REDIS_REST_URL).toBeUndefined();
     expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
   });

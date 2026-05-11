@@ -6,6 +6,8 @@ import { session } from "@/lib/db/schema";
 import { account } from "@/lib/db/schema";
 import { verification } from "@/lib/db/schema";
 import { env } from "./env";
+import { logger } from "@/lib/logger";
+import { sendWelcomeEmail } from "@/lib/services/email/welcome";
 
 const socialProviders: Record<
   string,
@@ -52,6 +54,25 @@ export const auth = betterAuth({
 
   socialProviders:
     Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (createdUser, context) => {
+          const task = sendWelcomeEmail({
+            email: createdUser.email,
+            name: createdUser.name,
+          }).catch((error) => {
+            logger.error("Failed to send welcome email", error, {
+              userId: createdUser.id,
+              email: createdUser.email,
+            });
+          });
+
+          await (context?.context.runInBackgroundOrAwait(task) ?? task);
+        },
+      },
+    },
+  },
   session: {
     cookieCache: {
       enabled: true,

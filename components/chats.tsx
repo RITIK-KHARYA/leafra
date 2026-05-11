@@ -28,6 +28,8 @@ export default function Chatcard({
 }: DarkCardProps) {
   const [deleting, setDeleting] = useState(false);
   const queryClient = useQueryClient();
+  const priority = priorityEmojis.find((p) => p.value === value);
+  const PriorityIcon = priority?.icon;
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -79,9 +81,11 @@ export default function Chatcard({
             </div>
             <div className="shrink-0">
               <div className="w-12 h-12 bg-neutral-700 border border-neutral-600 rounded-md overflow-hidden transition-colors duration-300 group-hover:border-neutral-500">
-                {value ? (
-                  <div className="flex items-center justify-center w-full h-full hover:scale-110 transition-all duration-300 ease-in-out">
-                    {priorityEmojis.find((p) => p.value === value)?.emoji}
+                {PriorityIcon ? (
+                  <div className="flex h-full w-full items-center justify-center transition-all duration-300 ease-in-out hover:scale-110">
+                    <PriorityIcon
+                      className={`h-5 w-5 ${priority?.accent || "text-neutral-300"}`}
+                    />
                   </div>
                 ) : (
                   <Skeleton className="w-full h-full animate-pulse" />
