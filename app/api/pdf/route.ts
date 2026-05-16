@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
+import { unstable_rethrow } from "next/navigation";
 import { ApiResponse } from "@/lib/api-response";
 import { logger } from "@/lib/logger";
 
@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { auth } = await import("@/lib/auth");
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: req.headers,
     });
     if (!session?.user) {
       return ApiResponse.unauthorized();
@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
+    unstable_rethrow(error);
     logger.error("PDF proxy error", error);
     return ApiResponse.error("Failed to proxy PDF", 500);
   }
