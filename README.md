@@ -1,267 +1,204 @@
-# Leafra - AI-Powered PDF RAG System
+# Leafra: AI-Powered PDF RAG System
 
-Leafra is a Next.js application that provides a Retrieval-Augmented Generation (RAG) system for PDF documents. Users can upload PDFs, ask questions about them, and receive AI-powered responses based on the document content.
+Leafra is a sophisticated Next.js full-stack application designed to revolutionize how users interact with PDF documents. It leverages Retrieval-Augmented Generation (RAG) to enable users to upload PDFs, ask questions, and receive AI-powered, contextually relevant answers. The system is built with modern React patterns, a robust backend for data persistence, and integrates various AI and infrastructure components for a seamless user experience.
 
-## Features
+## Core Features
 
-- 📄 PDF Upload and Processing
-- 🤖 AI-Powered Chat Interface
-- 🔍 Vector Search using Pinecone
-- 🔐 Authentication (Email/Password + OAuth)
-- 📊 Real-time Chat Streaming
-- 🗄️ PostgreSQL Database
-- ⚡ Background Job Processing with BullMQ
+Leafra offers a rich set of features to enhance document interaction:
 
-## Architecture
+*   **📄 PDF Upload & Processing:** Users can upload PDF documents (up to 8MB) which are then automatically processed and analyzed by the AI.
+*   **🤖 AI-Powered Chat Interface:** Engage in conversational Q&A directly with your documents, receiving accurate and contextualized responses.
+*   **🔍 Vector Search:** Utilizes vector-based semantic search to efficiently surface the most relevant information within your documents.
+*   **🔐 Secure Authentication:** Supports both email/password and OAuth (Google, GitHub, Discord) for secure and flexible user access.
+*   **📊 Real-time Chat Streaming:** Experience instant responses with real-time streaming, ideal for detailed or lengthy answers.
+*   **🗄️ PostgreSQL Database:** Robust data persistence for user accounts, chat history, and document metadata.
+*   **⚡ Background Job Processing:** Employs BullMQ for efficient and asynchronous handling of tasks like PDF parsing and embedding.
 
-### Tech Stack
+---
 
-- **Framework**: Next.js 15 (App Router)
-- **Database**: PostgreSQL with Drizzle ORM
-- **Vector Database**: Pinecone
-- **AI/ML**: Google Gemini via Vercel AI SDK (Chat) & LangChain (Embeddings)
-- **Queue**: BullMQ with Redis (Upstash)
-- **File Upload**: UploadThing
-- **Authentication**: Better-auth
-- **UI**: React, Tailwind CSS, shadcn/ui
+## How it Works: The RAG Pipeline
 
-### Application Flow
+Leafra operates on a Retrieval-Augmented Generation (RAG) model, combining document retrieval with AI generation to provide accurate answers grounded in your uploaded PDFs.
 
-1. **Authentication Flow**: User signs up/in → Better-auth → Session management
-2. **Chat Creation**: User creates chat → Stored in DB → Chat page loads
-3. **PDF Upload**: UploadThing → BullMQ queue → Worker processes → Pinecone embeddings
-4. **Chat Flow**: User message → API route → Save to DB → Query Pinecone → Stream AI response → Save response
+### High-Level Architecture
+
+The system orchestrates several key components to deliver its functionality:
+
+```mermaid
+flowchart LR
+    subgraph User Interface
+        A[Next.js Frontend]
+    end
+    subgraph Backend Services
+        B[Next.js API Routes/Server Actions]
+        C[Authentication (BetterAuth)]
+        D[Database (PostgreSQL)]
+        E[Background Worker (BullMQ)]
+        F[Vector Database (Pinecone)]
+        G[AI Models (Embeddings & LLM)]
+    end
+    subgraph Data Processing
+        H[PDF Parsing & Chunking]
+        I[Embedding Generation]
+    end
+
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    E --> H
+    H --> I
+    I --> F
+    B --> F
+    B --> G
+    F --> B
+    G --> B
+```
+
+### Document Processing Flow
+
+When a PDF is uploaded, it undergoes a series of transformations:
+
+1.  **PDF Upload:** User uploads a PDF file.
+2.  **Parsing & Chunking:** The PDF is parsed into raw documents, and then split into smaller, manageable chunks.
+    ```typescript
+    // source: lib/worker.ts:L92
+    // Note: This snippet illustrates the concept; actual implementation may vary.
+    import { WebPDFLoader } from "langchain/document_loaders/web/pdf";
+    import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+
+    async function processDocument(fileUrl: string) {
+      const rawDocs = await new WebPDFLoader(blob, { splitPages: true }).load();
+      const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+      });
+      const docs = await textSplitter.splitDocuments(rawDocs);
+      // ... further processing
+    }
+    ```
+3.  **Embedding Generation:** Each chunk is converted into a dense vector embedding using an AI model.
+    ```typescript
+    // source: lib/worker.ts:L92 (conceptual)
+    import { Embeddings } from "@langchain/core/embeddings"; // Example import
+
+    const embeddings = new PremEmbeddings({ apiKey: env.PREM_API_KEY, model: "@cf/baai/bge-small-en-v1.5" });
+    const vectors = await Promise.all(docs.map(async (doc, idx) => {
+      const id = `${fileUrl}-${doc.metadata.loc.pageNumber}-${idx}`;
+      const values = await embeddings.embedQuery(doc.pageContent);
+      return { id, values, metadata: { content: doc.pageContent } };
+    }));
+    ```
+4.  **Vector Storage:** These embeddings are stored in a vector database (Pinecone) under a namespace corresponding to the chat ID.
+    ```typescript
+    // source: lib/worker.ts:L92 (conceptual)
+    import { Pinecone } from "@pinecone-database/pinecone";
+
+    const pinecone = new Pinecone();
+    const index = pinecone.index("leafravectordb");
+    const namespace = index.namespace(job.data.chatId);
+    await namespace.upsert(vectors);
+    ```
+
+### Querying and Response Generation
+
+When a user asks a question:
+
+1.  **Embed Query:** The user's question is embedded into a vector.
+2.  **Vector Search:** The system queries the Pinecone namespace for the most similar document chunks (top-K).
+3.  **Contextual Prompting:** The retrieved chunks are used as context to prompt a Large Language Model (LLM).
+4.  **AI Response:** The LLM generates an answer based on the provided context.
+5.  **Streaming & Storage:** The answer is streamed back to the user in real-time, and the conversation is persisted in PostgreSQL.
+
+```mermaid
+erDiagram
+    Users {
+        string id PK
+        string email
+        timestamp created_at
+    }
+    Chats {
+        string id PK
+        string userId FK
+        string title
+        string description
+        string pdfUrl
+        string pdfName
+        number pdfSize
+        timestamp created_at
+        timestamp updated_at
+    }
+    Messages {
+        string id PK
+        string chatId FK
+        string sender
+        text content
+        timestamp created_at
+    }
+    Users ||--o{ Chats : "creates"
+    Chats ||--o{ Messages : "has"
+```
+
+---
+
+## Key Technologies & Integrations
+
+Leafra leverages a modern tech stack for its functionality:
+
+*   **Frontend:** Next.js, React, Tailwind CSS
+*   **Backend:** Next.js API Routes/Server Actions, PostgreSQL (via Drizzle ORM)
+*   **Authentication:** BetterAuth
+*   **AI:** LangChain.js (for document loading, splitting, and LLM integration), PremEmbeddings, potentially other LLM providers.
+*   **Vector Database:** Pinecone
+*   **Background Jobs:** BullMQ
+*   **UI Components:** Shadcn/ui
+
+---
 
 ## Getting Started
 
-### Prerequisites
+1.  **Create an Account:** Sign up using email/password or OAuth.
+2.  **Create a Chat:** Start a new chat session.
+3.  **Upload PDF:** Upload your PDF document (up to 8MB).
+4.  **Ask Questions:** Engage with your document by asking questions in the chat interface.
 
-- Node.js 18+ or Bun
-- PostgreSQL database
-- Pinecone account
-- TogetherAI account
-- Upstash Redis account (optional but recommended)
-- UploadThing account
+> [!TIP]
+> **Suggestion:** The `workSection` parameter in `createChat` is currently dropped. Consider adding a corresponding column to the `chat` table in the database schema to store this information if it's intended for future use.
 
-### Installation
+---
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd leafra
+## Security & Privacy
+
+Leafra prioritizes data security and user privacy:
+
+*   **Secure Authentication:** Robust authentication mechanisms protect user accounts.
+*   **Data Encryption:** Documents and data are processed and stored securely.
+*   **Privacy Focus:** The application is designed with user privacy as a core principle.
+
+> [!IMPORTANT]
+> **Critical Improvement:** The `account.scope` field is currently stored as a comma-separated string. This makes querying for specific scopes inefficient and ambiguous. Consider migrating this to a `jsonb` array type with a GIN index for optimized and precise scope management.
+
+```sql
+-- Proposed schema change for account scopes
+ALTER TABLE "account" ADD COLUMN scopes jsonb;
+-- backfill:
+UPDATE "account"
+SET scopes = to_jsonb(string_to_array(scope, ','))
+WHERE scope IS NOT NULL;
+CREATE INDEX account_scopes_gin ON "account" USING GIN (scopes);
 ```
 
-2. Install dependencies:
-```bash
-npm install
-# or
-bun install
-```
+---
 
-3. Set up environment variables:
-Create a `.env.local` file in the root directory with the following variables:
+## Glossary of Terms
 
-```env
-# Database
-DATABASE_URL=postgresql://username:password@host:port/database
+*   **RAG (Retrieval-Augmented Generation):** A technique that enhances LLMs by retrieving relevant information from a knowledge base before generating a response. This grounds the AI's answers in specific documents, reducing hallucinations.
+*   **Document AI:** The application of AI to understand, extract, and reason over document content, enabling features like intelligent search and Q&A.
+*   **PDF (Portable Document Format):** A standard file format for documents that preserves layout and is widely used. Leafra parses PDFs to make their content accessible to AI.
+*   **Vector Search:** A method of searching data based on vector embeddings, allowing for semantic similarity searches rather than just keyword matching.
 
-# Pinecone
-PINECONE_API_KEY=your-pinecone-api-key
+---
 
-# Google Gemini (single key for chat + embeddings)
-GEMINI_AI_API_KEY=your-gemini-api-key
+## Support & Help
 
-# Redis (Upstash) - Optional
-UPSTASH_REDIS_REST_URL=https://your-redis-instance.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your-redis-token
-
-# OAuth Providers (Optional)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
-DISCORD_CLIENT_ID=your-discord-client-id
-DISCORD_CLIENT_SECRET=your-discord-client-secret
-
-# Next.js
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-4. Set up the database:
-```bash
-# Run migrations
-npm run db:push
-# or with drizzle-kit
-npx drizzle-kit push
-```
-
-5. Start the development server:
-```bash
-npm run dev
-# or
-bun dev
-```
-
-6. Start the worker (in a separate terminal):
-```bash
-# Compile worker
-tsc --watch ./lib/worker.ts
-
-# Run worker (in another terminal)
-bunx nodemon ./lib/worker.js
-# or
-bun run ./lib/worker.js
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
-
-```
-leafra/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   │   ├── auth/          # Authentication endpoints
-│   │   ├── chat/          # Chat API
-│   │   ├── messages/      # Messages API
-│   │   └── uploadthing/   # File upload
-│   ├── actions/           # Server actions
-│   ├── chat/              # Chat pages
-│   ├── dashboard/         # Dashboard page
-│   └── layout.tsx         # Root layout
-├── components/             # React components
-│   ├── custom/            # Custom components
-│   ├── ui/                # shadcn/ui components
-│   └── shared/            # Shared components
-├── lib/                   # Utility libraries
-│   ├── auth.ts            # Authentication config
-│   ├── db.ts              # Database connection
-│   ├── db/
-│   │   └── schema.ts      # Database schema
-│   ├── env.ts             # Environment validation
-│   ├── logger.ts          # Logging utility
-│   ├── api-response.ts    # API response helpers
-│   ├── integrations/     # Third-party integrations
-│   │   ├── pinecone.ts   # Pinecone client
-│   │   └── redis.ts      # Redis client
-│   └── worker.ts          # Background worker
-├── types/                 # TypeScript types
-└── middleware.ts          # Next.js middleware
-```
-
-## API Documentation
-
-### Authentication
-
-All API routes (except `/api/auth/*`) require authentication via session cookie.
-
-### Endpoints
-
-#### POST `/api/chat`
-Send a message to the chat and get an AI response.
-
-**Request Body:**
-```json
-{
-  "messages": [
-    {
-      "role": "user",
-      "content": "What is this document about?"
-    }
-  ],
-  "chatId": "uuid-string"
-}
-```
-
-**Response:** Streaming text response
-
-#### GET `/api/messages?chatId=uuid`
-Get all messages for a chat.
-
-**Query Parameters:**
-- `chatId` (required): UUID of the chat
-
-**Response:**
-```json
-[
-  {
-    "id": 1,
-    "chatId": "uuid",
-    "content": "Message content",
-    "role": "user",
-    "createdAt": "2024-01-01T00:00:00Z"
-  }
-]
-```
-
-## Development
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
-- `npm run dev:worker` - Watch and run worker
-
-### Code Quality
-
-- TypeScript for type safety
-- ESLint for code linting
-- Zod for runtime validation
-- Structured logging
-- Standardized error responses
-
-## Deployment
-
-### Environment Variables
-
-Ensure all required environment variables are set in your production environment. See the `.env.example` file for reference.
-
-### Database Migrations
-
-Run database migrations before deploying:
-```bash
-npx drizzle-kit push
-```
-
-### Worker Process
-
-The worker process must be running separately in production. Consider using:
-- PM2
-- Docker containers
-- Cloud functions
-- Kubernetes jobs
-
-### Recommended Platforms
-
-- **Vercel** - For Next.js hosting
-- **Railway** - For PostgreSQL and worker
-- **Upstash** - For Redis
-- **Pinecone** - For vector database
-
-## Security
-
-- All API routes are authenticated
-- Environment variables are validated at startup
-- Input validation using Zod
-- SQL injection protection via Drizzle ORM
-- Session-based authentication
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## License
-
-[Add your license here]
-
-## Support
-
-For issues and questions, please open an issue on GitHub.
+For assistance with account setup, PDF uploads, AI chat, or troubleshooting, please visit the [Support Center](https://leafra-eight.vercel.app/support).
