@@ -46,7 +46,7 @@
     "@uploadthing/react": "^7.3.3",
     "@upstash/redis": "^1.38.0",
     "ai": "^6.0.182",
-    "better-auth": "^1.6.11",
+    "better-auth": "^1.6.13",
     "bullmq": "^5.76.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
